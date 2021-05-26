@@ -8,10 +8,14 @@
             {% if profile_pic %}
             <img src="{{profile_pic}}" class="circle" width="100px">
             {% else %}
-            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle" width="100px">
+            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" class="circle"
+                width="100px">
             {% endif %}
             <h3>{{teacher_name}}</h3>
-            <a href="{{url_for('teacherRegistration',teacher_id=tutor_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a>
+            <a href="{{url_for('registration.teacherRegistration',teacher_id=tutor_id)}}"
+                style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;">
+                <h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4>
+            </a>
             {% if current_user.about_me %}
             <h4>{{current_user.about_me}}</h4>
             {% else %}
@@ -55,7 +59,8 @@
             <!--<p><input type='button' id="addSurveyBTN" style="width:150px; height:40px; margin-top:10px;"
                     class="btn green right" onclick="addSurvey();" value="Create New Survey"></p>-->
             {% if user.id==current_user.id %}
-            <a href="{{url_for('addCourse',course_id='')}}" id="addSurveyBTN" class="btn green right">Create New Course</a>
+            <a href="{{url_for('course.addCourse',course_id='')}}" id="addSurveyBTN" class="btn green right">Create New
+                Course</a>
             {% endif %}
             <br>
         </div>
@@ -72,47 +77,61 @@
         <!--<li class="tab col s3"><a href="#payrollReport">Report</a></li>-->
     </ul>
     <br>
-        <div class="row" style="display: flex;overflow-x: auto;position: relative;max-height: 330px;overflow-y: hidden;">
-            {% for course in courseDet %}
-            <div class="col-sm-3 ">
-                
-                <div class="card small hoverable" style="border-radius: 25px;width:260px;height: 312px;margin-top: 0px;">
-                    <div class="card-image waves-effect waves-block waves-light">
-                        {% if course.image_url %}
-                        <a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;" src="{{course.image_url}}"></a>
-                        {% else %}
-                        <a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;" src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg"></a>
-                        {% endif %}
-                    </div>
-                    <div class="card-content" style="position: relative;overflow-y: hidden;max-height: 155px;">
-                        <span class="card-title activator grey-text text-darken-4"><a href="{{url_for('courseDetail',course_id=course.course_id)}}" style="cursor: pointer;"><h4 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h4></a></span>
-                        <div style="display: flex;"><h4 style="color: black;font-size: 15px;">Topics: {{course.no_of_topic}}</h4><h5 style="margin-left: 90px;color: black;">
+    <div class="row" style="display: flex;overflow-x: auto;position: relative;max-height: 330px;overflow-y: hidden;">
+        {% for course in courseDet %}
+        <div class="col-sm-3 ">
+
+            <div class="card small hoverable" style="border-radius: 25px;width:260px;height: 312px;margin-top: 0px;">
+                <div class="card-image waves-effect waves-block waves-light">
+                    {% if course.image_url %}
+                    <a href="{{url_for('course.courseDetail',course_id=course.course_id)}}"
+                        style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;"
+                            src="{{course.image_url}}"></a>
+                    {% else %}
+                    <a href="{{url_for('course.courseDetail',course_id=course.course_id)}}"
+                        style="cursor: pointer;"><img class="activator" height="145" style="border-radius: 25px;"
+                            src="../static/images/chris-barbalis-oOBMoCOgGrY-unsplash.jpg"></a>
+                    {% endif %}
+                </div>
+                <div class="card-content" style="position: relative;overflow-y: hidden;max-height: 155px;">
+                    <span class="card-title activator grey-text text-darken-4"><a
+                            href="{{url_for('course.courseDetail',course_id=course.course_id)}}"
+                            style="cursor: pointer;">
+                            <h4 style="margin:0px;margin-top: -20px;width:250px;">{{course.course_name}}</h4>
+                        </a></span>
+                    <div style="display: flex;">
+                        <h4 style="color: black;font-size: 15px;">Topics: {{course.no_of_topic}}</h4>
+                        <h5 style="margin-left: 90px;color: black;">
                             {% if user.id==current_user.id %}
                             {{course.desc}}
                             {% endif %}
-                        </h5></div>
-                        <h5>
-                            {% if user.id==current_user.id %}
-                            <a class="modal-trigger" name="modalBatch" id="{{course.course_id}}" onclick="clearForm('{{course.course_id}}');" href="#modal1">Schedule New Batch</a>
-                            {% endif %}
                         </h5>
-                        <input type="hidden" id="courseId" value="{{course.course_id}}">
-                        
-                        <h5><a class="modal-trigger" id="" onclick="fetchBatches('{{course.course_name}}','{{course.course_id}}');" href="#modal2" href="#">View Existing Batches</a></h5>
-                        {% if user.id==current_user.id %}
-                        <h5><a href="{{url_for('editCourse',course_id=course.course_id)}}">Edit Course</a></h5>
-                        {% endif %}
                     </div>
-                    <!-- <div class="card-reveal">
+                    <h5>
+                        {% if user.id==current_user.id %}
+                        <a class="modal-trigger" name="modalBatch" id="{{course.course_id}}"
+                            onclick="clearForm('{{course.course_id}}');" href="#modal1">Schedule New Batch</a>
+                        {% endif %}
+                    </h5>
+                    <input type="hidden" id="courseId" value="{{course.course_id}}">
+
+                    <h5><a class="modal-trigger" id=""
+                            onclick="fetchBatches('{{course.course_name}}','{{course.course_id}}');" href="#modal2"
+                            href="#">View Existing Batches</a></h5>
+                    {% if user.id==current_user.id %}
+                    <h5><a href="{{url_for('course.editCourse',course_id=course.course_id)}}">Edit Course</a></h5>
+                    {% endif %}
+                </div>
+                <!-- <div class="card-reveal">
                         <span class="card-title grey-text text-darken-4">{{course.course_name}}<i
                                 class="material-icons right">close</i></span>
                         <p>{{course.description}}</p>
                     </div> -->
-                </div>
-            <!-- </a> -->
             </div>
-            {% endfor %}
+            <!-- </a> -->
         </div>
+        {% endfor %}
+    </div>
 
     <!-- <ul class="collection  z-depth-1" style="max-height: 400px;position: relative;overflow-y: auto;">
         {% for course in courseDet %}
@@ -149,103 +168,106 @@
 
 <div id="modal2" class="modal" style="width:1100px;">
     <div class="modal-content" style="height: 315px;">
-      <div id="batchTable">
+        <div id="batchTable">
 
-      </div>
+        </div>
 
     </div>
-  </div>
+</div>
 
 <div id="modal1" class="modal" style="height: 350px;">
     <div class="modal-content">
-      <h3>Schedule New Batch</h3>
-      <form id="batchForm">
-      <div>
-        <input type="hidden" id="coId" value="">
-        <div class="col-sm-3">
-            Start Date: <input type="date" name="startDate" id="startDate">
-        </div>
-        <div class="col-sm-3">
-            End Date: <input type="date" name="EndDate" id="EndDate">
-        </div>
-        <div class="col-sm-3" >
-            Start Time: <input type="time" onchange="onStartTimeChange()" name="startTime" id="startTime">
-        </div> 
-        <div class="col-sm-3">
-            End Time: <input type="time" onchange="onEndTimeChange()" name="endTime" id="endTime">
-        </div>
+        <h3>Schedule New Batch</h3>
+        <form id="batchForm">
+            <div>
+                <input type="hidden" id="coId" value="">
+                <div class="col-sm-3">
+                    Start Date: <input type="date" name="startDate" id="startDate">
+                </div>
+                <div class="col-sm-3">
+                    End Date: <input type="date" name="EndDate" id="EndDate">
+                </div>
+                <div class="col-sm-3">
+                    Start Time: <input type="time" onchange="onStartTimeChange()" name="startTime" id="startTime">
+                </div>
+                <div class="col-sm-3">
+                    End Time: <input type="time" onchange="onEndTimeChange()" name="endTime" id="endTime">
+                </div>
+            </div>
+            <div class="col-sm-12" style="">
+                Days of week<br>
+                <p style="font-family: Arial;margin-top: 10px;">
+                    <label>
+                        <input type="checkbox" value="Mo" name="Days" class="Days" />
+                        <span>Mo</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" value="Tu" name="Days" class="Days" />
+                        <span>Tu</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" value="We" name="Days" class="Days" />
+                        <span>We</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" value="Th" name="Days" class="Days" />
+                        <span>Th</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" value="Fr" name="Days" class="Days" />
+                        <span>Fr</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" value="Sa" name="Days" class="Days" />
+                        <span>Sa</span>
+                    </label> &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <label>
+                        <input type="checkbox" value="Su" name="Days" class="Days" />
+                        <span>Su</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!-- <input type="text" placeholder="Fee Type"/> -->
+                    <label>
+                        <div style="width: 120px;float: right;margin-top: -50px;">
+                            <select id="selectType" name="selectType">
+                                <option value="" disabled selected>Fee Type</option>
+                                {% for fee in feeType %}
+                                <option value="{{fee.msg_id}}">{{fee.description}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </label>
+                </p>
+
+            </div>
+            <div>
+                <div class="col-sm-3" style="margin-left: 160px;">
+                    Student limit: <input type="number" min="0" max="50" value="0" id="studentLimit"
+                        name="studentLimit">
+                </div>
+                <div class="col-sm-3">
+                    Batch Fee: <input type="number" min="0" value="0" id="batchFee" name="batchFee">
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    Enrolled Students: <input type="number" min="0" value="0" id="enrolledStudents"
+                        name="enrolledStudents">
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    Fee Received: <input type="number" min="0" value="0" id="feeReceived" name="feeReceived">
+                </div>
+            </div>
+            <button style="margin-left: 250px;margin-top: 15px;" id="createBatch"
+                class="btn waves-light green lighten-1 white-text">Create Batch</button>
+        </form>
+        <span style="color:red;" id="batchMsg"></span>
     </div>
-    <div class="col-sm-12" style="">
-        Days of week<br>
-        <p style="font-family: Arial;margin-top: 10px;">
-            <label>
-                <input type="checkbox" value="Mo" name="Days" class="Days"/>
-                <span>Mo</span>
-            </label>&nbsp;&nbsp;&nbsp;&nbsp;
 
-            <label>
-                <input type="checkbox" value="Tu" name="Days" class="Days" />
-                <span>Tu</span>
-            </label>&nbsp;&nbsp;&nbsp;&nbsp;
-
-            <label>
-                <input type="checkbox" value="We" name="Days" class="Days" />
-                <span>We</span>
-            </label>&nbsp;&nbsp;&nbsp;&nbsp;
-
-            <label>
-                <input type="checkbox" value="Th" name="Days" class="Days" />
-                <span>Th</span>
-            </label>&nbsp;&nbsp;&nbsp;&nbsp;
-
-            <label>
-                <input type="checkbox" value="Fr" name="Days" class="Days" />
-                <span>Fr</span>
-            </label>&nbsp;&nbsp;&nbsp;&nbsp;
-
-            <label>
-                <input type="checkbox" value="Sa" name="Days" class="Days" />
-                <span>Sa</span>
-            </label> &nbsp;&nbsp;&nbsp;&nbsp;
-
-            <label>
-                <input type="checkbox" value="Su" name="Days" class="Days" />
-                <span>Su</span>
-            </label>&nbsp;&nbsp;&nbsp;&nbsp;
-            <!-- <input type="text" placeholder="Fee Type"/> -->
-            <label>
-                <div style="width: 120px;float: right;margin-top: -50px;">                        
-                    <select id="selectType" name="selectType">
-                      <option value="" disabled selected>Fee Type</option>
-                      {% for fee in feeType %}
-                      <option value="{{fee.msg_id}}">{{fee.description}}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-        </label>
-        </p>
-        
-    </div>
-    <div>
-        <div class="col-sm-3" style="margin-left: 160px;">
-            Student limit: <input type="number" min="0" max="50" value="0" id="studentLimit" name="studentLimit">
-        </div>
-        <div class="col-sm-3">
-            Batch Fee: <input type="number" min="0" value="0" id="batchFee" name="batchFee">
-        </div>
-        <div class="col-sm-3"  style="display:none;">
-            Enrolled Students: <input type="number" min="0" value="0" id="enrolledStudents" name="enrolledStudents">
-        </div> 
-        <div class="col-sm-3" style="display:none;">
-            Fee Received: <input type="number" min="0" value="0" id="feeReceived" name="feeReceived">
-        </div>
-    </div>
-    <button style="margin-left: 250px;margin-top: 15px;" id="createBatch" class="btn waves-light green lighten-1 white-text">Create Batch</button>
-    </form>
-    <span style="color:red;" id="batchMsg"></span>
-    </div>
-    
-  </div>
+</div>
 
 <div id="displaySurveyModal" class="modal" style="background-color: white;padding-top: 20px;">
     <div class="modal-content" style="height:100%">
@@ -273,7 +295,7 @@
 </div>
 <script>
 
-    
+
 
     $(document).ready(function () {
         $('#selectType').formSelect();
@@ -284,14 +306,14 @@
     });
 
     var type = document.getElementById('selectType')
-    type.onchange = function(){
-        if(type.value=='266' || type.value=='268'){
-            $('#batchFee').prop('disabled',true);
-            $('#feeReceived').prop('disabled',true);
+    type.onchange = function () {
+        if (type.value == '266' || type.value == '268') {
+            $('#batchFee').prop('disabled', true);
+            $('#feeReceived').prop('disabled', true);
             $('#batchFee').val(0);
-        }else{
-            $('#batchFee').prop('disabled',false);
-            $('#feeReceived').prop('disabled',false);
+        } else {
+            $('#batchFee').prop('disabled', false);
+            $('#feeReceived').prop('disabled', false);
         }
     }
 
@@ -302,73 +324,73 @@
         $('#questionDiv').append('<input type="text" name="questionInput" placeholder="Add Question">');
     });
 
-    function fetchBatches(course_name,courseId){
+    function fetchBatches(course_name, courseId) {
         $('#batchTable').html('Loading...');
         console.log('inside fetchBatches');
         console.log(course_name);
         $('#courseName').html(course_name);
-        console.log('courseId:'+courseId);
+        console.log('courseId:' + courseId);
         $.ajax({
-            url:"/fetchBatch?courseId="+courseId,
-            type:"POST",
+            url: "/fetchBatch?courseId=" + courseId,
+            type: "POST",
             data: "",
-            success:function(response){
-                if(response){
+            success: function (response) {
+                if (response) {
                     console.log('data added successfully');
                     $('#batchTable').html(response);
                     console.log(response);
                 }
             },
-            error:function(xhr){
+            error: function (xhr) {
                 $('#msg').html('Error to submit course data');
             }
         });
     }
 
-    function clearForm(coID){
+    function clearForm(coID) {
         $('#couId').val(coID);
         $('#startDate').val('');
         $('#EndDate').val('');
         $('#startTime').val('');
         $('#endTime').val('');
-        $('.Days').prop('checked',false);
+        $('.Days').prop('checked', false);
         $('#studentLimit').val(0);
         $('#batchFee').val(0);
         $('#enrolledStudents').val(0);
         $('#feeReceived').val(0);
     }
 
-    $('#createBatch').click(function($e){
-        $('#createBatch').prop('disabled','true');
+    $('#createBatch').click(function ($e) {
+        $('#createBatch').prop('disabled', 'true');
         $('#createBatch').html('Creating Batch...');
         $e.preventDefault();
         $('#batchMsg').html('');
         var form = $('#batchForm');
         var courseId = document.getElementById('couId').value;
         // alert('course ID'+courseId);
-        console.log('Start time:'+startTime);
-        console.log('End Time:'+endTime);
+        console.log('Start time:' + startTime);
+        console.log('End Time:' + endTime);
         $.ajax({
-            url:"/createBatch?courseId="+courseId+"&startTime="+startTime+"&endTime="+endTime,
-            type:"POST",
+            url: "/createBatch?courseId=" + courseId + "&startTime=" + startTime + "&endTime=" + endTime,
+            type: "POST",
             data: form.serialize(),
-            success:function(response){
-                if(response=='1'){
+            success: function (response) {
+                if (response == '1') {
                     console.log('data added successfully');
-                    M.toast({html: '<h4>Batch created successfully</h4>'});
+                    M.toast({ html: '<h4>Batch created successfully</h4>' });
                     var elem = $('#modal1');
-                    var instance = M.Modal.getInstance(elem);                   
-                    instance.close(); 
+                    var instance = M.Modal.getInstance(elem);
+                    instance.close();
                 }
-                else{
+                else {
                     $('#batchMsg').html('Please fill all fields to schedule batch');
                 }
-                $('#createBatch').prop('disabled','false');
+                $('#createBatch').prop('disabled', 'false');
                 $('#createBatch').html('Create Batch');
             },
-            error:function(xhr){
+            error: function (xhr) {
                 $('#msg').html('Error to submit course data');
-                $('#createBatch').prop('disabled','false');
+                $('#createBatch').prop('disabled', 'false');
                 $('#createBatch').html('Create Batch');
             }
         });
@@ -440,44 +462,44 @@
     var startTime = ''
     var endTime = ''
     function onEndTimeChange() {
-    var timeSplit = endTimeEle.value.split(':'),
-        hours,
-        minutes,
-        meridian;
+        var timeSplit = endTimeEle.value.split(':'),
+            hours,
+            minutes,
+            meridian;
         hours = timeSplit[0];
         minutes = timeSplit[1];
-    if (hours > 12) {
-        meridian = 'PM';
-        hours -= 12;
-    } else if (hours < 12) {
-        meridian = 'AM';
-    if (hours == 0) {
-        hours = 12;
-    }
-    } else {
-        meridian = 'PM';
-    }
-    endTime = hours + ':' + minutes + ' ' + meridian;
+        if (hours > 12) {
+            meridian = 'PM';
+            hours -= 12;
+        } else if (hours < 12) {
+            meridian = 'AM';
+            if (hours == 0) {
+                hours = 12;
+            }
+        } else {
+            meridian = 'PM';
+        }
+        endTime = hours + ':' + minutes + ' ' + meridian;
     }
     function onStartTimeChange() {
-    var timeSplit = startTimeEle.value.split(':'),
-        hours,
-        minutes,
-        meridian;
+        var timeSplit = startTimeEle.value.split(':'),
+            hours,
+            minutes,
+            meridian;
         hours = timeSplit[0];
         minutes = timeSplit[1];
-    if (hours > 12) {
-        meridian = 'PM';
-        hours -= 12;
-    } else if (hours < 12) {
-        meridian = 'AM';
-    if (hours == 0) {
-        hours = 12;
-    }
-    } else {
-        meridian = 'PM';
-    }
-    startTime = hours + ':' + minutes + ' ' + meridian;
+        if (hours > 12) {
+            meridian = 'PM';
+            hours -= 12;
+        } else if (hours < 12) {
+            meridian = 'AM';
+            if (hours == 0) {
+                hours = 12;
+            }
+        } else {
+            meridian = 'PM';
+        }
+        startTime = hours + ':' + minutes + ' ' + meridian;
     }
 </script>
 {% endblock %}

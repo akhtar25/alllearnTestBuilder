@@ -1,54 +1,53 @@
 <table cellpadding="10">
   <thead>
-      <tr style="border-bottom: none;">
-          <!-- <th scope="col" >Ch.</th> -->
-          <th scope="col" >Student</th>
-          <th scope="col" style="text-align: center;">Present</th>
-      </tr>
+    <tr style="border-bottom: none;">
+      <!-- <th scope="col" >Ch.</th> -->
+      <th scope="col">Student</th>
+      <th scope="col" style="text-align: center;">Present</th>
+    </tr>
   </thead>
   <tbody>
     {% if studAttendeceList %}
     {% for student in studAttendeceList%}
     <tr class="rowPos" id="{{student.student_id}}" name="">
-        <td style="padding: 2px;">
+      <td style="padding: 2px;">
         {% if student.profile_picture %}
-            <img style="width: 50px;height:50px;" src="{{student.profile_picture}}"
-                >
+        <img style="width: 50px;height:50px;" src="{{student.profile_picture}}">
         {% else %}
-            <img style="width: 50px;height:50px;"
-                src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png"
-                alt="Student Image">
+        <img style="width: 50px;height:50px;"
+          src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" alt="Student Image">
         {% endif %}
-            <a href="{{url_for('studentProfile',student_id=student.student_id)}}" id="{{loop.index}}">{{student.full_name}}</a>
-            <input type="hidden" value="{{student.student_id}}" id="Id{{loop.index}}">
-        </td>
-        <td style="text-align: center;">
-            {% if student.is_present %}
-            {% if student.is_present=='Y' %}
-            <p>
-                <label>
-                  <input type="checkbox" name="attendence" class="attendence" value="{{student.student_id}}" checked/>
-                  <span></span>
-                </label>
-              </p>
-              {% else %}
-              <p>
-                <label>
-                  <input type="checkbox" name="attendence" class="attendence" value="{{student.student_id}}" />
-                  <span></span>
-                </label>
-              </p>
-              {% endif %}
-              {% else %}
-              <p>
-                <label>
-                  <input type="checkbox" name="attendence" class="attendence" value="{{student.student_id}}" checked/>
-                  <span></span>
-                </label>
-              </p>
-              {% endif %}
+        <a href="{{url_for('student_profile.studentProfile',student_id=student.student_id)}}"
+          id="{{loop.index}}">{{student.full_name}}</a>
+        <input type="hidden" value="{{student.student_id}}" id="Id{{loop.index}}">
+      </td>
+      <td style="text-align: center;">
+        {% if student.is_present %}
+        {% if student.is_present=='Y' %}
+        <p>
+          <label>
+            <input type="checkbox" name="attendence" class="attendence" value="{{student.student_id}}" checked />
+            <span></span>
+          </label>
+        </p>
+        {% else %}
+        <p>
+          <label>
+            <input type="checkbox" name="attendence" class="attendence" value="{{student.student_id}}" />
+            <span></span>
+          </label>
+        </p>
+        {% endif %}
+        {% else %}
+        <p>
+          <label>
+            <input type="checkbox" name="attendence" class="attendence" value="{{student.student_id}}" checked />
+            <span></span>
+          </label>
+        </p>
+        {% endif %}
 
-        </td>
+      </td>
     </tr>
     {% endfor %}
     {% else %}
@@ -81,7 +80,7 @@
                     src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png"
                     alt="Student Image">
             {% endif %}
-                <a href="{{url_for('studentProfile',student_id=student.student_id)}}" id="{{loop.index}}">{{student.full_name}}</a>
+                <a href="{{url_for('student_profile.studentProfile',student_id=student.student_id)}}" id="{{loop.index}}">{{student.full_name}}</a>
                 <input type="hidden" value="{{student.student_id}}" id="Id{{loop.index}}">
             </td>
             <td style="text-align: center;">

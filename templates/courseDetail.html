@@ -60,19 +60,25 @@
     <div class="parallax"><img src="../static/images/blkboard.jpg" width="100%">
     </div>
     <div class="container">
-        <span style="display: flex;"><h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1>
+        <span style="display: flex;">
+            <h1 style="font-size: 5vw;color:white">{{courseDet.course_name}}</h1>
             {% if current_user.id==teacherUser.id %}
-            <a href="{{url_for('editCourse',course_id=course_id)}}" style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;"><h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4></a>
+            <a href="{{url_for('course.editCourse',course_id=course_id)}}"
+                style="color: white;font-size: 30px;margin-left: 10px;margin-top: 3%;">
+                <h4><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</h4>
+            </a>
             {%endif%}
         </span>
-        <div class="row">            
+        <div class="row">
             {%if teacherUser.user_avatar%}
-            <img src="{{teacherUser.user_avatar}}" class="circle" width="100px">            
+            <img src="{{teacherUser.user_avatar}}" class="circle" width="100px">
             {%else%}
             <img src="../static/images/defaultAvatar.png" class="circle" width="100px">
             {%endif%}
-            <a href="{{url_for('tutorDashboard',tutor_id=teacher.teacher_id)}}"><h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
-                {{teacherUser.last_name[0:1]|upper}}{{teacherUser.last_name[1:]}}</h3></a>
+            <a href="{{url_for('tutorDashboard',tutor_id=teacher.teacher_id)}}">
+                <h3 style="color: white;">{{teacherUser.first_name[0:1]|upper}}{{teacherUser.first_name[1:]}}
+                    {{teacherUser.last_name[0:1]|upper}}{{teacherUser.last_name[1:]}}</h3>
+            </a>
             {% if teacherUser.about_me %}
             <h4 style="max-height: 60%;">{{teacherUser.about_me}}</h4>
             {% else %}
@@ -99,7 +105,7 @@
                     <img src="../static/images/smallLoader.gif">
                 </div>
             </div>
-            
+
             <div class="divider"></div>
             <div id="courseBatchDetail">
                 <!--This contains the course batch detail subtemplate-->
@@ -107,7 +113,7 @@
                     <img src="../static/images/smallLoader.gif">
                 </div>
             </div>
-            
+
             <div class="divider"></div>
             {% if comments %}
             <h3>Reviews <span class="grey-text" id="revLength">{{lenComment}}</span></h3>
@@ -211,11 +217,12 @@
                 </a>
                 {% else %}
                 <h4 class=""><span style="margin-left:10px;color:black;">{{courseDet.average_rating}}</span><span
-                    class="stars left">{{courseDet.average_rating}}</span></h4>
+                        class="stars left">{{courseDet.average_rating}}</span></h4>
                 {% endif %}
                 {% else %}
                 <a class="modal-trigger" style="cursor: pointer;" id="modalOpen" href="#commentModal">
-                    <h4 class=""><span style="margin-left:10px;color:black;">No reviews</span><span class="stars left">0</span>
+                    <h4 class=""><span style="margin-left:10px;color:black;">No reviews</span><span
+                            class="stars left">0</span>
                     </h4>
                 </a>
                 {% endif %}
@@ -245,17 +252,18 @@
             <h5>Live Class Fee: <b>₹{{upcomingDate.course_batch_fee}}</b></h5>
             {% if current_user.user_type==234 %}
             {% if checkEnrollment %}
-              <h5>Enrolled</h5>
+            <h5>Enrolled</h5>
             {% else %}
-            <a class="btn left green enrollBTN modal-trigger" name="{{upcomingDate.batch_id}}" id ="{{upcomingDate.course_batch_fee}}"
-                style="width: 100%;" href="#modal2"> Enroll in Course</a>
-                
+            <a class="btn left green enrollBTN modal-trigger" name="{{upcomingDate.batch_id}}"
+                id="{{upcomingDate.course_batch_fee}}" style="width: 100%;" href="#modal2"> Enroll in Course</a>
+
             {% endif %}
             {% endif %}
             {% else %}
             <h4 class="grey-text">No Upcoming Batch </h4>
-            {% endif %}        
-            <a class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share course</span> </a>    
+            {% endif %}
+            <a class="waves-effect waves-light btn modal-trigger" href="#modal4" class="btn cyan"><span>Share
+                    course</span> </a>
             <!--<button class="btn green right enrollBTN" style="width: 100%;">Enroll</button>-->
             <br><br>
             <!--<button class="btn cyan " style="width: 45%;">Follow</button>
@@ -284,12 +292,12 @@
             <ul class="box" style="height: 320px;position: relative;overflow-x: hidden;overflow-y: auto;">
                 {% for course in otherCourses %}
                 {% if course.image_url %}
-                <a href="{{url_for('courseDetail',course_id=course.course_id)}}">
+                <a href="{{url_for('course.courseDetail',course_id=course.course_id)}}">
                     <li class="hoverable"
                         style="border-radius: 10px;cursor:pointer;width: 340px;display: flex;margin-top: 15px;">
                         <img src="{{course.image_url}}" width="30%">
                         <h4 style="margin-left: 20px;height: 40px;color: black;width:140px;">{{course.course_name}}</h4>
-                        {% if course.average_rating  %}
+                        {% if course.average_rating %}
                         <br><br>
                         <h5 style="color: black;margin-top: 35px;" class="right">&nbsp;<span
                                 class="stars">{{course.average_rating}}</span></h5>
@@ -308,22 +316,22 @@
 
 <div id="modal4" class="modal" style="width: 350px;height: 198px;">
     <div class="modal-content" style="height: 140px;text-align: center;">
-      <h4>Share</h4>
-      <div class="row">
-        <h5 class='grey-text'>Share Page</h5>
-        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" style="margin-left: 100px;">
-            <a class="a2a_button_facebook modal-close"></a>
-            <a class="a2a_button_whatsapp modal-close"></a>
-            <a class="a2a_button_sms modal-close"></a>
-            <a class="a2a_button_google_gmail modal-close"></a>
+        <h4>Share</h4>
+        <div class="row">
+            <h5 class='grey-text'>Share Page</h5>
+            <div class="a2a_kit a2a_kit_size_32 a2a_default_style" style="margin-left: 100px;">
+                <a class="a2a_button_facebook modal-close"></a>
+                <a class="a2a_button_whatsapp modal-close"></a>
+                <a class="a2a_button_sms modal-close"></a>
+                <a class="a2a_button_google_gmail modal-close"></a>
+            </div>
+            <script async src="https://static.addtoany.com/menu/page.js"></script>
         </div>
-        <script async src="https://static.addtoany.com/menu/page.js"></script>
-    </div>
     </div>
     <div class="modal-footer">
-      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
     </div>
-  </div>
+</div>
 
 
 <div id="commentModal" class="modal" style="height: 260px;">
@@ -360,12 +368,13 @@
     <div id="topicLoader" class="center" style="display: none;height: 100%;">
         <img src="../static/images/loader.gif">
     </div>
-    <div class="modal-content" id="topicListModal" style="height: 460px;font-size: 20px;position: relative;overflow-y: auto;">
+    <div class="modal-content" id="topicListModal"
+        style="height: 460px;font-size: 20px;position: relative;overflow-y: auto;">
         <p>
-                <h3>Choose Topic</h3>
-                <ul id="topicListDiv" style="margin-top: 20px;">
+        <h3>Choose Topic</h3>
+        <ul id="topicListDiv" style="margin-top: 20px;">
 
-                </ul>
+        </ul>
         </p>
 
     </div>
@@ -377,7 +386,7 @@
     </div>
     <div class="modal-content" id="donateDivModal" style="display:none;">
         <p>
-            <div id="donateDiv"></div>
+        <div id="donateDiv"></div>
         </p>
 
     </div>
@@ -395,23 +404,23 @@
             $("#timeDiff").html('');
         }
         console.log('Time Difference:' + diff(st, en));
-        
+
         //LOAD COURSE DETAIL
         loadCourseTopicDetail();
         loadCourseBatchDetail();
 
     });
 
-    function loadCourseTopicDetail(){
+    function loadCourseTopicDetail() {
         $('#courseTopicLoader').show();
         $.ajax({
             url: "/courseTopicDetail?&course_id=" + "{{course_id}}",
             type: "GET",
             data: '',
             success: function (topicResponse) {
-                if (topicResponse) {        
-                    $('#courseTopicDetail').html(topicResponse);           
-                } 
+                if (topicResponse) {
+                    $('#courseTopicDetail').html(topicResponse);
+                }
             },
             error: function (xhr) {
                 $('#courseTopicDetail').html("Error occurred. Please try again.");
@@ -420,16 +429,16 @@
         });
     }
 
-    function loadCourseBatchDetail(){
+    function loadCourseBatchDetail() {
         $('#courseBatchLoader').show();
         $.ajax({
-            url: "/courseBatchDetail?&course_id=" + "{{course_id}}&teacher_user_id="+ "{{teacherUser.id}}",
+            url: "/courseBatchDetail?&course_id=" + "{{course_id}}&teacher_user_id=" + "{{teacherUser.id}}",
             type: "GET",
             data: '',
             success: function (topicResponse) {
-                if (topicResponse) {        
-                    $('#courseBatchDetail').html(topicResponse);           
-                } 
+                if (topicResponse) {
+                    $('#courseBatchDetail').html(topicResponse);
+                }
             },
             error: function (xhr) {
                 $('#courseBatchDetail').html("Error occurred. Please try again.");
@@ -440,9 +449,9 @@
 
 
 
-   
 
-  
+
+
     var st = "{{upcomingDate.batch_start_time}}";
     var en = "{{upcomingDate.batch_end_time}}";
 
@@ -548,41 +557,41 @@
         var starRating = $("input[name='star']:checked").val();
         var rev = $('#reviewComment').val();
         $('#revMess').html('');
-        if(rev==''){
+        if (rev == '') {
             $('#revMess').html('please enter review first');
-        }else{
-        $.ajax({
-            url: "/addReviewComment?course_id=" + course_id + "&revComment=" + revComment + '&starRating='+ starRating,
-            type: "POST",
-            data: "",
-            success: function (response) {
-                if (response) {
-                    var responseArr = response.toString().split(",");
-                    var commentDiv = '';
-                    console.log('inside success');
-                    for (var i = 0; i < responseArr.length; i++) {
-                        var username = responseArr[i].toString().split(":")[0];
-                        var comment = responseArr[i].toString().split(":")[1];
-                        var date = responseArr[i].toString().split(":")[2];
-                        var lenRev = responseArr[i].toString().split(":")[3];
-                        $('#revLength').html(lenRev);
-                        if (comment) {
-                            commentDiv =
-                                '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">' +
-                                username + '</span><br><span style="margin-left: 5px;">' + comment +
-                                '</span><br></div><span class="right grey-text"> ' + date +
-                                '</span></td></tr>' + commentDiv;
+        } else {
+            $.ajax({
+                url: "/addReviewComment?course_id=" + course_id + "&revComment=" + revComment + '&starRating=' + starRating,
+                type: "POST",
+                data: "",
+                success: function (response) {
+                    if (response) {
+                        var responseArr = response.toString().split(",");
+                        var commentDiv = '';
+                        console.log('inside success');
+                        for (var i = 0; i < responseArr.length; i++) {
+                            var username = responseArr[i].toString().split(":")[0];
+                            var comment = responseArr[i].toString().split(":")[1];
+                            var date = responseArr[i].toString().split(":")[2];
+                            var lenRev = responseArr[i].toString().split(":")[3];
+                            $('#revLength').html(lenRev);
+                            if (comment) {
+                                commentDiv =
+                                    '<tr><td><div class=" green lighten-5" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;"><span class="grey-text">' +
+                                    username + '</span><br><span style="margin-left: 5px;">' + comment +
+                                    '</span><br></div><span class="right grey-text"> ' + date +
+                                    '</span></td></tr>' + commentDiv;
+                            }
                         }
-                    }
-                    $('#commentList').html(commentDiv);
-                    $('#reviewComment').val('');
+                        $('#commentList').html(commentDiv);
+                        $('#reviewComment').val('');
 
+                    }
+                },
+                error: function (xhr) {
+                    $('#msg').html('Error to submit review data');
                 }
-            },
-            error: function (xhr) {
-                $('#msg').html('Error to submit review data');
-            }
-        });
+            });
         }
     });
 

@@ -3,45 +3,59 @@
 <div class="container">
     <div class="scanContent">
         <ul id="dropdown2" class="dropdown-content" style="width: 280px;background-color: #34A16E;">
-                <li>
-                        <a href="{{ url_for('logout') }}" style="font-size:30px;margin-left: 60px;color:#FFFADB;margin-top:20px;">Logout</a>
-                </li>
-                <li style="visibility: hidden;">
-                    <div id="profileDiv" style="margin-top: 40px;">
-                            <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png" height="50" width="50"><a href="#" style="font-size:30px;margin-top: 12px;margin-left: 15px;color:#FFFADB;">My Profile</a>
-                    </div>
-                </li>
-                <li style="visibility: hidden;">                            
-                    <a href="#" style="font-size:30px;margin-left: 60px;color:#FFFADB;margin-top:20px;">School</a>
-                </li>
-                <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+            <li>
+                <a href="{{ url_for('accounts.logout') }}"
+                    style="font-size:30px;margin-left: 60px;color:#FFFADB;margin-top:20px;">Logout</a>
+            </li>
+            <li style="visibility: hidden;">
+                <div id="profileDiv" style="margin-top: 40px;">
+                    <img src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/question_references/images/defaultReference.png"
+                        height="50" width="50"><a href="#"
+                        style="font-size:30px;margin-top: 12px;margin-left: 15px;color:#FFFADB;">My Profile</a>
+                </div>
+            </li>
+            <li style="visibility: hidden;">
+                <a href="#" style="font-size:30px;margin-left: 60px;color:#FFFADB;margin-top:20px;">School</a>
+            </li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
 
-              </ul>
-              <a class="btn dropdown-trigger" href="#!" data-target="dropdown2" style="width:88%;text-align: left;margin-left:-19px;background-color: white;box-shadow: none;"><i class="fa fa-bars" style="color:black;font-size: 30px;float:left;cursor: pointer;"></i></a>
-              <div class="col-md-5">
-                <a class="waves-effect waves-light btn" id="startScanner" style="margin-left: 32px;margin-top: 170px;padding: 30px 60px 50px 60px;border-radius: 26px;background-color: #34A16E;">Scan Code</a>
-              </div>
- 
+        </ul>
+        <a class="btn dropdown-trigger" href="#!" data-target="dropdown2"
+            style="width:88%;text-align: left;margin-left:-19px;background-color: white;box-shadow: none;"><i
+                class="fa fa-bars" style="color:black;font-size: 30px;float:left;cursor: pointer;"></i></a>
+        <div class="col-md-5">
+            <a class="waves-effect waves-light btn" id="startScanner"
+                style="margin-left: 32px;margin-top: 170px;padding: 30px 60px 50px 60px;border-radius: 26px;background-color: #34A16E;">Scan
+                Code</a>
         </div>
-        
+
+    </div>
+
 </div>
 
-<div id="qrScannerDiv" class="col-md-5" style="display: none;" >
-        <div id="textCodeEntry">
-                <input type="text" id="textRespCodeInput">
-                <a class="waves-effect waves-light btn green" id="textRespIntputBTN">Submit</a>
-        </div>
-        <div class="video-field" id="video-field">
-            <video id="preview" height="300"></video>
-            <canvas style="display: none;" id="piccanvas" width="640" height="480"></canvas>
-        </div>
-        <!-- <a class="waves-effect waves-light btn green" id="stopScanner" >Stop Scanner</a> -->
+<div id="qrScannerDiv" class="col-md-5" style="display: none;">
+    <div id="textCodeEntry">
+        <input type="text" id="textRespCodeInput">
+        <a class="waves-effect waves-light btn green" id="textRespIntputBTN">Submit</a>
     </div>
+    <div class="video-field" id="video-field">
+        <video id="preview" height="300"></video>
+        <canvas style="display: none;" id="piccanvas" width="640" height="480"></canvas>
+    </div>
+    <!-- <a class="waves-effect waves-light btn green" id="stopScanner" >Stop Scanner</a> -->
+</div>
 <script type="text/javascript">
 
 
-    $('#startScanner').click(function(){
-        $('.scanContent').css('display','none');
+    $('#startScanner').click(function () {
+        $('.scanContent').css('display', 'none');
         $('#qrScannerDiv').show();
     });
     let scanner = new Instascan.Scanner({
@@ -83,7 +97,7 @@
     $('#stopScanner').click(function () {
         scanner.stop();
     });
-    
+
 
     $('#textRespIntputBTN').click(function () {
         var resp_session_code = $('#textRespCodeInput').val();
@@ -93,8 +107,8 @@
     });
 
 
-    $(document).ready(function(){
-        $('.menu-toggle').click(function(){
+    $(document).ready(function () {
+        $('.menu-toggle').click(function () {
             $('nav').toggleClass('active')
         });
     });

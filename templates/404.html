@@ -1,12 +1,12 @@
 {% extends "layout.html" %} {% block content %}
 <div class="container">
-<div class="error-wall load-error">
-        <div class="error-container">
-          <h1>oh no...</h1>
-          <h3>We have had an error</h3>
-          <h4>Error 404: Page not found</h4>
-          <p>Go back to <a href="{{url_for('index')}}">Dashboard</a>?</p>
-        </div>
-      </div>
+  <div class="error-wall load-error">
+    <div class="error-container">
+      <h1>oh no...</h1>
+      <h3>We have had an error</h3>
+      <h4>Error 404: Page not found</h4>
+      <p>Go back to <a href="{{url_for('dashboard.index')}}">Dashboard</a>?</p>
     </div>
+  </div>
+</div>
 {% endblock %}

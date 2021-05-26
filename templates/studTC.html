@@ -45,7 +45,7 @@
         <div>
         <h4>Upload TC </h4>
         <span id="errorMSGSpan" class="orange-text" name="errorMSGSpan"></span>
-        <form action="{{ url_for('studTC') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ url_for('student_tc.studTC') }}" method="POST" enctype="multipart/form-data">
             <table>
                 <tr>
                     <td>Student ID</td>
@@ -83,7 +83,7 @@
 
 <script>
     $('#refreshBTNID').click(function () {
-        window.location.replace("{{url_for('studTC')}}");
+        window.location.replace("{{url_for('student_tc.studTC')}}");
     });
 
     $('#student_id').blur(function(){

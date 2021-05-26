@@ -29,120 +29,98 @@
     {% else %}
     <div class="col s8 offset-s2">
       <!-- <div class="studentCol row s8 offset-s2" style="display: none"> -->
-        {% endif %}
-        <div
-          style="padding: 1px; margin-bottom: 20px"
-          class="white-text center green z-depth-1 lighten-1"
-        >
-          <h3>
-            Student Details<a
-              href="{{url_for('studentRegistration',student_id=studentProfileRow.student_id)}}"
-              style="
+      {% endif %}
+      <div style="padding: 1px; margin-bottom: 20px" class="white-text center green z-depth-1 lighten-1">
+        <h3>
+          Student Details<a
+            href="{{url_for('registration.studentRegistration',student_id=studentProfileRow.student_id)}}" style="
                 color: white;
                 float: right;
                 margin-right: 10px;
                 font-size: 20px;
-              "
-              ><i class="material-icons">edit</i></a
-            >
-          </h3>
-        </div>
-        <div class="studRow row s4 m4 l4 center">
-          {%if studentProfileRow%} {%if studentProfileRow.profile_picture!=""
-          and studentProfileRow.profile_picture!=None %}
-          <img
-            class="responsive-img"
-            src="{{studentProfileRow.profile_picture}}"
-          />
-          {%else%}
-          <img
-            class="responsive-img"
-            src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png"
-          />
-          {%endif%}
-          <h4 style="font-weight: bold">{{studentProfileRow.full_name}}</h4>
-          <h4>
-            Class {{studentProfileRow.class_val}} -
-            {{studentProfileRow.section}}
+              "><i class="material-icons">edit</i></a>
+        </h3>
+      </div>
+      <div class="studRow row s4 m4 l4 center">
+        {%if studentProfileRow%} {%if studentProfileRow.profile_picture!=""
+        and studentProfileRow.profile_picture!=None %}
+        <img class="responsive-img" src="{{studentProfileRow.profile_picture}}" />
+        {%else%}
+        <img class="responsive-img" src="https://alllearndatabucketv2.s3.ap-south-1.amazonaws.com/defaultAvatar.png" />
+        {%endif%}
+        <h4 style="font-weight: bold">{{studentProfileRow.full_name}}</h4>
+        <h4>
+          Class {{studentProfileRow.class_val}} -
+          {{studentProfileRow.section}}
+        </h4>
+        <br /><br />
+        <table class="responsive-table">
+          <tr>
+            <td><b>Email</b></td>
+            <td>{{studentProfileRow.email}}</td>
+          </tr>
+          <tr>
+            <td><b>Phone</b></td>
+            <td>{{studentProfileRow.phone}}</td>
+          </tr>
+          <tr>
+            <td><b>Date of Birth</b></td>
+            {% if studentProfileRow.dob is not none %}
+            <td>{{studentProfileRow.dob.strftime('%d %B %Y')}}</td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td><b>Gender</b></td>
+            <td>{{studentProfileRow.gender}}</td>
+          </tr>
+          <tr>
+            <td><b>Roll Number</b></td>
+            <td>{{studentProfileRow.roll_number}}</td>
+          </tr>
+          <tr>
+            <td><b>Admission Number</b></td>
+            <td>{{studentProfileRow.school_adm_number}}</td>
+          </tr>
+          <tr>
+            <td><b>Student Id</b></td>
+            <td>{{studentProfileRow.student_id}}</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="#modal2" class="modal-trigger">QR Codes for tests</a>
+            </td>
+          </tr>
+        </table>
+        <div style="max-height: 300px; overflow-y: auto">
+          <h4 class="grey-text left" style="color: black !important; font-weight: 400">
+            Student Surveys
           </h4>
-          <br /><br />
-          <table class="responsive-table">
-            <tr>
-              <td><b>Email</b></td>
-              <td>{{studentProfileRow.email}}</td>
-            </tr>
-            <tr>
-              <td><b>Phone</b></td>
-              <td>{{studentProfileRow.phone}}</td>
-            </tr>
-            <tr>
-              <td><b>Date of Birth</b></td>
-              {% if studentProfileRow.dob is not none %}
-              <td>{{studentProfileRow.dob.strftime('%d %B %Y')}}</td>
-              {% endif %}
-            </tr>
-            <tr>
-              <td><b>Gender</b></td>
-              <td>{{studentProfileRow.gender}}</td>
-            </tr>
-            <tr>
-              <td><b>Roll Number</b></td>
-              <td>{{studentProfileRow.roll_number}}</td>
-            </tr>
-            <tr>
-              <td><b>Admission Number</b></td>
-              <td>{{studentProfileRow.school_adm_number}}</td>
-            </tr>
-            <tr>
-              <td><b>Student Id</b></td>
-              <td>{{studentProfileRow.student_id}}</td>
-            </tr>
+          {%if surveyRows|length>0%}
+          <table>
+            {%for survey in surveyRows%}
             <tr>
               <td>
-                <a href="#modal2" class="modal-trigger">QR Codes for tests</a>
+                <a href="#surveyModal" name="survey_{{survey.survey_id}}"
+                  class="modal-trigger surveyModalBTN indivSurveyClass">{{survey.survey_name}}</a>
               </td>
             </tr>
+            {%endfor%}
           </table>
-          <div style="max-height: 300px; overflow-y: auto">
-            <h4
-              class="grey-text left"
-              style="color: black !important; font-weight: 400"
-            >
-              Student Surveys
-            </h4>
-            {%if surveyRows|length>0%}
-            <table>
-              {%for survey in surveyRows%}
-              <tr>
-                <td>
-                  <a
-                    href="#surveyModal"
-                    name="survey_{{survey.survey_id}}"
-                    class="modal-trigger surveyModalBTN indivSurveyClass"
-                    >{{survey.survey_name}}</a
-                  >
-                </td>
-              </tr>
-              {%endfor%}
-            </table>
-            {%else%}
-            <br /><br />
-            <span class="left">No Surveys created</span>
-            {%endif%}
-          </div>
           {%else%}
-          <h4 class="grey-text">No data found for the student</h4>
+          <br /><br />
+          <span class="left">No Surveys created</span>
           {%endif%}
         </div>
-        <div class="row s8 m8 l8">
-          {%if amount!=None and amount!='None' and amount!=''%}
-          <div class="row" id="sponsorAllocationDiv">
-            {%if studentProfileRow.sponsored_status!='Y'%}
-            <a href="#" class="btn cyan" id="allocateStudentBTN"
-              >Allocate Student to sponsor
-            </a>
-            {%endif%}
-          </div>
+        {%else%}
+        <h4 class="grey-text">No data found for the student</h4>
+        {%endif%}
+      </div>
+      <div class="row s8 m8 l8">
+        {%if amount!=None and amount!='None' and amount!=''%}
+        <div class="row" id="sponsorAllocationDiv">
+          {%if studentProfileRow.sponsored_status!='Y'%}
+          <a href="#" class="btn cyan" id="allocateStudentBTN">Allocate Student to sponsor
+          </a>
           {%endif%}
           <div id="performanceDiv">
             <table class="responsive-table">
@@ -152,25 +130,16 @@
               <td>
                 {% if flag == 1 %} {%if overallPerfValue > 49 %}
                 <h3 class="green-text">{{overallPerfValue}}%</h3>
-                (<a
-                  href="{{url_for('resultUploadHistory',student_id=student_id)}}"
-                  target="_blank"
-                  >{{totalTestCount}} tests</a
-                >) {%else%}
+                (<a href="{{url_for('resultUploadHistory',student_id=student_id)}}" target="_blank">{{totalTestCount}}
+                  tests</a>) {%else%}
                 <h3 class="red-text">{{overallPerfValue}}%</h3>
-                (<a
-                  href="{{url_for('resultUploadHistory',student_id=student_id)}}"
-                  target="_blank"
-                  >{{totalTestCount}} tests</a
-                >) {%endif%} {% else %} {%if overallPerfValue > 49 %}
+                (<a href="{{url_for('resultUploadHistory',student_id=student_id)}}" target="_blank">{{totalTestCount}}
+                  tests</a>) {%endif%} {% else %} {%if overallPerfValue > 49 %}
                 <h3 class="green-text">{{overallPerfValue}}%</h3>
-                (<a href="#modal1" data-target="modal1" class="modal-trigger"
-                  >{{totalTestCount}} tests</a
-                >) {%else%}
+                (<a href="#modal1" data-target="modal1" class="modal-trigger">{{totalTestCount}} tests</a>) {%else%}
                 <h3 class="red-text">{{overallPerfValue}}%</h3>
-                (<a href="#modal1" data-target="modal1" class="modal-trigger"
-                  >{{totalTestCount}} tests</a
-                >) {%endif%} {% endif %}
+                (<a href="#modal1" data-target="modal1" class="modal-trigger">{{totalTestCount}} tests</a>) {%endif%} {%
+                endif %}
                 <div id="modal1" class="modal" style="background-color: white">
                   <div class="modal-content" style="height: 460px">
                     <div class="rows">
@@ -184,20 +153,13 @@
                           </li>
                         </ul>
                       </div>
-                      <div
-                        id="offline"
-                        class="col s12"
-                        style="
+                      <div id="offline" class="col s12" style="
                           margin-top: 20px;
                           max-height: 350px;
                           position: relative;
                           overflow-y: auto;
-                        "
-                      >
-                        <table
-                          class="table table-hover"
-                          style="overflow-x: auto"
-                        >
+                        ">
+                        <table class="table table-hover" style="overflow-x: auto">
                           <thead>
                             <tr>
                               <th>Exam date</th>
@@ -229,20 +191,13 @@
                           </tbody>
                         </table>
                       </div>
-                      <div
-                        id="online"
-                        class="col s12"
-                        style="
+                      <div id="online" class="col s12" style="
                           margin-top: 20px;
                           max-height: 350px;
                           position: relative;
                           overflow-y: auto;
-                        "
-                      >
-                        <table
-                          class="table table-hover"
-                          style="overflow-x: auto"
-                        >
+                        ">
+                        <table class="table table-hover" style="overflow-x: auto">
                           <thead>
                             <tr>
                               <th>Exam date</th>
@@ -281,10 +236,7 @@
               </td>
             </table>
             <br />
-            <h4
-              class="grey-text"
-              style="color: black !important; font-weight: 400"
-            >
+            <h4 class="grey-text" style="color: black !important; font-weight: 400">
               Subject Level Performance
             </h4>
             {%if perfRows|length>0%}
@@ -310,10 +262,7 @@
           </div>
           <br />
 
-          <h4
-            class="grey-text"
-            style="color: black !important; font-weight: 400"
-          >
+          <h4 class="grey-text" style="color: black !important; font-weight: 400">
             Parent/Guardian Details
           </h4>
           {% if guardianRows | length != 0 %}
@@ -343,17 +292,12 @@
           {%endif%}
           <br />
           <div style="max-height: 200px">
-            <h4
-              class="grey-text"
-              style="color: black !important; font-weight: 400"
-            >
+            <h4 class="grey-text" style="color: black !important; font-weight: 400">
               Sponsor Details
             </h4>
             {%if studentProfileRow.sponsor_status=='Y'%}
-            <span
-              >{{studentProfileRow.sponsor_name}} sponsored on
-              {{studentProfileRow.sponsored_on.strftime('%d %b %Y')}}</span
-            >
+            <span>{{studentProfileRow.sponsor_name}} sponsored on
+              {{studentProfileRow.sponsored_on.strftime('%d %b %Y')}}</span>
             {%else%}
             <span>No Sponsor Data Found</span>
             {%endif%}
@@ -361,42 +305,28 @@
           <br /><br />
 
           <div id="studentRemarksDiv">
-            <h4
-              class="grey-text"
-              style="color: black !important; font-weight: 400"
-            >
+            <h4 class="grey-text" style="color: black !important; font-weight: 400">
               Teacher Remarks
             </h4>
-            <div
-              id="insideRemarkDiv"
-              style="max-height: 350px; overflow-y: auto"
-            >
+            <div id="insideRemarkDiv" style="max-height: 350px; overflow-y: auto">
               {%if studentRemarkRows|length>0%}
               <table id="remarkTable">
                 <tbody>
                   {%for remarksRow in studentRemarkRows%}
                   <tr>
                     <td>
-                      <div
-                        class="green lighten-4"
-                        style="
+                      <div class="green lighten-4" style="
                           font-family: Arial;
                           border-radius: 10px;
                           max-width: 450px;
                           word-wrap: break-word;
-                        "
-                      >
-                        <span class="grey-text"
-                          >{{remarksRow.teacher_name}}</span
-                        ><br />
-                        <span style="margin-left: 5px"
-                          >{{remarksRow.remark_desc}}</span
-                        ><br />
+                        ">
+                        <span class="grey-text">{{remarksRow.teacher_name}}</span><br />
+                        <span style="margin-left: 5px">{{remarksRow.remark_desc}}</span><br />
                       </div>
                       <span class="right grey-text">
                         {{remarksRow.last_modified_date.strftime('%d %b
-                        %Y')}}</span
-                      >
+                        %Y')}}</span>
                     </td>
                   </tr>
                   {%endfor%}
@@ -412,27 +342,16 @@
               {%endif%}
             </div>
             <form id="remarkForm">
-              <label
-                for="remark"
-                style="color: black !important; font-weight: 400"
-                >Add Remark</label
-              >
+              <label for="remark" style="color: black !important; font-weight: 400">Add Remark</label>
               <input type="text" id="remark" name="remark" />
               <a href="#" id="remarkPostButton" class="btn green right">Add</a>
-              <input
-                type="hidden"
-                name="student_id"
-                value="{{studentProfileRow.student_id}}"
-              />
+              <input type="hidden" name="student_id" value="{{studentProfileRow.student_id}}" />
             </form>
           </div>
         </div>
       </div>
 
-      <div
-        class="col s8 offset-s2"
-        style="position: relative; overflow-y: auto"
-      >
+      <div class="col s8 offset-s2" style="position: relative; overflow-y: auto">
         <div class="divider"></div>
         <h4 class="grey-text" style="color: black !important; font-weight: 400">
           Overall Performance Graph
@@ -440,11 +359,7 @@
         <div id="studentPerformanceGraphDiv">Loading graph...</div>
       </div>
 
-      <div
-        id="modal2"
-        class="modal"
-        style="background-color: white; height: 300px; width: 300px"
-      >
+      <div id="modal2" class="modal" style="background-color: white; height: 300px; width: 300px">
         <div class="modal-content">
           {%if qrArray | length != 0 %}
           <h4 class="grey-text">QR Codes for feedback sessions</h4>
@@ -460,12 +375,7 @@
         </div>
       </div>
 
-      <div
-        id="surveyModal"
-        name="surveyModal"
-        class="modal"
-        style="background-color: white"
-      >
+      <div id="surveyModal" name="surveyModal" class="modal" style="background-color: white">
         <div class="modal-content" style="height: 100%">
           <div id="surveyLoader" style="display: none" class="center">
             <img src="../static/images/loader.gif" />
@@ -516,14 +426,14 @@
               $("#noRemark").html("");
               $("#remarkTable tbody").append(
                 "<tr>" +
-                  "<td>" +
-                  '<div class=" green lighten-4" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">' +
-                  '<span style="margin-left: 5px;">' +
-                  remark +
-                  "</span>" +
-                  "</div>" +
-                  '<span class="right grey-text">Now</span>' +
-                  "</td></tr>"
+                "<td>" +
+                '<div class=" green lighten-4" style="font-family: Arial;border-radius: 10px;max-width: 450px;word-wrap: break-word;">' +
+                '<span style="margin-left: 5px;">' +
+                remark +
+                "</span>" +
+                "</div>" +
+                '<span class="right grey-text">Now</span>' +
+                "</td></tr>"
               );
               $("#remark").val("");
               M.toast({ html: "<h4>Remark Added</h4>" });
@@ -605,7 +515,7 @@
             } else {
               M.toast({ html: "Error Allocating Sponsor!" });
             }
-          },
+          }
         });
       });
     </script>

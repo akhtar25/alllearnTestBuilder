@@ -3,24 +3,24 @@
 
   <div class="col-md-12" style="padding-left:40px;padding-right:50px;">
     <h3>Test Papers</h3>
-    <a href="{{url_for('testBuilder')}}" class='btn-primary btn pull-right'>Create New Test</a><br>
+    <a href="{{url_for('test_builder.testBuilder')}}" class='btn-primary btn pull-right'>Create New Test</a><br>
   </div>
   <div class="col-md-4" style="margin-left:25px;">
-    <select id="paper_count" >       
+    <select id="paper_count">
       <option value="50">Show last 50 papers</option>
       <option value="100">Show last 100 papers</option>
       <option value="200">Show last 200 papers</option>
-      <option value="all">Show All</option>      
+      <option value="all">Show All</option>
       <!--<option value="11">11</option>
   <option value="12">12</option>-->
-  </select>
+    </select>
   </div>
   <div id="paperLoader" class="center" style="display: none;margin-top:180px;">
     <img src="../static/images/loader.gif">
-</div>
+  </div>
 
 
-  <div id="testDiv" class="col-md-12">    
+  <div id="testDiv" class="col-md-12">
     <!--Load Test paper table here-->
   </div>
 </div>
@@ -32,40 +32,40 @@
     count_change();
   });
 
-      $('#paper_count').change(function () {
-                       count_change();
-        });
+  $('#paper_count').change(function () {
+    count_change();
+  });
 
-    function count_change(){
-      $('#paperLoader').show();
-      $('#testDiv').html('');
-      $.ajax({
-                url: "/testPaperTable?paper_count=" + $('#paper_count').val(),
-                type: "GET",
-                contentType: "application/json",
-                data: "",
-                success: function (response) {
-                    console.log('inside success');
-                    console.log(response);
-                    if (response) {
-                      $('#testDiv').html(response);
+  function count_change() {
+    $('#paperLoader').show();
+    $('#testDiv').html('');
+    $.ajax({
+      url: "/testPaperTable?paper_count=" + $('#paper_count').val(),
+      type: "GET",
+      contentType: "application/json",
+      data: "",
+      success: function (response) {
+        console.log('inside success');
+        console.log(response);
+        if (response) {
+          $('#testDiv').html(response);
 
-                    } else {
-                      $('#testDiv').html('<span class="amber-text">Error loading test papers. Please try again</span>');
-                    }
-                    //console.log(optionHTML);
-                    //console.log(select_subject);                    
-                    $('#paperLoader').hide();
-                    //$('#selectSubject').formSelect();
-                },
-                error: function (xhr) {
-                  $('#testDiv').html('<span class="amber-text">Error loading test papers. Please try again</span>');
-                  //  $('#errorStartMSG').show();
-                    $('#paperLoader').hide();
-                    //$('#startTestBTN').html('Start Test');
-                     //$('#startTestBTN').attr('disabled',false);
-                }
-            });
-    }
+        } else {
+          $('#testDiv').html('<span class="amber-text">Error loading test papers. Please try again</span>');
+        }
+        //console.log(optionHTML);
+        //console.log(select_subject);                    
+        $('#paperLoader').hide();
+        //$('#selectSubject').formSelect();
+      },
+      error: function (xhr) {
+        $('#testDiv').html('<span class="amber-text">Error loading test papers. Please try again</span>');
+        //  $('#errorStartMSG').show();
+        $('#paperLoader').hide();
+        //$('#startTestBTN').html('Start Test');
+        //$('#startTestBTN').attr('disabled',false);
+      }
+    });
+  }
 </script>
 {%endblock%}

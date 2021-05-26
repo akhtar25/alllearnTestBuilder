@@ -1,76 +1,107 @@
-from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response,session,jsonify
-from send_email import welcome_email, send_password_reset_email, user_access_request_email,user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email,test_report_email,notificationEmail,notificationHelplineEmail
-from send_email import new_teacher_invitation,new_applicant_for_job, application_processed, job_posted_email, send_notification_email
-from applicationDB import *
-#from qrReader import *
-from threading import Thread
-import re
-import concurrent.futures
+import base64
+# from qrReader import *
 import csv
-import itertools
-from config import Config
-from forms import LoginForm, RegistrationForm,ContentManager,LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm,ResultQueryForm,MarksForm, TestBuilderQueryForm,SchoolRegistrationForm, PaymentDetailsForm, addEventForm,QuestionBuilderQueryForm, SingleStudentRegistration, SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionUpdaterQueryForm,  QuestionBankQueryForm,studentDirectoryForm, promoteStudentForm 
-from forms import createSubscriptionForm,ClassRegisterForm,postJobForm, AddLiveClassForm
-from flask_migrate import Migrate
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from werkzeug.urls import url_parse
-from logging.handlers import RotatingFileHandler
-import os
-import logging
 import datetime as dt
+import hashlib
+import hmac
+import json
+import logging
+import os
+import random
+import re
+import string
+import urllib
+from calendar import monthrange
 from datetime import date
 from datetime import timedelta
-from datetime import datetime
-from pytz import timezone
-from tzlocal import get_localzone
-from flask_moment import Moment
-from elasticsearch import Elasticsearch
-from flask import g, jsonify
-from forms import SearchForm
-from forms import PostForm
-from applicationDB import Post  
-#import barCode
-import json, boto3
-from flask_wtf.csrf import CSRFProtect
-from sqlalchemy import func, distinct, text, update
-from sqlalchemy.sql import label
-import re
-import pandas as pd
-#from pandas import DataFrame
+from io import BytesIO
+from logging.handlers import RotatingFileHandler
+from random import randint
+from urllib.parse import quote, urlparse, parse_qs
+from urllib.request import urlopen
+
+# import barCode
+import boto3
+# from pandas import DataFrame
 import numpy as np
+import pandas as pd
 import plotly
-import pprint
-from miscFunctions import subjects,topics,subjectPerformance,signs3Folder,chapters
+import requests as rq
+from algoliasearch.search_client import SearchClient
 from docx import Document
 from docx.shared import Inches
-from urllib.request import urlopen,Request
-from io import StringIO, BytesIO
-from collections import defaultdict
-from sqlalchemy.inspection import inspect
-import hashlib
-from random import randint
-import string
-import random
-import requests as rq
-import urllib
-#import matplotlib.pyplot as plt
+from elasticsearch import Elasticsearch
+from flask import Flask, Markup, render_template, request, flash, redirect, url_for, Response, session, g, jsonify
+from flask_api import status, exceptions
+from flask_login import current_user, login_user, login_required
+from flask_migrate import Migrate
+from flask_moment import Moment
+# import matplotlib.pyplot as plt
 from flask_talisman import Talisman, ALLOW_FROM
-from flask_api import FlaskAPI, status, exceptions
-from calendar import monthrange
-import calendar
-from urllib.parse import quote,urlparse, parse_qs
-from google.oauth2 import id_token
 from google.auth.transport import requests
-from algoliasearch.search_client import SearchClient
-import base64
-import hmac
-import hashlib
-import json
-from geopy.geocoders import GoogleV3
+from google.oauth2 import id_token
+from pytz import timezone
+from sqlalchemy import text
+from tzlocal import get_localzone
 
+from Accounts.accounts import accounts
+from Student_TC.student_tc import student_tc
+from applicationDB import *
+from config import Config
+from forms import ContentManager, LeaderBoardQueryForm, EditProfileForm, ResetPasswordRequestForm, ResetPasswordForm, \
+    TestBuilderQueryForm, SchoolRegistrationForm, addEventForm, QuestionBuilderQueryForm, SingleStudentRegistration, \
+    SchoolTeacherForm, feedbackReportForm, testPerformanceForm, studentPerformanceForm, QuestionBankQueryForm, \
+    studentDirectoryForm, promoteStudentForm, PostForm, createSubscriptionForm, ClassRegisterForm, postJobForm, \
+    AddLiveClassForm, SearchForm
+from miscFunctions import subjects, topics, subjectPerformance, chapters
+from send_email import new_teacher_invitation, new_applicant_for_job, application_processed, job_posted_email, \
+    send_notification_email, welcome_email, send_password_reset_email, user_access_request_email, \
+    user_school_access_request_email, access_granted_email, new_school_reg_email, performance_report_email, \
+    test_report_email, notificationEmail, notificationHelplineEmail
+from teacher_register.teacher_register import teacher_register
+from payment.payment import payment
+from job_post.job_post import job_post
+from registration.registration import registration
+from fee_details.fee_details import fee_details
+from syllabus_mod.syllabus_mod import syllabus_mod
+from ques_bank.ques_bank import ques_bank
+from test_builder.test_builder import test_builder
+from student_survey.student_survey import student_survey
+from attendance.attendance import attendance
+from student_profile.student_profile import student_profile
+from inventory.inventory import inventory
+from time_table.time_table import time_table
+from dashboard.dashboard import dashboard
+from school_details.school_details import school_details
+from subject.subject import subject
+from course.course import course
+from new_task.new_task import new_task
+from topic_generate.topic_generate import topic_generate
+from whatsapp_bot.whatsapp_bot import whatsapp_bot
 
-app=FlaskAPI(__name__)
-
+app = Flask(__name__)
+app.register_blueprint(accounts)
+app.register_blueprint(student_tc)
+app.register_blueprint(teacher_register)
+app.register_blueprint(payment)
+app.register_blueprint(job_post)
+app.register_blueprint(registration)
+app.register_blueprint(fee_details)
+app.register_blueprint(syllabus_mod)
+app.register_blueprint(ques_bank)
+app.register_blueprint(test_builder)
+app.register_blueprint(student_survey)
+app.register_blueprint(attendance)
+app.register_blueprint(student_profile)
+app.register_blueprint(inventory)
+app.register_blueprint(time_table)
+app.register_blueprint(dashboard)
+app.register_blueprint(school_details)
+app.register_blueprint(subject)
+app.register_blueprint(course)
+app.register_blueprint(new_task)
+app.register_blueprint(topic_generate)
+app.register_blueprint(whatsapp_bot)
 
 # End
 talisman = Talisman(app, content_security_policy=None)
@@ -88,8 +119,6 @@ moment = Moment(app)
 
 app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
-
-import errors
 
 if not app.debug and not app.testing:
     if app.config['LOG_TO_STDOUT']:
@@ -222,10 +251,10 @@ def gTokenSignin():
             checkStudentProf = StudentProfile.query.filter_by(email=idinfo["email"]).first()
     
             if checkTeacherProf!=None:
-                checkTeacherProf.user_id=user.id
+                checkTeacherProf.user_id = user.id
                 db.session.commit()        
-            elif checkStudentProf!=None:
-                checkStudentProf.user_id=user.id
+            elif checkStudentProf != None:
+                checkStudentProf.user_id = user.id
                 db.session.commit()
             else:
                 pass
@@ -578,10 +607,10 @@ def embeddable():
 def performanceTestLoaderFunction():
     return render_template("loaderio-ad2552628971ece0389988c13933a170.html")
 
-@app.route("/account/")
-@login_required
-def account():
-    return render_template('account.html')
+# @app.route("/account/")
+# @login_required
+# def account():
+#     return render_template('account.html')
 
 @app.route('/sign-s3')
 def sign_s3():
@@ -662,198 +691,198 @@ def s3api():
         })
 
 
-@app.route("/submit_form/", methods = ["POST"])
-@login_required
-def submit_form():
-    #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #teacherProfile.teacher_name = request.form["full-name"]
-    #teacherProfile.profile_picture = request.form["avatar-url"]
-    #db.session.commit()
-    #flash('DB values updated')
-    return redirect(url_for('account'))
+# @app.route("/submit_form/", methods = ["POST"])
+# @login_required
+# def submit_form():
+#     #teacherProfile = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     #teacherProfile.teacher_name = request.form["full-name"]
+#     #teacherProfile.profile_picture = request.form["avatar-url"]
+#     #db.session.commit()
+#     #flash('DB values updated')
+#     return redirect(url_for('account'))
 
 
-@app.route('/reset_password_request', methods=['GET', 'POST'])
-def reset_password_request():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = ResetPasswordRequestForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            send_password_reset_email(user)
-        flash('Check your email for the instructions to reset your password')
-        return redirect(url_for('login'))
-    return render_template('reset_password_request.html', title='Reset Password', form=form)
+# @app.route('/reset_password_request', methods=['GET', 'POST'])
+# def reset_password_request():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('index'))
+#     form = ResetPasswordRequestForm()
+#     if form.validate_on_submit():
+#         user = User.query.filter_by(email=form.email.data).first()
+#         if user:
+#             send_password_reset_email(user)
+#         flash('Check your email for the instructions to reset your password')
+#         return redirect(url_for('login'))
+#     return render_template('reset_password_request.html', title='Reset Password', form=form)
 
 
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    user = User.verify_reset_password_token(token)
-    if not user:
-        return redirect(url_for('index'))
-    form = ResetPasswordForm()
-    if form.validate_on_submit():
-        user.set_password(form.password.data)
-        db.session.commit()
-        flash('Your password has been reset.')
-        return redirect(url_for('login'))
-    return render_template('reset_password_page.html', form=form)
+# @app.route('/reset_password/<token>', methods=['GET', 'POST'])
+# def reset_password(token):
+#     if current_user.is_authenticated:
+#         return redirect(url_for('index'))
+#     user = User.verify_reset_password_token(token)
+#     if not user:
+#         return redirect(url_for('index'))
+#     form = ResetPasswordForm()
+#     if form.validate_on_submit():
+#         user.set_password(form.password.data)
+#         db.session.commit()
+#         flash('Your password has been reset.')
+#         return redirect(url_for('login'))
+#     return render_template('reset_password_page.html', form=form)
 
-@app.route('/inReviewSchool')
-def inReviewSchool():
-    print('In review school:'+str(current_user.user_type))
-    return render_template('inReviewSchool.html', disconn = 1)
+# @app.route('/inReviewSchool')
+# def inReviewSchool():
+#     print('In review school:'+str(current_user.user_type))
+#     return render_template('inReviewSchool.html', disconn = 1)
 
-@app.route('/schoolProfile')
-@login_required
-def schoolProfile():
-    print('User Type Id:'+str(current_user.user_type))
-    studentDetails = StudentProfile.query.filter_by(user_id = current_user.id).first()
-    if current_user.user_type==134:
-        teacherRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
-    else:
-        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    registeredStudentCount = db.session.execute(text("select count(*) from student_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
-    registeredTeacherCount = db.session.execute(text("select count(*) from teacher_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
-    allTeachers = TeacherProfile.query.filter_by(school_id=teacherRow.school_id).all()
-    classSectionRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    schoolProfileRow = SchoolProfile.query.filter_by(school_id = teacherRow.school_id).first()
-    addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
-    subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
-    value=0
-    #if current_user.user_type==134:
-    #    value=1
-    indic='DashBoard'
-    return render_template('schoolProfile.html',indic=indic,title='School Profile', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-
-
+# @app.route('/schoolProfile')
+# @login_required
+# def schoolProfile():
+#     print('User Type Id:'+str(current_user.user_type))
+#     studentDetails = StudentProfile.query.filter_by(user_id = current_user.id).first()
+#     if current_user.user_type==134:
+#         teacherRow=StudentProfile.query.filter_by(user_id=current_user.id).first()
+#     else:
+#         teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     registeredStudentCount = db.session.execute(text("select count(*) from student_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
+#     registeredTeacherCount = db.session.execute(text("select count(*) from teacher_profile where school_id ='"+str(teacherRow.school_id)+"'")).first()
+#     allTeachers = TeacherProfile.query.filter_by(school_id=teacherRow.school_id).all()
+#     classSectionRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+#     schoolProfileRow = SchoolProfile.query.filter_by(school_id = teacherRow.school_id).first()
+#     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()
+#     subscriptionRow = SubscriptionDetail.query.filter_by(sub_id = schoolProfileRow.sub_id).first()
+#     value=0
+#     #if current_user.user_type==134:
+#     #    value=1
+#     indic='DashBoard'
+#     return render_template('schoolProfile.html',indic=indic,title='School Profile', teacherRow=teacherRow, registeredStudentCount=registeredStudentCount, registeredTeacherCount=registeredTeacherCount,allTeachers=allTeachers,classSectionRows=classSectionRows, schoolProfileRow=schoolProfileRow,addressRow=addressRow,subscriptionRow=subscriptionRow,disconn=value,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
 
-@app.route('/schoolRegistration', methods=['GET','POST'])
-@login_required
-def schoolRegistration():
-    #queries for subcription 
-    fromImpact = request.args.get('fromImpact')
-    subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
-    distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
 
-    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    form = SchoolRegistrationForm()
-    form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
-    if form.validate_on_submit():
-        user = User.query.filter_by(id=current_user.id).first()
-        user.user_type = 71
-        user.access_status = 145
-        db.session.commit()
-        selected_sub_id = request.form.get('selected_sub_id')        
-        address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-        if address_id is None:
-            address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
-            db.session.add(address_data)
-            address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-        board_id=MessageDetails.query.filter_by(description=form.board.data).first()
-        school_picture=request.files['school_image']
-        school_picture_name=request.form['file-input'] 
 
-        school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data,is_verified='N')
-        db.session.add(school)
-        school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
-        if school_picture_name!='':
-            school = SchoolProfile.query.get(school_id.school_id)
-            school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
-            client = boto3.client('s3', region_name='ap-south-1')
-            client.upload_fileobj(school_picture , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/' + school_picture_name,ExtraArgs={'ACL':'public-read'})
+# @app.route('/schoolRegistration', methods=['GET','POST'])
+# @login_required
+# def schoolRegistration():
+#     #queries for subcription 
+#     fromImpact = request.args.get('fromImpact')
+#     subscriptionRow = SubscriptionDetail.query.filter_by(archive_status='N').order_by(SubscriptionDetail.sub_duration_months).all()    
+#     distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
+
+#     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+#     form = SchoolRegistrationForm()
+#     form.board.choices=[(str(i.description), str(i.description)) for i in MessageDetails.query.with_entities(MessageDetails.description).distinct().filter_by(category='Board').all()]
+#     if form.validate_on_submit():
+#         user = User.query.filter_by(id=current_user.id).first()
+#         user.user_type = 71
+#         user.access_status = 145
+#         db.session.commit()
+#         selected_sub_id = request.form.get('selected_sub_id')        
+#         address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+#         if address_id is None:
+#             address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+#             db.session.add(address_data)
+#             address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+#         board_id=MessageDetails.query.filter_by(description=form.board.data).first()
+#         school_picture=request.files['school_image']
+#         school_picture_name=request.form['file-input'] 
+
+#         school=SchoolProfile(school_name=form.schoolName.data,board_id=board_id.msg_id,address_id=address_id.address_id,registered_date=dt.datetime.now(), last_modified_date = dt.datetime.now(), sub_id=selected_sub_id,how_to_reach=form.how_to_reach.data,is_verified='N')
+#         db.session.add(school)
+#         school_id=db.session.query(SchoolProfile).filter_by(school_name=form.schoolName.data,address_id=address_id.address_id).first()
+#         if school_picture_name!='':
+#             school = SchoolProfile.query.get(school_id.school_id)
+#             school.school_picture = 'https://'+ S3_BUCKET + '.s3.amazonaws.com/school_data/school_id_' + str(school_id.school_id) + '/school_profile/' + school_picture_name
+#             client = boto3.client('s3', region_name='ap-south-1')
+#             client.upload_fileobj(school_picture , os.environ.get('S3_BUCKET_NAME'), 'school_data/school_id_'+ str(school_id.school_id) + '/school_profile/' + school_picture_name,ExtraArgs={'ACL':'public-read'})
        
-        teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id, designation=147, registration_date=dt.datetime.now(), last_modified_date=dt.datetime.now(), phone=current_user.phone, device_preference=78 )
-        db.session.add(teacher)
-        db.session.commit()
-        newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first() 
-        session['school_logo'] = newSchool.school_logo 
-        session['schoolPicture'] = newSchool.school_picture   
-        # Session variable code start
-        session['schoolName'] = schoolNameVal()
-        session['userType'] = current_user.user_type
-        session['username'] = current_user.username
+#         teacher=TeacherProfile(school_id=school.school_id,email=current_user.email,user_id=current_user.id, designation=147, registration_date=dt.datetime.now(), last_modified_date=dt.datetime.now(), phone=current_user.phone, device_preference=78 )
+#         db.session.add(teacher)
+#         db.session.commit()
+#         newTeacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         newSchool = SchoolProfile.query.filter_by(school_id=school_id.school_id).first() 
+#         session['school_logo'] = newSchool.school_logo 
+#         session['schoolPicture'] = newSchool.school_picture   
+#         # Session variable code start
+#         session['schoolName'] = schoolNameVal()
+#         session['userType'] = current_user.user_type
+#         session['username'] = current_user.username
         
-        #print('user name')
-        #print(session['username'])
-        school_id = ''
-        #print('user type')
-        #print(session['userType'])
-        session['studentId'] = ''
-        # if session['userType']==71:
-        #     school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        # elif session['userType']==134:
-        #     school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
-        #     session['studentId'] = school_id.student_id
-        # else:
-        #     school_id = User.query.filter_by(id=current_user.id).first()
-        # school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
-        # session['school_logo'] = ''
-        # if school_pro:
-        #     session['school_logo'] = school_pro.school_logo
-        #     session['schoolPicture'] = school_pro.school_picture
-        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
-        moduleDetRow = db.session.execute(query).fetchall()
-        #print('School profile')
-        # print(session['schoolPicture'])
-        # det_list = [1,2,3,4,5]
-        session['moduleDet'] = []
-        detList = session['moduleDet']
+#         #print('user name')
+#         #print(session['username'])
+#         school_id = ''
+#         #print('user type')
+#         #print(session['userType'])
+#         session['studentId'] = ''
+#         # if session['userType']==71:
+#         #     school_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         # elif session['userType']==134:
+#         #     school_id = StudentProfile.query.filter_by(user_id=current_user.id).first()
+#         #     session['studentId'] = school_id.student_id
+#         # else:
+#         #     school_id = User.query.filter_by(id=current_user.id).first()
+#         # school_pro = SchoolProfile.query.filter_by(school_id=school_id.school_id).first()
+#         # session['school_logo'] = ''
+#         # if school_pro:
+#         #     session['school_logo'] = school_pro.school_logo
+#         #     session['schoolPicture'] = school_pro.school_picture
+#         query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+#         moduleDetRow = db.session.execute(query).fetchall()
+#         #print('School profile')
+#         # print(session['schoolPicture'])
+#         # det_list = [1,2,3,4,5]
+#         session['moduleDet'] = []
+#         detList = session['moduleDet']
         
-        for det in moduleDetRow:
-            eachList = []
-            print(det.module_name)
-            print(det.module_url)
-            eachList.append(det.module_name)
-            eachList.append(det.module_url)
-            eachList.append(det.module_type)
-            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
-            detList.append(eachList)
-        session['moduleDet'] = detList
-        # End code   
-        newSchool.school_admin = newTeacherRow.teacher_id
+#         for det in moduleDetRow:
+#             eachList = []
+#             print(det.module_name)
+#             print(det.module_url)
+#             eachList.append(det.module_name)
+#             eachList.append(det.module_url)
+#             eachList.append(det.module_type)
+#             # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+#             detList.append(eachList)
+#         session['moduleDet'] = detList
+#         # End code   
+#         newSchool.school_admin = newTeacherRow.teacher_id
 
-        db.session.commit()
-        flash('School Registered Successfully!')
-        new_school_reg_email(form.schoolName.data)
-        fromSchoolRegistration = True
+#         db.session.commit()
+#         flash('School Registered Successfully!')
+#         new_school_reg_email(form.schoolName.data)
+#         fromSchoolRegistration = True
        
-        subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-        teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
-        school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-        classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
-        classValues = db.session.execute(text(classValues)).fetchall()
-        classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
-        classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
-        subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-        bookName = BookDetails.query.all()
-        chapterNum = Topic.query.distinct().all()
-        topicId = Topic.query.all()
-        generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-        generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
-        fromSchoolRegistration = True
-        schoolData = SchoolProfile.query.filter_by(school_admin=newTeacherRow.teacher_id).first()
-        print('current user id:'+str(current_user.id))
-        print('schoolData:'+str(schoolData))
-        print('schoolData.is_verified'+str(schoolData.is_verified))
-        if schoolData:
-            print('if schoolData exist')
-            if schoolData.is_verified == 'N':
-                print('if schoolData.is_verified is N')
-                userTableDetails = User.query.filter_by(id=current_user.id).first()
-                adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+str(schoolData.school_id)+"'")).first()
-                user_school_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username, userTableDetails.user_type)
-                return redirect(url_for('inReviewSchool'))
+#         subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+#         teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#         boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
+#         school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#         classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
+#         classValues = db.session.execute(text(classValues)).fetchall()
+#         classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
+#         classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
+#         subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+#         bookName = BookDetails.query.all()
+#         chapterNum = Topic.query.distinct().all()
+#         topicId = Topic.query.all()
+#         generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+#         generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
+#         fromSchoolRegistration = True
+#         schoolData = SchoolProfile.query.filter_by(school_admin=newTeacherRow.teacher_id).first()
+#         print('current user id:'+str(current_user.id))
+#         print('schoolData:'+str(schoolData))
+#         print('schoolData.is_verified'+str(schoolData.is_verified))
+#         if schoolData:
+#             print('if schoolData exist')
+#             if schoolData.is_verified == 'N':
+#                 print('if schoolData.is_verified is N')
+#                 userTableDetails = User.query.filter_by(id=current_user.id).first()
+#                 adminEmail=db.session.execute(text("select t2.email,t2.teacher_name,t1.school_name,t3.username from school_profile t1 inner join teacher_profile t2 on t1.school_admin=t2.teacher_id inner join public.user t3 on t2.email=t3.email where t1.school_id='"+str(schoolData.school_id)+"'")).first()
+#                 user_school_access_request_email(adminEmail.email,adminEmail.teacher_name, adminEmail.school_name, userTableDetails.first_name+ ''+userTableDetails.last_name, adminEmail.username, userTableDetails.user_type)
+#                 return redirect(url_for('inReviewSchool'))
         
-        return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
-    return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
+#         return render_template('syllabus.html',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
+#     return render_template('schoolRegistration.html',fromImpact=fromImpact,disconn = 1,form=form, subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
 @app.route('/admin')
 @login_required
@@ -967,43 +996,43 @@ def promoteStudent():
         indic='DashBoard'
         return render_template('promoteStudent.html',indic=indic,title='Promote Student',form=form,studentList=studentList,user_type_val=str(current_user.user_type))
       
-@app.route('/classRegistration', methods=['GET','POST'])
-@login_required
-def classRegistration():
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    classSectionRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+# @app.route('/classRegistration', methods=['GET','POST'])
+# @login_required
+# def classRegistration():
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     classSectionRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
 
-    form = ClassRegisterForm()
-    #if form.validate_on_submit():
-    if request.method == 'POST':
-        #print('passed validation')
-        class_val=request.form.getlist('class_val')
-        class_section=request.form.getlist('section')
-        student_count=request.form.getlist('student_count')
+#     form = ClassRegisterForm()
+#     #if form.validate_on_submit():
+#     if request.method == 'POST':
+#         #print('passed validation')
+#         class_val=request.form.getlist('class_val')
+#         class_section=request.form.getlist('section')
+#         student_count=request.form.getlist('student_count')
 
-        for i in range(len(class_val)):
-            #print('there is a range')
-            class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=teacherRow.school_id)
-            db.session.add(class_data)
+#         for i in range(len(class_val)):
+#             #print('there is a range')
+#             class_data=ClassSection(class_val=int(class_val[i]),section=str(class_section[i]).upper(),student_count=int(student_count[i]),school_id=teacherRow.school_id)
+#             db.session.add(class_data)
         
-        db.session.commit()
-        #adding records to topic tracker while registering school
+#         db.session.commit()
+#         #adding records to topic tracker while registering school
         
-        classSecRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+#         classSecRows = ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
 
-        topicTrackerRows = "select distinct class_sec_id from topic_tracker where school_id='"+str(teacherRow.school_id)+"'"
+#         topicTrackerRows = "select distinct class_sec_id from topic_tracker where school_id='"+str(teacherRow.school_id)+"'"
 
-        classSecNotInTopicTracker = db.session.execute(text(topicTrackerRows)).fetchall()
+#         classSecNotInTopicTracker = db.session.execute(text(topicTrackerRows)).fetchall()
 
-        for i in range(len(class_val)):
-            class_id = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(school_id=teacherRow.school_id,class_val=class_val[i]).first()
-            if class_id.class_sec_id not in classSecNotInTopicTracker: 
-                insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(class_id.class_sec_id)+"', 'N', topic_id, '"+str(teacherRow.school_id)+"', 0,current_date from Topic_detail where class_val="+str(class_val[i])+")"
-                db.session.execute(text(insertRow))
-        db.session.commit()
+#         for i in range(len(class_val)):
+#             class_id = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(school_id=teacherRow.school_id,class_val=class_val[i]).first()
+#             if class_id.class_sec_id not in classSecNotInTopicTracker: 
+#                 insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(class_id.class_sec_id)+"', 'N', topic_id, '"+str(teacherRow.school_id)+"', 0,current_date from Topic_detail where class_val="+str(class_val[i])+")"
+#                 db.session.execute(text(insertRow))
+#         db.session.commit()
 
-        flash('Classes added successfully!')
-    return render_template('classRegistration.html', classSectionRows=classSectionRows,form=form)    
+#         flash('Classes added successfully!')
+#     return render_template('classRegistration.html', classSectionRows=classSectionRows,form=form)    
     
 
 
@@ -1058,574 +1087,574 @@ def teacherDirectory():
         return render_template('teacherDirectory.html',indic=indic,form=form, payrollReportData=payrollReportData,allTeachers=allTeachers,user_type_val=str(current_user.user_type))
 
 # New Section added to manage feeDetail
-@app.route('/feeMonthData')
-def feeMonthData():
-    qmonth = request.args.get('month')
-    qyear = request.args.get('year')
-    class_val = request.args.get('class_val')
-    section = request.args.get('section')
-    print('inside Summary Box route')
-    print(class_val)
-    print(section)
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ''
-    if class_val!=None:
-        class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
-    print(qmonth+ ' '+qyear)
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #days in month
-    daysInMonth = monthrange(int(qyear),int(qmonth))
-    daysInMonth = int(daysInMonth[1])
-    feeDetail = ''
-    if class_val=='None' or class_val=='':
-        print('if class is None')
-        paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        paid_fees = db.session.execute(text(paid_fees)).first()
-        paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        paid_student_count = db.session.execute(text(paid_student_count)).first()
-        classSec_ids = FeeClassSecDetail.query.filter_by(school_id=teacherDataRow.school_id).all()
-        unpaid_students_count = 0
-        for class_sec_id in classSec_ids:
-            unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
-            unpaid_students = db.session.execute(text(unpaid_students)).first()
-            unpaid_students_count = unpaid_students_count + unpaid_students.no_of_unpaid_students
-        partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        partially_paid_students = db.session.execute(text(partially_paid_students)).first()
-        class_sec_ids = ClassSection.query.filter_by(school_id=teacherDataRow.school_id).all()
-        total_unpaid_students = 0
-        if partially_paid_students:
-            total_unpaid_students = int(unpaid_students_count) + int(partially_paid_students.partially_paid_students)
+# @app.route('/feeMonthData')
+# def feeMonthData():
+#     qmonth = request.args.get('month')
+#     qyear = request.args.get('year')
+#     class_val = request.args.get('class_val')
+#     section = request.args.get('section')
+#     print('inside Summary Box route')
+#     print(class_val)
+#     print(section)
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ''
+#     if class_val!=None:
+#         class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+#     print(qmonth+ ' '+qyear)
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     #days in month
+#     daysInMonth = monthrange(int(qyear),int(qmonth))
+#     daysInMonth = int(daysInMonth[1])
+#     feeDetail = ''
+#     if class_val=='None' or class_val=='':
+#         print('if class is None')
+#         paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         paid_fees = db.session.execute(text(paid_fees)).first()
+#         paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         paid_student_count = db.session.execute(text(paid_student_count)).first()
+#         classSec_ids = FeeClassSecDetail.query.filter_by(school_id=teacherDataRow.school_id).all()
+#         unpaid_students_count = 0
+#         for class_sec_id in classSec_ids:
+#             unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+#             unpaid_students = db.session.execute(text(unpaid_students)).first()
+#             unpaid_students_count = unpaid_students_count + unpaid_students.no_of_unpaid_students
+#         partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         partially_paid_students = db.session.execute(text(partially_paid_students)).first()
+#         class_sec_ids = ClassSection.query.filter_by(school_id=teacherDataRow.school_id).all()
+#         total_unpaid_students = 0
+#         if partially_paid_students:
+#             total_unpaid_students = int(unpaid_students_count) + int(partially_paid_students.partially_paid_students)
         
-        total_unpaid_fee = 0
-        for class_sec_id in class_sec_ids:
-            unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
-            unpaid_students = db.session.execute(text(unpaid_students)).first()
-            fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
-            unpaid_students_fee = 0
-            if unpaid_students and fee_amount:
-                unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
-            partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-            partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
-            if partially_paid_fee:
-                print('partially paid fee:'+str(partially_paid_fee.pending_amount))
-            if partially_paid_fee.pending_amount:
-                total_unpaid_fee = total_unpaid_fee + unpaid_students_fee + partially_paid_fee.pending_amount
-            else:
-                total_unpaid_fee = total_unpaid_fee + unpaid_students_fee
-    else:
-        print('if class is not None')
-        paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        paid_fees = db.session.execute(text(paid_fees)).first()
-        paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        paid_student_count = db.session.execute(text(paid_student_count)).first()
-        unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
-        unpaid_students = db.session.execute(text(unpaid_students)).first()
-        partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        partially_paid_students = db.session.execute(text(partially_paid_students)).first()
-        total_unpaid_students = 0
-        if unpaid_students and partially_paid_students:
-            total_unpaid_students = int(unpaid_students.no_of_unpaid_students) + int(partially_paid_students.partially_paid_students)
-        fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+#         total_unpaid_fee = 0
+#         for class_sec_id in class_sec_ids:
+#             unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+#             unpaid_students = db.session.execute(text(unpaid_students)).first()
+#             fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+#             unpaid_students_fee = 0
+#             if unpaid_students and fee_amount:
+#                 unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
+#             partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#             partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
+#             if partially_paid_fee:
+#                 print('partially paid fee:'+str(partially_paid_fee.pending_amount))
+#             if partially_paid_fee.pending_amount:
+#                 total_unpaid_fee = total_unpaid_fee + unpaid_students_fee + partially_paid_fee.pending_amount
+#             else:
+#                 total_unpaid_fee = total_unpaid_fee + unpaid_students_fee
+#     else:
+#         print('if class is not None')
+#         paid_fees = "select sum(fee_paid_amount) as collected_fee from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         paid_fees = db.session.execute(text(paid_fees)).first()
+#         paid_student_count = "select count(*) as no_of_paid_students from fee_detail where fee_amount=fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         paid_student_count = db.session.execute(text(paid_student_count)).first()
+#         unpaid_students = "select count(*) as no_of_unpaid_students from student_profile sp where sp.student_id not in (select student_id from fee_detail where school_id='"+str(teacherDataRow.school_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"') and sp.school_id='"+str(teacherDataRow.school_id)+"' and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"'"
+#         unpaid_students = db.session.execute(text(unpaid_students)).first()
+#         partially_paid_students = "select count(*) as partially_paid_students from fee_Detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         partially_paid_students = db.session.execute(text(partially_paid_students)).first()
+#         total_unpaid_students = 0
+#         if unpaid_students and partially_paid_students:
+#             total_unpaid_students = int(unpaid_students.no_of_unpaid_students) + int(partially_paid_students.partially_paid_students)
+#         fee_amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
         
-        unpaid_students_fee = 0
-        if unpaid_students and fee_amount:
-            unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
-        partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
-        partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
-        total_unpaid_fee = 0
-        if partially_paid_fee:
-            print('partially paid fee:'+str(partially_paid_fee.pending_amount))
-            if partially_paid_fee.pending_amount:
-                total_unpaid_fee = unpaid_students_fee + partially_paid_fee.pending_amount
-            else:
-                total_unpaid_fee = unpaid_students_fee
-    return render_template('_summaryBox.html',paid_fees=paid_fees.collected_fee,paid_student_count=paid_student_count.no_of_paid_students,total_unpaid_students=total_unpaid_students,total_unpaid_fee=total_unpaid_fee)
+#         unpaid_students_fee = 0
+#         if unpaid_students and fee_amount:
+#             unpaid_students_fee = int(unpaid_students.no_of_unpaid_students) * int(fee_amount.amount)
+#         partially_paid_fee = "select sum(outstanding_amount) as pending_amount from fee_detail where fee_amount>fee_paid_amount and school_id='"+str(teacherDataRow.school_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and month='"+str(qmonth)+"' and year='"+str(qyear)+"'"
+#         partially_paid_fee = db.session.execute(text(partially_paid_fee)).first()
+#         total_unpaid_fee = 0
+#         if partially_paid_fee:
+#             print('partially paid fee:'+str(partially_paid_fee.pending_amount))
+#             if partially_paid_fee.pending_amount:
+#                 total_unpaid_fee = unpaid_students_fee + partially_paid_fee.pending_amount
+#             else:
+#                 total_unpaid_fee = unpaid_students_fee
+#     return render_template('_summaryBox.html',paid_fees=paid_fees.collected_fee,paid_student_count=paid_student_count.no_of_paid_students,total_unpaid_students=total_unpaid_students,total_unpaid_fee=total_unpaid_fee)
 
 # New Section added to manage fee status
-@app.route('/feeStatusDetail')
-def feeStatusDetail():
-    qmonth = request.args.get('month')
-    qyear = request.args.get('year')
-    class_val = request.args.get('class_val')
-    section = request.args.get('section')
+# @app.route('/feeStatusDetail')
+# def feeStatusDetail():
+#     qmonth = request.args.get('month')
+#     qyear = request.args.get('year')
+#     class_val = request.args.get('class_val')
+#     section = request.args.get('section')
     
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
-    print(qmonth+ ' '+qyear)
-    #days in month
-    daysInMonth = monthrange(int(qyear),int(qmonth))
-    daysInMonth = int(daysInMonth[1])
-    feeStatusDataQuery = "select sp.student_id as student_id, sp.profile_picture as profile_picture, sp.full_name as student_name,sp.roll_number, fd.fee_amount as fee_amount,fd.fee_paid_amount as paid_amount, fd.outstanding_amount as rem_amount, fd.paid_status as paid_status,fd.delay_reason"
-    feeStatusDataQuery = feeStatusDataQuery + " from student_profile  sp left join "
-    feeStatusDataQuery = feeStatusDataQuery + "fee_detail fd on fd.student_id=sp.student_id "
-    feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"' order by paid_status asc"
-    feeStatusDataRows = db.session.execute(text(feeStatusDataQuery)).fetchall()
-    print(str(len(feeStatusDataRows)))
-    sections = ClassSection.query.filter_by(school_id=teacherDataRow.school_id,class_val=class_val).all()
-    total_amt = ''
-    amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
-    if amount:
-        total_amt = amount.amount
-    print('Total amount:'+str(total_amt))
-    return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
-#New Section added to manage payroll
-@app.route('/payrollMonthData')
-def payrollMonthData():
-    qmonth = request.args.get('month')
-    qyear = request.args.get('year')
-    print(qmonth+ ' '+qyear)
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #days in month
-    daysInMonth = monthrange(int(qyear),int(qmonth))
-    daysInMonth = int(daysInMonth[1])
-    #temporary query
-    payrollDataQuery = "select tp.teacher_id as teacher_id, tp.profile_picture as profile_picture, tp.teacher_name as teacher_name, tp.curr_salary as curr_salary,tpd.days_present as days_present, tpd.calc_salary, tpd.paid_status as paid_status"
-    payrollDataQuery = payrollDataQuery + " from teacher_profile  tp left join "
-    payrollDataQuery = payrollDataQuery + "teacher_payroll_detail tpd on tpd.teacher_id=tp.teacher_id "
-    payrollDataQuery = payrollDataQuery + " and tpd.month = "+str(qmonth) + " and tpd.year = "+ str(qyear) + " where tp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
-    payrollDataRows = db.session.execute(text(payrollDataQuery)).fetchall()
-    print(str(len(payrollDataRows)))
-    return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,section=section,school_id=teacherDataRow.school_id).first()
+#     print(qmonth+ ' '+qyear)
+#     #days in month
+#     daysInMonth = monthrange(int(qyear),int(qmonth))
+#     daysInMonth = int(daysInMonth[1])
+#     feeStatusDataQuery = "select sp.student_id as student_id, sp.profile_picture as profile_picture, sp.full_name as student_name,sp.roll_number, fd.fee_amount as fee_amount,fd.fee_paid_amount as paid_amount, fd.outstanding_amount as rem_amount, fd.paid_status as paid_status,fd.delay_reason"
+#     feeStatusDataQuery = feeStatusDataQuery + " from student_profile  sp left join "
+#     feeStatusDataQuery = feeStatusDataQuery + "fee_detail fd on fd.student_id=sp.student_id "
+#     feeStatusDataQuery = feeStatusDataQuery + " and fd.month = "+str(qmonth) + " and fd.year = "+ str(qyear) + " where sp.school_id=" + str(teacherDataRow.school_id) + " and sp.class_sec_id='"+str(class_sec_id.class_sec_id)+"' order by paid_status asc"
+#     feeStatusDataRows = db.session.execute(text(feeStatusDataQuery)).fetchall()
+#     print(str(len(feeStatusDataRows)))
+#     sections = ClassSection.query.filter_by(school_id=teacherDataRow.school_id,class_val=class_val).all()
+#     total_amt = ''
+#     amount = FeeClassSecDetail.query.filter_by(class_sec_id=class_sec_id.class_sec_id,school_id=teacherDataRow.school_id).first()
+#     if amount:
+#         total_amt = amount.amount
+#     print('Total amount:'+str(total_amt))
+#     return render_template('_feeStatusTable.html',total_amt=total_amt,feeStatusDataRows=feeStatusDataRows,qmonth=qmonth,qyear=qyear,class_val=class_val,section=section)
+# #New Section added to manage payroll
+# @app.route('/payrollMonthData')
+# def payrollMonthData():
+#     qmonth = request.args.get('month')
+#     qyear = request.args.get('year')
+#     print(qmonth+ ' '+qyear)
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     #days in month
+#     daysInMonth = monthrange(int(qyear),int(qmonth))
+#     daysInMonth = int(daysInMonth[1])
+#     #temporary query
+#     payrollDataQuery = "select tp.teacher_id as teacher_id, tp.profile_picture as profile_picture, tp.teacher_name as teacher_name, tp.curr_salary as curr_salary,tpd.days_present as days_present, tpd.calc_salary, tpd.paid_status as paid_status"
+#     payrollDataQuery = payrollDataQuery + " from teacher_profile  tp left join "
+#     payrollDataQuery = payrollDataQuery + "teacher_payroll_detail tpd on tpd.teacher_id=tp.teacher_id "
+#     payrollDataQuery = payrollDataQuery + " and tpd.month = "+str(qmonth) + " and tpd.year = "+ str(qyear) + " where tp.school_id=" + str(teacherDataRow.school_id) + " order by paid_status asc"
+#     payrollDataRows = db.session.execute(text(payrollDataQuery)).fetchall()
+#     print(str(len(payrollDataRows)))
+#     return render_template('_payrollMonthData.html',daysInMonth=daysInMonth, payrollDataRows=payrollDataRows, qmonth=qmonth, qyear = qyear)
 
-@app.route('/updateFeeData', methods=['GET','POST'])
-def updateFeeData():
-    teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    qmonth = request.form.get('qmonth')
-    qyear = request.form.get('qyear')
-    total_amt = request.args.get('total_amt')
-    total_amt = total_amt.strip()
-    qclass_val = request.form.get('qclass_val')
-    qsection = request.form.get('qsection')
-    print('inside updateFeeData')
-    print('Total Fee Amount:'+str(total_amt))
-    class_sec_id = ClassSection.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacherDetailRow.school_id).first()
-    student_id_list = request.form.getlist('student_id')
-    paid_amount_list = request.form.getlist('paid_amount')
-    rem_amount_list = request.form.getlist('rem_amount')
-    # validation when rem_amount is negative
-    for i in range(len(rem_amount_list)-1):
-        print('inside re_amount_list')
-        print(i)
-        print(rem_amount_list[i])
-        if rem_amount_list[i]:
-            if int(rem_amount_list[i])<0:
-                return jsonify(['1'])
-    # End
-    delay_reason_list = request.form.getlist('delay_reason')
-    count_list = []
-    for i in range(len(paid_amount_list)):
-        if paid_amount_list[i]:
-            print('counter:'+str(i))
-            print('paid amount:'+str(paid_amount_list[i]))
-            count_list.append(i)
-    # print(paid_amount_list)
-    print('count_list length:'+str(len(count_list)))
-    for i in range(len(count_list)):
-        print('inside for loop')
-        print(count_list[i])
-        print(student_id_list[count_list[i]])
-        if paid_amount_list[count_list[i]]:
-            indivFeeRecord = FeeDetail.query.filter_by(student_id=student_id_list[count_list[i]], month=qmonth, year=qyear).first()
-            if indivFeeRecord and indivFeeRecord.outstanding_amount!=0:
-                print('if record already exist:'+str(paid_amount_list[count_list[i]]))
-                indivFeeRecord.fee_amount = total_amt
-                indivFeeRecord.fee_paid_amount = paid_amount_list[count_list[i]]
-                indivFeeRecord.outstanding_amount = rem_amount_list[count_list[i]]
-                indivFeeRecord.delay_reason = delay_reason_list[count_list[i]]
-                print('pending amount:'+str(rem_amount_list[count_list[i]]))
-                if rem_amount_list[count_list[i]]==0 or rem_amount_list[count_list[i]]=='0':
-                    indivFeeRecord.paid_status = 'Y'
-                else:
-                    indivFeeRecord.paid_status = 'N'
-            elif indivFeeRecord==None or indivFeeRecord=='':
-                print('Adding new values:'+str(paid_amount_list[count_list[i]]))
-                print('Paid Amount:'+paid_amount_list[count_list[i]])
-                print('Total Amount:'+total_amt)
-                if float(paid_amount_list[count_list[i]])==float(total_amt):
-                    print('if paid amount equal to total amount')
-                    feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
-                    class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
-                    ,paid_status='Y',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
-                else:
-                    print('if paid amount is less than total amount')
-                    feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
-                    class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
-                    ,paid_status='N',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
-                db.session.add(feeInsert)
-    db.session.commit()
-    return jsonify(['0'])
+# @app.route('/updateFeeData', methods=['GET','POST'])
+# def updateFeeData():
+#     teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+#     qmonth = request.form.get('qmonth')
+#     qyear = request.form.get('qyear')
+#     total_amt = request.args.get('total_amt')
+#     total_amt = total_amt.strip()
+#     qclass_val = request.form.get('qclass_val')
+#     qsection = request.form.get('qsection')
+#     print('inside updateFeeData')
+#     print('Total Fee Amount:'+str(total_amt))
+#     class_sec_id = ClassSection.query.filter_by(class_val=qclass_val,section=qsection,school_id=teacherDetailRow.school_id).first()
+#     student_id_list = request.form.getlist('student_id')
+#     paid_amount_list = request.form.getlist('paid_amount')
+#     rem_amount_list = request.form.getlist('rem_amount')
+#     # validation when rem_amount is negative
+#     for i in range(len(rem_amount_list)-1):
+#         print('inside re_amount_list')
+#         print(i)
+#         print(rem_amount_list[i])
+#         if rem_amount_list[i]:
+#             if int(rem_amount_list[i])<0:
+#                 return jsonify(['1'])
+#     # End
+#     delay_reason_list = request.form.getlist('delay_reason')
+#     count_list = []
+#     for i in range(len(paid_amount_list)):
+#         if paid_amount_list[i]:
+#             print('counter:'+str(i))
+#             print('paid amount:'+str(paid_amount_list[i]))
+#             count_list.append(i)
+#     # print(paid_amount_list)
+#     print('count_list length:'+str(len(count_list)))
+#     for i in range(len(count_list)):
+#         print('inside for loop')
+#         print(count_list[i])
+#         print(student_id_list[count_list[i]])
+#         if paid_amount_list[count_list[i]]:
+#             indivFeeRecord = FeeDetail.query.filter_by(student_id=student_id_list[count_list[i]], month=qmonth, year=qyear).first()
+#             if indivFeeRecord and indivFeeRecord.outstanding_amount!=0:
+#                 print('if record already exist:'+str(paid_amount_list[count_list[i]]))
+#                 indivFeeRecord.fee_amount = total_amt
+#                 indivFeeRecord.fee_paid_amount = paid_amount_list[count_list[i]]
+#                 indivFeeRecord.outstanding_amount = rem_amount_list[count_list[i]]
+#                 indivFeeRecord.delay_reason = delay_reason_list[count_list[i]]
+#                 print('pending amount:'+str(rem_amount_list[count_list[i]]))
+#                 if rem_amount_list[count_list[i]]==0 or rem_amount_list[count_list[i]]=='0':
+#                     indivFeeRecord.paid_status = 'Y'
+#                 else:
+#                     indivFeeRecord.paid_status = 'N'
+#             elif indivFeeRecord==None or indivFeeRecord=='':
+#                 print('Adding new values:'+str(paid_amount_list[count_list[i]]))
+#                 print('Paid Amount:'+paid_amount_list[count_list[i]])
+#                 print('Total Amount:'+total_amt)
+#                 if float(paid_amount_list[count_list[i]])==float(total_amt):
+#                     print('if paid amount equal to total amount')
+#                     feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
+#                     class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
+#                     ,paid_status='Y',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
+#                 else:
+#                     print('if paid amount is less than total amount')
+#                     feeInsert=FeeDetail(school_id=teacherDetailRow.school_id,student_id=student_id_list[count_list[i]],fee_amount = total_amt,
+#                     class_sec_id=class_sec_id.class_sec_id,payment_date=datetime.today(),fee_paid_amount = paid_amount_list[count_list[i]],outstanding_amount=rem_amount_list[count_list[i]],month=qmonth,year=qyear
+#                     ,paid_status='N',delay_reason=delay_reason_list[count_list[i]],last_modified_date=datetime.today())
+#                 db.session.add(feeInsert)
+#     db.session.commit()
+#     return jsonify(['0'])
 
-@app.route('/updatePayrollData', methods=['GET','POST'])
-def updatePayrollData():
-    teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    teacher_id_list = request.form.getlist('teacher_id')    
-    current_salary_list = request.form.getlist('currentSalaryInput')
-    days_count_list = request.form.getlist('dayCountInput')
-    days_present_list = request.form.getlist('days_present')
-    calc_salary_list = request.form.getlist('calcSalaryInput')
-    #paid_status_list = request.form.getlist('paid_status')
-    has_changed_list = request.form.getlist('hasChanged')
-    qmonth = request.form.get('qmonth')
-    qyear = request.form.get('qyear')
-    #print(teacher_id_list)
-    #print(current_salary_list)
-    #print(days_count_list)
-    #print(days_present_list)
-    #print(calc_salary_list)
-    #print(has_changed_list)
-    #print(qmonth)
-    #print(qyear)
-    ##print(paid_status_list)
-    #print("#########")
-    for i in range(len(has_changed_list)):
-        print("This is the value of i "+ str(i))
-        if has_changed_list[i]=='Y':   
-            print ('Something has changed')
-            #if (paid_status_list[i]):
-            #    paidValue = 'Y'
-            #else:
-            #    paidValue='N'
-            indivPayrollRecord = TeacherPayrollDetail.query.filter_by(teacher_id=teacher_id_list[i], month=qmonth, year=qyear).first()
-            if indivPayrollRecord==None:
-                print('Adding new values')
-                payrollInsert=TeacherPayrollDetail(teacher_id=teacher_id_list[i],total_salary=current_salary_list[i],month=qmonth,
-                    year=qyear,days_in_month=days_count_list[i],days_present = days_present_list[i], calc_salary = calc_salary_list[i], paid_status='Y',
-                    last_modified_date=datetime.today(), school_id = teacherDetailRow.school_id)
-                db.session.add(payrollInsert)
-            else:
-                if indivPayrollRecord.calc_salary!=calc_salary_list[i]:
-                    print('Updating exiting values')
-                    indivPayrollRecord.days_present = days_present_list[i]
-                    indivPayrollRecord.calc_salary= calc_salary_list[i]
-                    indivPayrollRecord.paid_status = 'Y'
-                    indivPayrollRecord.last_modified_date = datetime.today()
+# @app.route('/updatePayrollData', methods=['GET','POST'])
+# def updatePayrollData():
+#     teacherDetailRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+#     teacher_id_list = request.form.getlist('teacher_id')    
+#     current_salary_list = request.form.getlist('currentSalaryInput')
+#     days_count_list = request.form.getlist('dayCountInput')
+#     days_present_list = request.form.getlist('days_present')
+#     calc_salary_list = request.form.getlist('calcSalaryInput')
+#     #paid_status_list = request.form.getlist('paid_status')
+#     has_changed_list = request.form.getlist('hasChanged')
+#     qmonth = request.form.get('qmonth')
+#     qyear = request.form.get('qyear')
+#     #print(teacher_id_list)
+#     #print(current_salary_list)
+#     #print(days_count_list)
+#     #print(days_present_list)
+#     #print(calc_salary_list)
+#     #print(has_changed_list)
+#     #print(qmonth)
+#     #print(qyear)
+#     ##print(paid_status_list)
+#     #print("#########")
+#     for i in range(len(has_changed_list)):
+#         print("This is the value of i "+ str(i))
+#         if has_changed_list[i]=='Y':   
+#             print ('Something has changed')
+#             #if (paid_status_list[i]):
+#             #    paidValue = 'Y'
+#             #else:
+#             #    paidValue='N'
+#             indivPayrollRecord = TeacherPayrollDetail.query.filter_by(teacher_id=teacher_id_list[i], month=qmonth, year=qyear).first()
+#             if indivPayrollRecord==None:
+#                 print('Adding new values')
+#                 payrollInsert=TeacherPayrollDetail(teacher_id=teacher_id_list[i],total_salary=current_salary_list[i],month=qmonth,
+#                     year=qyear,days_in_month=days_count_list[i],days_present = days_present_list[i], calc_salary = calc_salary_list[i], paid_status='Y',
+#                     last_modified_date=datetime.today(), school_id = teacherDetailRow.school_id)
+#                 db.session.add(payrollInsert)
+#             else:
+#                 if indivPayrollRecord.calc_salary!=calc_salary_list[i]:
+#                     print('Updating exiting values')
+#                     indivPayrollRecord.days_present = days_present_list[i]
+#                     indivPayrollRecord.calc_salary= calc_salary_list[i]
+#                     indivPayrollRecord.paid_status = 'Y'
+#                     indivPayrollRecord.last_modified_date = datetime.today()
 
-    db.session.commit()
-    return jsonify(['0'])
+#     db.session.commit()
+#     return jsonify(['0'])
 
 #End of section for payroll
 
 
 
-@app.route('/bulkStudReg')
-def bulkStudReg():
-    return render_template('_bulkStudReg.html')
+# @app.route('/bulkStudReg')
+# def bulkStudReg():
+#     return render_template('_bulkStudReg.html')
 
 
-@app.route('/singleStudReg')
-def singleStudReg():
-    student_id = request.args.get('student_id')
-    print('Inside single student Registration:'+str(student_id))
-    if student_id=='':
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-        section_list=[(i.section,i.section) for i in available_section]
-        form=SingleStudentRegistration()
-        form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-        form.section.choices= section_list
-        studentDetailRow = []
-        guardianDetail1 = []
-        guardianDetail2 =[]
-        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
-    else:
-        teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
-        section_list=[(i.section,i.section) for i in available_section]
-        form=SingleStudentRegistration()
-        form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-        form.section.choices= section_list
-        guardianDetail2 = ''
-        query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,date(sp.dob) as dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp "                 
-        query = query + "inner join message_detail md on md.msg_id=sp.gender "
-        query = query + "left join class_section cs on cs.class_sec_id=sp.class_sec_id " 
-        query = query + "left join address_detail ad on ad.address_id=sp.address_id "
-        query = query + "where sp.student_id='"+str(student_id)+"'"
-        # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
-        # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
-        studentDetailRow = db.session.execute(text(query)).first()
-        queryGuardian1 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"'"
-        guardianDetail1 = db.session.execute(text(queryGuardian1)).first()
-        #print('Guardain Detail1 :')
-        #print(guardianDetail1)
-        guardianDetail2 = ''
-        if guardianDetail1!=None:
-            #print('If guardian Detail1 is not empty')
-            queryGuardian2 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"' and guardian_id!='"+str(guardianDetail1.guardian_id)+"'"
-            guardianDetail2 = db.session.execute(text(queryGuardian2)).first()
-        # print(guardianDetail1)
-        # print(guardianDetail2)
-        #print('Name:'+str(studentDetailRow.first_name))
-        #print('Gender:'+str(studentDetailRow.class_val))
-        return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
+# @app.route('/singleStudReg')
+# def singleStudReg():
+#     student_id = request.args.get('student_id')
+#     print('Inside single student Registration:'+str(student_id))
+#     if student_id=='':
+#         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+#         section_list=[(i.section,i.section) for i in available_section]
+#         form=SingleStudentRegistration()
+#         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+#         form.section.choices= section_list
+#         studentDetailRow = []
+#         guardianDetail1 = []
+#         guardianDetail2 =[]
+#         return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
+#     else:
+#         teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher_id.school_id).all()
+#         section_list=[(i.section,i.section) for i in available_section]
+#         form=SingleStudentRegistration()
+#         form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+#         form.section.choices= section_list
+#         guardianDetail2 = ''
+#         query = "select sp.first_name,sp.last_name,sp.profile_picture,md.description as gender,date(sp.dob) as dob,sp.phone,ad.address_1,ad.address_2,ad.locality,ad.city,ad.state,ad.country,ad.pin,cs.class_val,cs.section, sp.roll_number, sp.school_adm_number from student_profile sp "                 
+#         query = query + "inner join message_detail md on md.msg_id=sp.gender "
+#         query = query + "left join class_section cs on cs.class_sec_id=sp.class_sec_id " 
+#         query = query + "left join address_detail ad on ad.address_id=sp.address_id "
+#         query = query + "where sp.student_id='"+str(student_id)+"'"
+#         # query = query + "left join guardian_profile gp on gp.student_id=sp.student_id "
+#         # query = query + "inner join message_detail md2 on md2.msg_id=gp.relation where sp.student_id='"+str(student_id)+"'"
+#         studentDetailRow = db.session.execute(text(query)).first()
+#         queryGuardian1 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"'"
+#         guardianDetail1 = db.session.execute(text(queryGuardian1)).first()
+#         #print('Guardain Detail1 :')
+#         #print(guardianDetail1)
+#         guardianDetail2 = ''
+#         if guardianDetail1!=None:
+#             #print('If guardian Detail1 is not empty')
+#             queryGuardian2 = "select gp.guardian_id,gp.first_name,gp.last_name,gp.email,gp.phone,m1.description as relation from guardian_profile gp inner join message_detail m1 on m1.msg_id=gp.relation where student_id='"+str(student_id)+"' and guardian_id!='"+str(guardianDetail1.guardian_id)+"'"
+#             guardianDetail2 = db.session.execute(text(queryGuardian2)).first()
+#         # print(guardianDetail1)
+#         # print(guardianDetail2)
+#         #print('Name:'+str(studentDetailRow.first_name))
+#         #print('Gender:'+str(studentDetailRow.class_val))
+#         return render_template('_singleStudReg.html',form=form,student_id=student_id,studentDetailRow=studentDetailRow,guardianDetail1=guardianDetail1,guardianDetail2=guardianDetail2)
 
 
-@app.route('/studentRegistration', methods=['GET','POST'])
-@login_required
-def studentRegistration(): 
-    studId = request.args.get('student_id') 
-    form=SingleStudentRegistration()
-    if request.method=='POST':
-        print('Inside Student Registration')
-        if form.submit.data:            
-            studentId = request.form['tag']
-            print('Student Id:'+str(studentId))
-            if studentId:                
-                print('Inside Student update when student id is not empty')
-                student_id = request.form['tag']
-                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                class_sec=ClassSection.query.filter_by(class_val=str(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
-                gender=MessageDetails.query.filter_by(description=form.gender.data).first()
-                address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-                if address_id is None:
-                    address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
-                    db.session.add(address_data)
-                    address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-                studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
-                studentClassSec = StudentClassSecDetail.query.filter_by(student_id=student_id).first()
-                studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
-                #print('Query:'+str(studProfile))
+# @app.route('/studentRegistration', methods=['GET','POST'])
+# @login_required
+# def studentRegistration(): 
+#     studId = request.args.get('student_id') 
+#     form=SingleStudentRegistration()
+#     if request.method=='POST':
+#         print('Inside Student Registration')
+#         if form.submit.data:            
+#             studentId = request.form['tag']
+#             print('Student Id:'+str(studentId))
+#             if studentId:                
+#                 print('Inside Student update when student id is not empty')
+#                 student_id = request.form['tag']
+#                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#                 class_sec=ClassSection.query.filter_by(class_val=str(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
+#                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+#                 address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+#                 if address_id is None:
+#                     address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+#                     db.session.add(address_data)
+#                     address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+#                 studentDetails = StudentProfile.query.filter_by(student_id=student_id).first()
+#                 studentClassSec = StudentClassSecDetail.query.filter_by(student_id=student_id).first()
+#                 studProfile = "update student_profile set profile_picture='"+str(request.form['profile_image'])+"' where student_id='"+student_id+"'"
+#                 #print('Query:'+str(studProfile))
 
-                profileImg = db.session.execute(text(studProfile))
-                #print(studentDetails)
-                #if request.form['birthdate']:
-                    #print('DOB:'+str(request.form['birthdate']))
-                #print('Student id:'+str(student_id))
-                #print('First Name:'+str(studentDetails.first_name))
-                #print('Image url:'+str(request.form['profile_image']))
-                studentDetails.first_name=form.first_name.data
-                studentDetails.last_name=form.last_name.data
-                studentDetails.gender=gender.msg_id
-                if request.form['birthdate']=='':
-                    studentDetails.dob=None
-                else:
-                    studentDetails.dob=request.form['birthdate']
-                studentDetails.phone=form.phone.data
-                studentDetails.address_id=address_id.address_id
-                studentDetails.profile_image=request.form['profile_image']
-                studentDetails.class_sec_id=class_sec.class_sec_id
-                studentDetails.roll_number=int(form.roll_number.data)
-                studentDetails.school_adm_number=form.school_admn_no.data
-                studentDetails.full_name=form.first_name.data +" " + form.last_name.data
-                if studentClassSec!=None and studentClassSec!="":
-                    studentClassSec.class_sec_id = class_sec.class_sec_id
-                    studentClassSec.class_val = str(form.class_val.data)
-                    studentClassSec.section = form.section.data
-                else:
-                    studentClassSecAdd = StudentClassSecDetail(student_id=student_id, class_sec_id=class_sec.class_sec_id, 
-                        class_val=str(form.class_val.data), section=form.section.data, is_current='Y', last_modified_date=datetime.today())
-                    db.session.add(studentClassSecAdd)
-                db.session.commit()
-                first_name=request.form.getlist('guardian_first_name')
-                last_name=request.form.getlist('guardian_last_name')
-                phone=request.form.getlist('guardian_phone')
-                email=request.form.getlist('guardian_email')
-                relation=request.form.getlist('relation')
-                gId = ''
-                for i in range(len(first_name)):
-                    if i==0:
-                        relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                        # query = "select first_name,last_name,full_name,relation,email,phone from guardian_profile where student_id='"+str(student_id)+"' limit 1"
-                        # guardianData = db.session.execute(text(query))
-                        guardianData = GuardianProfile.query.filter_by(student_id=student_id).first()
-                        # print('Query:'+query)
-                        # print(guardianData.first_name)
-                        if guardianData:
-                            guardianData.first_name = first_name[i]
-                            guardianData.last_name = last_name[i]
-                            guardianData.full_name = first_name[i] + ' ' + last_name[i]
-                            guardianData.relation = relation_id.msg_id
-                            guardianData.phone = phone[i]
-                            guardianData.email = email[i]
-                            gId = guardianData.guardian_id
-                            # gId = int(gId)+1 
-                            print('Gid:'+str(guardianData.guardian_id))
-                            print('Gid:'+str(gId))
-                            print('Guardian First Name:'+str(first_name[i]))
-                            db.session.commit()
-                        else:
-                            relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                            guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                            email=email[i],phone=phone[i],student_id=student_id)
-                            db.session.add(guardian_data)    
-                    if i==1:
-                        query = "select *from guardian_profile where student_id='"+str(student_id)+"' and guardian_id!='"+str(gId)+"'"
-                        print('Query:'+str(query))
-                        guardian_id = db.session.execute(text(query)).first()
+#                 profileImg = db.session.execute(text(studProfile))
+#                 #print(studentDetails)
+#                 #if request.form['birthdate']:
+#                     #print('DOB:'+str(request.form['birthdate']))
+#                 #print('Student id:'+str(student_id))
+#                 #print('First Name:'+str(studentDetails.first_name))
+#                 #print('Image url:'+str(request.form['profile_image']))
+#                 studentDetails.first_name=form.first_name.data
+#                 studentDetails.last_name=form.last_name.data
+#                 studentDetails.gender=gender.msg_id
+#                 if request.form['birthdate']=='':
+#                     studentDetails.dob=None
+#                 else:
+#                     studentDetails.dob=request.form['birthdate']
+#                 studentDetails.phone=form.phone.data
+#                 studentDetails.address_id=address_id.address_id
+#                 studentDetails.profile_image=request.form['profile_image']
+#                 studentDetails.class_sec_id=class_sec.class_sec_id
+#                 studentDetails.roll_number=int(form.roll_number.data)
+#                 studentDetails.school_adm_number=form.school_admn_no.data
+#                 studentDetails.full_name=form.first_name.data +" " + form.last_name.data
+#                 if studentClassSec!=None and studentClassSec!="":
+#                     studentClassSec.class_sec_id = class_sec.class_sec_id
+#                     studentClassSec.class_val = str(form.class_val.data)
+#                     studentClassSec.section = form.section.data
+#                 else:
+#                     studentClassSecAdd = StudentClassSecDetail(student_id=student_id, class_sec_id=class_sec.class_sec_id, 
+#                         class_val=str(form.class_val.data), section=form.section.data, is_current='Y', last_modified_date=datetime.today())
+#                     db.session.add(studentClassSecAdd)
+#                 db.session.commit()
+#                 first_name=request.form.getlist('guardian_first_name')
+#                 last_name=request.form.getlist('guardian_last_name')
+#                 phone=request.form.getlist('guardian_phone')
+#                 email=request.form.getlist('guardian_email')
+#                 relation=request.form.getlist('relation')
+#                 gId = ''
+#                 for i in range(len(first_name)):
+#                     if i==0:
+#                         relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+#                         # query = "select first_name,last_name,full_name,relation,email,phone from guardian_profile where student_id='"+str(student_id)+"' limit 1"
+#                         # guardianData = db.session.execute(text(query))
+#                         guardianData = GuardianProfile.query.filter_by(student_id=student_id).first()
+#                         # print('Query:'+query)
+#                         # print(guardianData.first_name)
+#                         if guardianData:
+#                             guardianData.first_name = first_name[i]
+#                             guardianData.last_name = last_name[i]
+#                             guardianData.full_name = first_name[i] + ' ' + last_name[i]
+#                             guardianData.relation = relation_id.msg_id
+#                             guardianData.phone = phone[i]
+#                             guardianData.email = email[i]
+#                             gId = guardianData.guardian_id
+#                             # gId = int(gId)+1 
+#                             print('Gid:'+str(guardianData.guardian_id))
+#                             print('Gid:'+str(gId))
+#                             print('Guardian First Name:'+str(first_name[i]))
+#                             db.session.commit()
+#                         else:
+#                             relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+#                             guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+#                             email=email[i],phone=phone[i],student_id=student_id)
+#                             db.session.add(guardian_data)    
+#                     if i==1:
+#                         query = "select *from guardian_profile where student_id='"+str(student_id)+"' and guardian_id!='"+str(gId)+"'"
+#                         print('Query:'+str(query))
+#                         guardian_id = db.session.execute(text(query)).first()
                         
-                        if guardian_id:
-                            guarId = guardian_id.guardian_id
-                            relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                            guardianData = GuardianProfile.query.filter_by(student_id=student_id,guardian_id=guarId).first()
-                            print('Second guardian first name:'+str(guardianData.first_name))
-                            guardianData.first_name = first_name[i]
-                            guardianData.last_name = last_name[i]
-                            guardianData.full_name = first_name[i] + ' ' + last_name[i]
-                            guardianData.relation = relation_id.msg_id
-                            guardianData.phone = phone[i]
-                            guardianData.email = email[i]
-                            print(guardianData)
-                            print('Second Guardian First Name:'+str(first_name[i]))
-                        else:
-                            relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                            guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                            email=email[i],phone=phone[i],student_id=student_id)
-                            db.session.add(guardian_data)
-                # guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                # email=email[i],phone=phone[i],student_id=student_data.student_id)
-                db.session.commit()
-                flash(Markup('Data Updated Successfully! Go to <a href="/studentProfile"> Student Directory</a>?'))
-                indic='DashBoard'
-                return render_template('studentRegistration.html',indic=indic,title='Student Registration',studentId=student_id,user_type_val=str(current_user.user_type))
+#                         if guardian_id:
+#                             guarId = guardian_id.guardian_id
+#                             relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+#                             guardianData = GuardianProfile.query.filter_by(student_id=student_id,guardian_id=guarId).first()
+#                             print('Second guardian first name:'+str(guardianData.first_name))
+#                             guardianData.first_name = first_name[i]
+#                             guardianData.last_name = last_name[i]
+#                             guardianData.full_name = first_name[i] + ' ' + last_name[i]
+#                             guardianData.relation = relation_id.msg_id
+#                             guardianData.phone = phone[i]
+#                             guardianData.email = email[i]
+#                             print(guardianData)
+#                             print('Second Guardian First Name:'+str(first_name[i]))
+#                         else:
+#                             relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+#                             guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+#                             email=email[i],phone=phone[i],student_id=student_id)
+#                             db.session.add(guardian_data)
+#                 # guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+#                 # email=email[i],phone=phone[i],student_id=student_data.student_id)
+#                 db.session.commit()
+#                 flash(Markup('Data Updated Successfully! Go to <a href="/studentProfile"> Student Directory</a>?'))
+#                 indic='DashBoard'
+#                 return render_template('studentRegistration.html',indic=indic,title='Student Registration',studentId=student_id,user_type_val=str(current_user.user_type))
 
 
-            else:
-                print('Inside Student Registration when student id is empty')
-                address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-                if address_id is None:
-                    address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
-                    db.session.add(address_data)
-                    address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
-                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                print('Print Form Data:'+form.section.data)
+#             else:
+#                 print('Inside Student Registration when student id is empty')
+#                 address_id=Address.query.filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+#                 if address_id is None:
+#                     address_data=Address(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data,country=form.country.data)
+#                     db.session.add(address_data)
+#                     address_id=db.session.query(Address).filter_by(address_1=form.address1.data,address_2=form.address2.data,locality=form.locality.data,city=form.city.data,state=form.state.data,pin=form.pincode.data).first()
+#                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#                 print('Print Form Data:'+form.section.data)
                 
-                class_sec=ClassSection.query.filter_by(class_val=str(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
-                gender=MessageDetails.query.filter_by(description=form.gender.data).first()
-                print('Section Id:'+str(class_sec.class_sec_id))
-                if request.form['birthdate']:
-                    student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
-                    school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
-                    dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
-                    roll_number=int(form.roll_number.data))
-                else:
-                    student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
-                    school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
-                    phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
-                    roll_number=int(form.roll_number.data))
-                #print('Query:'+student)
-                db.session.add(student)
-                student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
-                for i in range(4):
-                    if i==0:
-                        option='A'
-                        qr_link='https:er5ft/api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    elif i==1:
-                        option='B'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    elif i==2:
-                        option='C'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    else:
-                        option='D'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
-                    student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
-                    db.session.add(student_qr_data)
-                first_name=request.form.getlist('guardian_first_name')
-                last_name=request.form.getlist('guardian_last_name')
-                phone=request.form.getlist('guardian_phone')
-                email=request.form.getlist('guardian_email')
-                relation=request.form.getlist('relation')
-                print('Insert into ClassSec table')
-                student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
-                class_val=str(form.class_val.data), section=form.section.data, is_current='Y',last_modified_date=datetime.today()) 
-                db.session.add(student_class_sec)
-                for i in range(len(first_name)):
-                    relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
-                    guardian_id = GuardianProfile.query.filter_by(email=email[i]).first()
-                    if guardian_id:
-                        print('If guardian already exist')
-                        if guardian_id.student_id=='':
-                            guardian_id.student_id = student_data.student_id
-                            guardian_id.relation = relation_id.msg_id
-                            print('If Id is empty')
-                        else:
-                            print('skip')
-                            guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                            email=email[i],phone=phone[i],user_id=guardian_id.user_id,student_id=student_data.student_id)
-                            db.session.add(guardian_data)
-                    else:
-                        guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
-                        email=email[i],phone=phone[i],student_id=student_data.student_id)
-                        db.session.add(guardian_data)
-                        print('If guardian does not exist')
-                db.session.commit()
-                flash('Successful upload !')
-                indic='DashBoard'
-                return render_template('studentRegistration.html',indic=indic,title='Student Registration',user_type_val=str(current_user.user_type))
+#                 class_sec=ClassSection.query.filter_by(class_val=str(form.class_val.data),section=form.section.data,school_id=teacher_id.school_id).first()
+#                 gender=MessageDetails.query.filter_by(description=form.gender.data).first()
+#                 print('Section Id:'+str(class_sec.class_sec_id))
+#                 if request.form['birthdate']:
+#                     student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+#                     school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+#                     dob=request.form['birthdate'],phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+#                     roll_number=int(form.roll_number.data))
+#                 else:
+#                     student=StudentProfile(first_name=form.first_name.data,last_name=form.last_name.data,full_name=form.first_name.data +" " + form.last_name.data,
+#                     school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+#                     phone=form.phone.data,profile_picture=request.form['profile_image'],address_id=address_id.address_id,school_adm_number=form.school_admn_no.data,
+#                     roll_number=int(form.roll_number.data))
+#                 #print('Query:'+student)
+#                 db.session.add(student)
+#                 student_data=db.session.query(StudentProfile).filter_by(school_adm_number=form.school_admn_no.data).first()
+#                 for i in range(4):
+#                     if i==0:
+#                         option='A'
+#                         qr_link='https:er5ft/api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+#                     elif i==1:
+#                         option='B'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+#                     elif i==2:
+#                         option='C'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+#                     else:
+#                         option='D'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + form.roll_number.data + '-' + student_data.first_name + '@' + option
+#                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+#                     db.session.add(student_qr_data)
+#                 first_name=request.form.getlist('guardian_first_name')
+#                 last_name=request.form.getlist('guardian_last_name')
+#                 phone=request.form.getlist('guardian_phone')
+#                 email=request.form.getlist('guardian_email')
+#                 relation=request.form.getlist('relation')
+#                 print('Insert into ClassSec table')
+#                 student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
+#                 class_val=str(form.class_val.data), section=form.section.data, is_current='Y',last_modified_date=datetime.today()) 
+#                 db.session.add(student_class_sec)
+#                 for i in range(len(first_name)):
+#                     relation_id=MessageDetails.query.filter_by(description=relation[i]).first()
+#                     guardian_id = GuardianProfile.query.filter_by(email=email[i]).first()
+#                     if guardian_id:
+#                         print('If guardian already exist')
+#                         if guardian_id.student_id=='':
+#                             guardian_id.student_id = student_data.student_id
+#                             guardian_id.relation = relation_id.msg_id
+#                             print('If Id is empty')
+#                         else:
+#                             print('skip')
+#                             guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+#                             email=email[i],phone=phone[i],user_id=guardian_id.user_id,student_id=student_data.student_id)
+#                             db.session.add(guardian_data)
+#                     else:
+#                         guardian_data=GuardianProfile(first_name=first_name[i],last_name=last_name[i],full_name=first_name[i] + ' ' + last_name[i],relation=relation_id.msg_id,
+#                         email=email[i],phone=phone[i],student_id=student_data.student_id)
+#                         db.session.add(guardian_data)
+#                         print('If guardian does not exist')
+#                 db.session.commit()
+#                 flash('Successful upload !')
+#                 indic='DashBoard'
+#                 return render_template('studentRegistration.html',indic=indic,title='Student Registration',user_type_val=str(current_user.user_type))
 
-        else:
-            teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-            print('School_id:'+str(teacher_id.school_id))
-            csv_file=request.files['file-input']
-            df1=pd.read_csv(csv_file)
-            df1=df1.replace(np.nan, '', regex=True)
-            print(df1)
-            for index ,row in df1.iterrows():
-                if row['first_name']=='' and row['gender']=='' and row['dob']=='' and row['phone'] and row['address_1'] and row['locality'] and row['city'] and row['state'] and row['country'] and row['pin'] and row['class_val'] and row['section'] and row['roll_number'] and row['school_adm_number'] and row['guardian1_first_name'] and row['guardian1_email'] and row['guardian1_phone'] and row['guardian1_relation']:
-                    message = Markup("<h5>(a)Enter first name <br/>(b)Enter gender<br/> (c)Enter date of birth <br/> (d)Enter phone number<br/> (e)Enter address 1 <br/>(f)Enter locality<br/> (g)Enter city<br/> (h)Enter state <br/>(i)Enter country<br/>(j)Enter pin code<br/> (k)Enter class<br/> (l)Enter section<br/> (m)Enter roll number<br/> (n)Enter school admission number<br/>(o)Enter guardian first name<br/> (p)Enter guardian email<br/>(q)Enter guardian phone<br/> (r)Enter guardian relation </h5>")
-                    flash(message)
-                    return render_template('studentRegistration.html')
-                address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
-                db.session.add(address_data)
-                address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
-                teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-                class_sec=ClassSection.query.filter_by(class_val=str(row['class_val']),section=row['section'],school_id=teacher_id.school_id).first()
-                gender=MessageDetails.query.filter_by(description=row['gender']).first()
-                date = row['dob']
-                li = date.split('/',3)
-                print('Date'+str(row['dob']))
-                if int(li[1])>12 or int(li[0])>31:
-                    flash('Invalid Date formate use dd/mm/yyyy')
-                    return render_template('studentRegistration.html')
-                if row['dob']!='':
-                    date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
-                else:
-                    date=''
-                student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
-                school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
-                dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=str(row['school_adm_number']),
-                roll_number=int(row['roll_number']))
-                db.session.add(student)
-                student_data=db.session.query(StudentProfile).filter_by(school_adm_number=str(row['school_adm_number'])).first()
-                print('Insert into ClassSec table')
-                student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
-                class_val=str(row['class_val']), section=row['section'], is_current='Y',last_modified_date=datetime.today()) 
-                db.session.add(student_class_sec)
-                for i in range(4):
-                    if i==0:
-                        option='A'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
-                    elif i==1:
-                        option='B'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
-                    elif i==2:
-                        option='C'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
-                    else:
-                        option='D'
-                        qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
-                    student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
-                    db.session.add(student_qr_data)
-                for i in range(2):
-                    relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
-                    print('Inside range')
-                    if relation_id is not None:
-                        print('If relation id is not empty')
-                        guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
-                        email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
+#         else:
+#             teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#             print('School_id:'+str(teacher_id.school_id))
+#             csv_file=request.files['file-input']
+#             df1=pd.read_csv(csv_file)
+#             df1=df1.replace(np.nan, '', regex=True)
+#             print(df1)
+#             for index ,row in df1.iterrows():
+#                 if row['first_name']=='' and row['gender']=='' and row['dob']=='' and row['phone'] and row['address_1'] and row['locality'] and row['city'] and row['state'] and row['country'] and row['pin'] and row['class_val'] and row['section'] and row['roll_number'] and row['school_adm_number'] and row['guardian1_first_name'] and row['guardian1_email'] and row['guardian1_phone'] and row['guardian1_relation']:
+#                     message = Markup("<h5>(a)Enter first name <br/>(b)Enter gender<br/> (c)Enter date of birth <br/> (d)Enter phone number<br/> (e)Enter address 1 <br/>(f)Enter locality<br/> (g)Enter city<br/> (h)Enter state <br/>(i)Enter country<br/>(j)Enter pin code<br/> (k)Enter class<br/> (l)Enter section<br/> (m)Enter roll number<br/> (n)Enter school admission number<br/>(o)Enter guardian first name<br/> (p)Enter guardian email<br/>(q)Enter guardian phone<br/> (r)Enter guardian relation </h5>")
+#                     flash(message)
+#                     return render_template('studentRegistration.html')
+#                 address_data=Address(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country'])
+#                 db.session.add(address_data)
+#                 address_id=db.session.query(Address).filter_by(address_1=row['address_1'],address_2=row['address_2'],locality=row['locality'],city=row['city'],state=row['state'],pin=str(row['pin']),country=row['country']).first()
+#                 teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#                 class_sec=ClassSection.query.filter_by(class_val=str(row['class_val']),section=row['section'],school_id=teacher_id.school_id).first()
+#                 gender=MessageDetails.query.filter_by(description=row['gender']).first()
+#                 date = row['dob']
+#                 li = date.split('/',3)
+#                 print('Date'+str(row['dob']))
+#                 if int(li[1])>12 or int(li[0])>31:
+#                     flash('Invalid Date formate use dd/mm/yyyy')
+#                     return render_template('studentRegistration.html')
+#                 if row['dob']!='':
+#                     date=dt.datetime.strptime(row['dob'], '%d/%m/%Y')
+#                 else:
+#                     date=''
+#                 student=StudentProfile(first_name=row['first_name'],last_name=row['last_name'],full_name=row['first_name'] +" " + row['last_name'],
+#                 school_id=teacher_id.school_id,class_sec_id=class_sec.class_sec_id,gender=gender.msg_id,
+#                 dob=date,phone=row['phone'],profile_picture=request.form['reference-url'+str(index+1)],address_id=address_id.address_id,school_adm_number=str(row['school_adm_number']),
+#                 roll_number=int(row['roll_number']))
+#                 db.session.add(student)
+#                 student_data=db.session.query(StudentProfile).filter_by(school_adm_number=str(row['school_adm_number'])).first()
+#                 print('Insert into ClassSec table')
+#                 student_class_sec = StudentClassSecDetail(student_id=student_data.student_id, class_sec_id=class_sec.class_sec_id,
+#                 class_val=str(row['class_val']), section=row['section'], is_current='Y',last_modified_date=datetime.today()) 
+#                 db.session.add(student_class_sec)
+#                 for i in range(4):
+#                     if i==0:
+#                         option='A'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
+#                     elif i==1:
+#                         option='B'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
+#                     elif i==2:
+#                         option='C'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
+#                     else:
+#                         option='D'
+#                         qr_link='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + str(student_data.student_id) + '-' + str(row['roll_number']) + '-' + student_data.first_name + '@' + option
+#                     student_qr_data=studentQROptions(student_id=student_data.student_id,option=option,qr_link=qr_link)
+#                     db.session.add(student_qr_data)
+#                 for i in range(2):
+#                     relation_id=MessageDetails.query.filter_by(description=row['guardian'+str(i+1)+'_relation']).first()
+#                     print('Inside range')
+#                     if relation_id is not None:
+#                         print('If relation id is not empty')
+#                         guardian_data=GuardianProfile(first_name=row['guardian'+str(i+1)+'_first_name'],last_name=row['guardian'+str(i+1)+'_last_name'],full_name=row['guardian'+str(i+1)+'_first_name'] + ' ' + row['guardian'+str(i+1)+'_last_name'],relation=relation_id.msg_id,
+#                         email=row['guardian'+str(i+1)+'_email'],phone=row['guardian'+str(i+1)+'_phone'],student_id=student_data.student_id)
                     
-                    db.session.add(guardian_data)
-                    db.session.commit()
+#                     db.session.add(guardian_data)
+#                     db.session.commit()
                 
             
-            flash('Successful upload !')
-            indic='DashBoard'
-            return render_template('studentRegistration.html',indic=indic,user_type_val=str(current_user.user_type))
-    if studId!='':
-        print('inside if Student Id:'+str(studId))
-        indic='DashBoard'
-        return render_template('studentRegistration.html',indic=indic,studentId=studId,user_type_val=str(current_user.user_type))
-    indic='DashBoard'
-    return render_template('studentRegistration.html',indic=indic,user_type_val=str(current_user.user_type))
+#             flash('Successful upload !')
+#             indic='DashBoard'
+#             return render_template('studentRegistration.html',indic=indic,user_type_val=str(current_user.user_type))
+#     if studId!='':
+#         print('inside if Student Id:'+str(studId))
+#         indic='DashBoard'
+#         return render_template('studentRegistration.html',indic=indic,studentId=studId,user_type_val=str(current_user.user_type))
+#     indic='DashBoard'
+#     return render_template('studentRegistration.html',indic=indic,user_type_val=str(current_user.user_type))
 
 
 '''camera section'''
@@ -1687,7 +1716,7 @@ def edit_profile():
         db.session.commit()
         flash('Your changes have been saved')        
         if current_user.user_type==161:
-            return redirect(url_for('openJobs'))
+            return redirect(url_for('job_post.openJobs'))
 
     elif request.method == 'GET':        
         form.about_me.data = current_user.about_me
@@ -1708,270 +1737,270 @@ def edit_profile():
     return render_template(
         'edit_profile.html', title='Edit Profile', form=form,user_type_val=str(current_user.user_type), willing_to_travel=current_user.willing_to_travel)
 
-@app.route('/',methods=["GET","POST"])
-@app.route('/index')
-@app.route('/dashboard')
-@login_required 
-def index():
-    #print('Inside index')
-    #print("########This is the request url: "+str(request.url))
-    print('current_user.id:'+str(current_user.id))
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    schoolData = ''
-    if teacherData:
-        schoolData = SchoolProfile.query.filter_by(school_admin=teacherData.teacher_id).first()
-    if schoolData:
-        if schoolData.is_verified == 'N':
-            return redirect(url_for('inReviewSchool'))
-    checkUser = User.query.filter_by(id=current_user.id).first()
-    if checkUser:
-        if checkUser.access_status == 143:
-            return redirect(url_for('disconnectedAccount'))
-    user = User.query.filter_by(username=current_user.username).first_or_404()        
-    school_name_val = schoolNameVal()
-    #print('User Type Value:'+str(user.user_type))
-    teacher_id = TeacherProfile.query.filter_by(user_id=user.id).first() 
+# @app.route('/',methods=["GET","POST"])
+# @app.route('/index')
+# @app.route('/dashboard')
+# @login_required 
+# def index():
+#     #print('Inside index')
+#     #print("########This is the request url: "+str(request.url))
+#     print('current_user.id:'+str(current_user.id))
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     schoolData = ''
+#     if teacherData:
+#         schoolData = SchoolProfile.query.filter_by(school_admin=teacherData.teacher_id).first()
+#     if schoolData:
+#         if schoolData.is_verified == 'N':
+#             return redirect(url_for('inReviewSchool'))
+#     checkUser = User.query.filter_by(id=current_user.id).first()
+#     if checkUser:
+#         if checkUser.access_status == 143:
+#             return redirect(url_for('disconnectedAccount'))
+#     user = User.query.filter_by(username=current_user.username).first_or_404()        
+#     school_name_val = schoolNameVal()
+#     #print('User Type Value:'+str(user.user_type))
+#     teacher_id = TeacherProfile.query.filter_by(user_id=user.id).first() 
     
-    school_id = SchoolProfile.query.filter_by(school_name=school_name_val).first()
-    print('school_name_val:',school_name_val)
-    if user.user_type==71:
-        classExist = ClassSection.query.filter_by(school_id=school_id.school_id).first()
-        #print('Insert new school')
-        #print(classExist)
-        if classExist==None:
-            fromSchoolRegistration = True
+#     school_id = SchoolProfile.query.filter_by(school_name=school_name_val).first()
+#     print('school_name_val:',school_name_val)
+#     if user.user_type==71:
+#         classExist = ClassSection.query.filter_by(school_id=school_id.school_id).first()
+#         #print('Insert new school')
+#         #print(classExist)
+#         if classExist==None:
+#             fromSchoolRegistration = True
        
-            subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-            board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-            boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
-            school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-            classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
-            classValues = db.session.execute(text(classValues)).fetchall()
-            classValuesGeneral = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
-            classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
-            subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-            bookName = BookDetails.query.all()
-            chapterNum = Topic.query.distinct().all()
-            topicId = Topic.query.all()
-            generalBoardId = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
-            #print('teacher and board ids')
-            #print(teacher_id.school_id)
-            #print(generalBoardId.board_id)
-            generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
-            fromSchoolRegistration = True
-            return render_template('syllabus.html',title='Syllabus',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
-    #if user.user_type==135:
-    #    return redirect(url_for('admin'))
-    if user.user_type==234:
-    #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
-        return redirect(url_for('practiceTest'))
-    if user.user_type==253:
-        return redirect(url_for('courseHome'))
-    if user.user_type==72:
-        #print('Inside guardian')
-        return redirect(url_for('disconnectedAccount'))
-    if user.user_type=='161':
-        return redirect(url_for('openJobs'))
-    if user.user_type==134 and user.access_status==145:        
-        return redirect(url_for('disconnectedAccount'))
+#             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+#             board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#             boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
+#             school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#             classValues = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
+#             classValues = db.session.execute(text(classValues)).fetchall()
+#             classValuesGeneral = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
+#             classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
+#             subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+#             bookName = BookDetails.query.all()
+#             chapterNum = Topic.query.distinct().all()
+#             topicId = Topic.query.all()
+#             generalBoardId = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+#             #print('teacher and board ids')
+#             #print(teacher_id.school_id)
+#             #print(generalBoardId.board_id)
+#             generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
+#             fromSchoolRegistration = True
+#             return render_template('syllabus.html',title='Syllabus',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration)
+#     #if user.user_type==135:
+#     #    return redirect(url_for('admin'))
+#     if user.user_type==234:
+#     #or ("prep.alllearn" in str(request.url)) or ("alllearnprep" in str(request.url))
+#         return redirect(url_for('practiceTest'))
+#     if user.user_type==253:
+#         return redirect(url_for('courseHome'))
+#     if user.user_type==72:
+#         #print('Inside guardian')
+#         return redirect(url_for('disconnectedAccount'))
+#     if user.user_type=='161':
+#         return redirect(url_for('job_post.openJobs'))
+#     if user.user_type==134 and user.access_status==145:        
+#         return redirect(url_for('disconnectedAccount'))
 
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
-    classSecCheckVal = classSecCheck()
+#     teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+#     classSecCheckVal = classSecCheck()
 
-    if school_name_val ==None:
-        #print('did we reach here')
-        return redirect(url_for('disconnectedAccount'))
-    else:
-    #####Fetch school perf graph information##########
-        performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
-        performanceRows = db.session.execute(text(performanceQuery)).fetchall()
-        if len(performanceRows)>0:
-            df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
-            df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
-                5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
-            #print(df)
-            dateRange = list(df['Date'])
-            class1Data= list(df['Class_1'])
-            class2Data= list(df['Class_2'])
-            class3Data= list(df['Class_3'])
-            class4Data= list(df['Class_4'])
-            class5Data= list(df['Class_5'])
-            class6Data= list(df['Class_6'])
-            class7Data= list(df['Class_7'])
-            class8Data= list(df['Class_8'])
-            class9Data= list(df['Class_9'])
-            class10Data= list(df['Class_10'])
-            #print(dateRange)
-            ##Class 1
-            graphData = [dict(
-                data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
-                data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
-                data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
-                data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
-                data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
-                data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
-                data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
-                data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
-                data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
-                data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
-                )]        
-            #print(graphData)
+#     if school_name_val ==None:
+#         #print('did we reach here')
+#         return redirect(url_for('disconnectedAccount'))
+#     else:
+#     #####Fetch school perf graph information##########
+#         performanceQuery = "select * from fn_class_performance("+str(teacher.school_id)+") order by perf_date"
+#         performanceRows = db.session.execute(text(performanceQuery)).fetchall()
+#         if len(performanceRows)>0:
+#             df = pd.DataFrame( [[ij for ij in i] for i in performanceRows])
+#             df.rename(columns={0: 'Date', 1: 'Class_1', 2: 'Class_2', 3: 'Class_3', 4:'Class_4',
+#                 5:'Class_5', 6:'Class_6', 7:'Class_7', 8:'Class_8', 9:'Class_9', 10:'Class_10'}, inplace=True)
+#             #print(df)
+#             dateRange = list(df['Date'])
+#             class1Data= list(df['Class_1'])
+#             class2Data= list(df['Class_2'])
+#             class3Data= list(df['Class_3'])
+#             class4Data= list(df['Class_4'])
+#             class5Data= list(df['Class_5'])
+#             class6Data= list(df['Class_6'])
+#             class7Data= list(df['Class_7'])
+#             class8Data= list(df['Class_8'])
+#             class9Data= list(df['Class_9'])
+#             class10Data= list(df['Class_10'])
+#             #print(dateRange)
+#             ##Class 1
+#             graphData = [dict(
+#                 data1=[dict(y=class1Data,x=dateRange,type='scatter', name='Class 1')],
+#                 data2=[dict(y=class2Data,x=dateRange,type='scatter', name='Class 2')],
+#                 data3=[dict(y=class3Data,x=dateRange,type='scatter', name='Class 3')],
+#                 data4=[dict(y=class4Data,x=dateRange,type='scatter', name='Class 4')],
+#                 data5=[dict(y=class5Data,x=dateRange,type='scatter', name='Class 5')],
+#                 data6=[dict(y=class6Data,x=dateRange,type='scatter', name='Class 6')],
+#                 data7=[dict(y=class7Data,x=dateRange,type='scatter', name='Class 7')],
+#                 data8=[dict(y=class8Data,x=dateRange,type='scatter', name='Class 8')],
+#                 data9=[dict(y=class9Data,x=dateRange,type='scatter', name='Class 9')],
+#                 data10=[dict(y=class10Data,x=dateRange,type='scatter', name='Class 10')]
+#                 )]        
+#             #print(graphData)
 
-            graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
-        else:
-            graphJSON="1"
-    #####Fetch Top Students infor##########        
-        # topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
-        qclass_val = 'dashboard'
-        topStudentsRows = ''
-        leaderBoardData = leaderboardContent(qclass_val)
-        # print('leaderBoard Data:'+str(leaderBoardData))
-        # Convert dataframe to a list
-        data = []
-        #print(type(leaderBoardData))
-        column_names = ["a", "b", "c"]
-        datafr = pd.DataFrame(columns = column_names)
-        if type(leaderBoardData)==type(datafr):
-            #print('if data is not empty')
-            df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
-            df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
-            leaderBoard = pd.merge(df1,df2,on=('studentid'))
+#             graphJSON = json.dumps(graphData, cls=plotly.utils.PlotlyJSONEncoder)
+#         else:
+#             graphJSON="1"
+#     #####Fetch Top Students infor##########        
+#         # topStudentsQuery = "select *from fn_monthly_top_students("+str(teacher.school_id)+",8)"
+#         qclass_val = 'dashboard'
+#         topStudentsRows = ''
+#         leaderBoardData = leaderboardContent(qclass_val)
+#         # print('leaderBoard Data:'+str(leaderBoardData))
+#         # Convert dataframe to a list
+#         data = []
+#         #print(type(leaderBoardData))
+#         column_names = ["a", "b", "c"]
+#         datafr = pd.DataFrame(columns = column_names)
+#         if type(leaderBoardData)==type(datafr):
+#             #print('if data is not empty')
+#             df1 = leaderBoardData[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+#             df2 = leaderBoardData.drop(['profile_pic', 'student_name','class_val','section','total_marks%','total_tests'], axis=1)
+#             leaderBoard = pd.merge(df1,df2,on=('studentid'))
                 
-            d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
-            df3 = leaderBoard.drop(['studentid'],axis=1)
+#             d = leaderBoard[['studentid','profile_pic','student_name','class_val','section','total_marks%','total_tests']]
+#             df3 = leaderBoard.drop(['studentid'],axis=1)
             
-            df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
-            df1.rename(columns = {'student_name':'Student'}, inplace = True)
-            df1.rename(columns = {'class_val':'Class'}, inplace = True)
-            df1.rename(columns = {'section':'Section'}, inplace = True)
-            df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
-            df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
-            header = [df1.columns.values.tolist()]
-            headerAll = [df3.columns.values.tolist()]
-            colAll = ''
-            subjHeader = [df2.columns.values.tolist()]
-            columnNames = ''
-            col = ''
-            subColumn = ''
-            for subhead in subjHeader:
-                subColumn = subhead
-            for h in header:
-                columnNames = h
-            for headAll in headerAll: 
-                colAll = headAll
-            n= int(len(subColumn)/2)
-            ndf = df2.drop(['studentid'],axis=1)
-            newDF = ndf.iloc[:,0:n]
-            new1DF = ndf.iloc[:,n:]
+#             df1.rename(columns = {'profile_pic':'Profile Picture'}, inplace = True)
+#             df1.rename(columns = {'student_name':'Student'}, inplace = True)
+#             df1.rename(columns = {'class_val':'Class'}, inplace = True)
+#             df1.rename(columns = {'section':'Section'}, inplace = True)
+#             df1.rename(columns = {'total_marks%':'Total Marks'}, inplace = True)
+#             df1.rename(columns = {'total_tests':'Total Tests'}, inplace = True)
+#             header = [df1.columns.values.tolist()]
+#             headerAll = [df3.columns.values.tolist()]
+#             colAll = ''
+#             subjHeader = [df2.columns.values.tolist()]
+#             columnNames = ''
+#             col = ''
+#             subColumn = ''
+#             for subhead in subjHeader:
+#                 subColumn = subhead
+#             for h in header:
+#                 columnNames = h
+#             for headAll in headerAll: 
+#                 colAll = headAll
+#             n= int(len(subColumn)/2)
+#             ndf = df2.drop(['studentid'],axis=1)
+#             newDF = ndf.iloc[:,0:n]
+#             new1DF = ndf.iloc[:,n:]
                 
-            df5 = pd.concat([newDF, new1DF], axis=1)
-            DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
+#             df5 = pd.concat([newDF, new1DF], axis=1)
+#             DFW = df5[list(sum(zip(newDF.columns, new1DF.columns), ()))]
             
             
-            dat = pd.concat([d,DFW], axis=1)
+#             dat = pd.concat([d,DFW], axis=1)
                 
-            dat = dat.sort_values('total_marks%',ascending=False)  
+#             dat = dat.sort_values('total_marks%',ascending=False)  
             
-            subHeader = ''
-            i=1
-            for row in dat.values.tolist():
-                if i<9:
-                    data.append(row)
-                i=i+1
-        form  = promoteStudentForm() 
-        available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val,ClassSection.section).filter_by(school_id=teacher.school_id).all()
-        class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
+#             subHeader = ''
+#             i=1
+#             for row in dat.values.tolist():
+#                 if i<9:
+#                     data.append(row)
+#                 i=i+1
+#         form  = promoteStudentForm() 
+#         available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val,ClassSection.section).filter_by(school_id=teacher.school_id).all()
+#         class_list=[(str(i.class_val)+"-"+str(i.section),str(i.class_val)+"-"+str(i.section)) for i in available_class]
         
-        form.class_section1.choices = class_list 
-        form.class_section2.choices = class_list 
+#         form.class_section1.choices = class_list 
+#         form.class_section2.choices = class_list 
         
-        EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
-    #####Fetch Course Completion infor##########    
-        topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
-        topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
-        #print(topicToCoverDetails)
+#         EventDetailRows = EventDetail.query.filter_by(school_id=teacher.school_id).all()
+#     #####Fetch Course Completion infor##########    
+#         topicToCoverQuery = "select *from fn_topic_tracker_overall("+str(teacher.school_id)+") order by class, section"
+#         topicToCoverDetails = db.session.execute(text(topicToCoverQuery)).fetchall()
+#         #print(topicToCoverDetails)
 
-    ##################Fetch Job post details################################
-        jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
-        teacherCount = "select count(*) from teacher_profile tp where school_id = '"+str(teacher.school_id)+"'"
-        teacherCount = db.session.execute(teacherCount).first()
-        studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
-        studentCount = db.session.execute(studentCount).first()
-        testCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"') + "
-        testCount = testCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"') as SumCount"
-        #print(testCount)
-        testCount = db.session.execute(testCount).first()
-        lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
-        lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
-        #print(lastWeekTestCount)
-        lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
-        #print('user type value')
-        #print(session['moduleDet'])
-        query = "select user_type,md.module_name,description, module_url from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"'"
-        moduleDetRow = db.session.execute(query).fetchall()
-        return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
-            graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
+#     ##################Fetch Job post details################################
+#         jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
+#         teacherCount = "select count(*) from teacher_profile tp where school_id = '"+str(teacher.school_id)+"'"
+#         teacherCount = db.session.execute(teacherCount).first()
+#         studentCount = "select count(*) from student_profile sp where school_id = '"+str(teacher.school_id)+"'"
+#         studentCount = db.session.execute(studentCount).first()
+#         testCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"') + "
+#         testCount = testCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"') as SumCount"
+#         #print(testCount)
+#         testCount = db.session.execute(testCount).first()
+#         lastWeekTestCount = "select (select count(distinct upload_id) from result_upload ru where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) + "
+#         lastWeekTestCount = lastWeekTestCount + "(select count(distinct resp_session_id) from response_capture rc2 where school_id = '"+str(teacher.school_id)+"' and last_modified_date >=current_date - 7) as SumCount "
+#         #print(lastWeekTestCount)
+#         lastWeekTestCount = db.session.execute(lastWeekTestCount).first()
+#         #print('user type value')
+#         #print(session['moduleDet'])
+#         query = "select user_type,md.module_name,description, module_url from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"'"
+#         moduleDetRow = db.session.execute(query).fetchall()
+#         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
+#             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
 
-@app.route('/performanceChart',methods=['GET','POST'])
-def performanceChart():
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    query = "Select * from fn_overall_performance_summary('"+str(teacher_id.school_id)+"') where class='All'and section='All' and subject='All'"
+# @app.route('/performanceChart',methods=['GET','POST'])
+# def performanceChart():
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     query = "Select * from fn_overall_performance_summary('"+str(teacher_id.school_id)+"') where class='All'and section='All' and subject='All'"
     
-    resultSet = db.session.execute(text(query)).fetchall()
+#     resultSet = db.session.execute(text(query)).fetchall()
     
-    resultArray = []
-    if resultSet:
-        for result in resultSet:
-            Array = {}
-            Array['avg_score'] = str(round(result.avg_score,2))
-            Array['highest_mark'] = str(result.highest_mark)
-            Array['lowest_mark'] = str(result.lowest_mark)
-            Array['no_of_students_above_90'] = str(result.no_of_students_above_90)
-            Array['no_of_students_80_90'] = str(result.no_of_students_80_90)
-            Array['no_of_students_70_80'] = str(result.no_of_students_70_80)
-            Array['no_of_students_50_70'] = str(result.no_of_students_50_70)
-            Array['no_of_students_below_50'] = str(result.no_of_students_below_50)
-            Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
-            resultArray.append(Array)
-        return {'result' : resultArray} 
-    else:
-        return jsonify(["NA"])
+#     resultArray = []
+#     if resultSet:
+#         for result in resultSet:
+#             Array = {}
+#             Array['avg_score'] = str(round(result.avg_score,2))
+#             Array['highest_mark'] = str(result.highest_mark)
+#             Array['lowest_mark'] = str(result.lowest_mark)
+#             Array['no_of_students_above_90'] = str(result.no_of_students_above_90)
+#             Array['no_of_students_80_90'] = str(result.no_of_students_80_90)
+#             Array['no_of_students_70_80'] = str(result.no_of_students_70_80)
+#             Array['no_of_students_50_70'] = str(result.no_of_students_50_70)
+#             Array['no_of_students_below_50'] = str(result.no_of_students_below_50)
+#             Array['no_of_students_cross_50'] = str(result.no_of_students_cross_50)
+#             resultArray.append(Array)
+#         return {'result' : resultArray} 
+#     else:
+#         return jsonify(["NA"])
 
-@app.route('/performanceBarChart',methods=['GET','POST'])
-def performanceBarChart():
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_v = request.args.get('class_val')
-    section = request.args.get('section')
-    classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=class_v,section=section,school_id=str(teacher_id.school_id)).first()
-    subject = "select distinct subject_id from topic_detail where class_val= '"+str(class_v)+"'"
-    totalStudent = "select count(*) from student_profile where class_sec_id='"+str(classSection.class_sec_id)+"' and school_id='"+str(teacher_id.school_id)+"'"
-    #print(totalStudent)
-    totalStudent = db.session.execute(totalStudent).first()
-    subject_id = db.session.execute(subject).fetchall()
-    performance_array = []
-    for sub in subject_id:
-        pass_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1('"+str(teacher_id.school_id)+"') pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks>50)"
-        fail_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1('"+str(teacher_id.school_id)+"') pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks<=50)"
-        #print('pass and fail count:')
-        #print(pass_count)
-        #print(fail_count)
-        passStudents = db.session.execute(pass_count).first()
-        failStudents = db.session.execute(fail_count).first()
-        presentStudents = passStudents[0] + failStudents[0]
-        absentStudents = totalStudent[0] - presentStudents
-        #print(absentStudents)
-        if absentStudents==totalStudent[0]:
-            absentStudents = 0
-        #print((passStudents[0]))
-        #print((failStudents[0]))
-        Array = {}
-        Array['pass_count'] = str(passStudents[0])
-        Array['fail_count'] = str(failStudents[0])
-        Array['absent_students'] = str(absentStudents)
-        subjectName = MessageDetails.query.with_entities(MessageDetails.description).filter_by(msg_id=sub.subject_id).first()
-        Array['description'] = str(subjectName.description)
-        performance_array.append(Array)
-    return {'performance':performance_array}
+# @app.route('/performanceBarChart',methods=['GET','POST'])
+# def performanceBarChart():
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_v = request.args.get('class_val')
+#     section = request.args.get('section')
+#     classSection = ClassSection.query.with_entities(ClassSection.class_sec_id).filter_by(class_val=class_v,section=section,school_id=str(teacher_id.school_id)).first()
+#     subject = "select distinct subject_id from topic_detail where class_val= '"+str(class_v)+"'"
+#     totalStudent = "select count(*) from student_profile where class_sec_id='"+str(classSection.class_sec_id)+"' and school_id='"+str(teacher_id.school_id)+"'"
+#     #print(totalStudent)
+#     totalStudent = db.session.execute(totalStudent).first()
+#     subject_id = db.session.execute(subject).fetchall()
+#     performance_array = []
+#     for sub in subject_id:
+#         pass_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1('"+str(teacher_id.school_id)+"') pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks>50)"
+#         fail_count = "select count(*) from student_profile sp where student_id in (select studentid from fn_performance_leaderboard_detail_v1('"+str(teacher_id.school_id)+"') pd where class ='"+str(class_v)+"' and section='"+str(section)+"' and subjectid='"+str(sub.subject_id)+"' and marks<=50)"
+#         #print('pass and fail count:')
+#         #print(pass_count)
+#         #print(fail_count)
+#         passStudents = db.session.execute(pass_count).first()
+#         failStudents = db.session.execute(fail_count).first()
+#         presentStudents = passStudents[0] + failStudents[0]
+#         absentStudents = totalStudent[0] - presentStudents
+#         #print(absentStudents)
+#         if absentStudents==totalStudent[0]:
+#             absentStudents = 0
+#         #print((passStudents[0]))
+#         #print((failStudents[0]))
+#         Array = {}
+#         Array['pass_count'] = str(passStudents[0])
+#         Array['fail_count'] = str(failStudents[0])
+#         Array['absent_students'] = str(absentStudents)
+#         subjectName = MessageDetails.query.with_entities(MessageDetails.description).filter_by(msg_id=sub.subject_id).first()
+#         Array['description'] = str(subjectName.description)
+#         performance_array.append(Array)
+#     return {'performance':performance_array}
     
     
 
@@ -1992,368 +2021,398 @@ def disconnectedAccount():
     if teacher==None and userDetailRow.user_type!=161 and userDetailRow.user_type!=134:
         return render_template('disconnectedAccount.html', title='Disconnected Account', disconn = 1, userDetailRow=userDetailRow, boardRows=boardRows,classRows=classRows)
     elif userDetailRow.user_type==161:
-        return redirect(url_for('openJobs'))
+        return redirect(url_for('job_post.openJobs'))
     elif userDetailRow.user_type==134 and userDetailRow.access_status==145:
         return redirect(url_for('studentDashboard'))
     else:
         print('Inside else')
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard.index'))
 
 
 
 
-@app.route('/postJob',methods=['POST','GET'])
-@login_required
-def postJob():
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    schoolCityQuery = "select city from address_detail where address_id =(select address_id from school_profile where school_id ="+str(teacherRow.school_id)+")"
-    schoolCity = db.session.execute(text(schoolCityQuery)).first()
-    form = postJobForm()
+# @app.route('/postJob',methods=['POST','GET'])
+# @login_required
+# def postJob():
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     schoolCityQuery = "select city from address_detail where address_id =(select address_id from school_profile where school_id ="+str(teacherRow.school_id)+")"
+#     schoolCity = db.session.execute(text(schoolCityQuery)).first()
+#     form = postJobForm()
     
-    availableCategories=MessageDetails.query.filter_by(category='Job Category').all()
-    availableJobTypes=MessageDetails.query.filter_by(category='Job Type').all()
-    availableStayOptions=MessageDetails.query.filter_by(category='Stay Option').all()
-    availableFoodOptions=MessageDetails.query.filter_by(category='Food Option').all()
-    availableTeachingTermOption=MessageDetails.query.filter_by(category='Teaching Term Option').all()
+#     availableCategories=MessageDetails.query.filter_by(category='Job Category').all()
+#     availableJobTypes=MessageDetails.query.filter_by(category='Job Type').all()
+#     availableStayOptions=MessageDetails.query.filter_by(category='Stay Option').all()
+#     availableFoodOptions=MessageDetails.query.filter_by(category='Food Option').all()
+#     availableTeachingTermOption=MessageDetails.query.filter_by(category='Teaching Term Option').all()
 
-    form.category.choices = [(str(i.description),str(i.description)) for i in availableCategories]
-    form.job_type.choices = [(str(i.description),str(i.description)) for i in availableJobTypes]
-    form.stay.choices = [(str(i.description),str(i.description)) for i in availableStayOptions]
-    form.food.choices = [(str(i.description),str(i.description)) for i in availableFoodOptions]
-    form.term.choices = [(str(i.description),str(i.description)) for i in availableTeachingTermOption]
-
-
-    if request.method == 'POST' and form.validate():
-        jobData=JobDetail(category=form.category.data,
-            posted_by =teacherRow.teacher_id,school_id=teacherRow.school_id,description=form.description.data,min_pay=form.min_pay.data,max_pay=form.max_pay.data,
-            start_date=form.start_date.data,subject=form.subject.data, 
-            classes= form.classes.data, language= form.language.data,timings= form.timings.data,stay= form.stay.data, 
-            fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data,city =schoolCity.city,
-            job_type =form.job_type.data,posted_on = datetime.today(),last_modified_date= datetime.today())
-        db.session.add(jobData)
-        db.session.commit()
-        flash('New job posted created!')
-        try:
-            job_posted_email(teacherRow.email,teacherRow.teacher_name,form.category.data)
-        except:
-            pass
-    else:
-        #flash('Please fix the errors to submit')
-        for fieldName, errorMessages in form.errors.items():
-            for err in errorMessages:
-                print(err)
-    indic='DashBoard'
-    return render_template('postJob.html',indic=indic,title='Post Job',form=form,classSecCheckVal=classSecCheck())
+#     form.category.choices = [(str(i.description),str(i.description)) for i in availableCategories]
+#     form.job_type.choices = [(str(i.description),str(i.description)) for i in availableJobTypes]
+#     form.stay.choices = [(str(i.description),str(i.description)) for i in availableStayOptions]
+#     form.food.choices = [(str(i.description),str(i.description)) for i in availableFoodOptions]
+#     form.term.choices = [(str(i.description),str(i.description)) for i in availableTeachingTermOption]
 
 
-@app.route('/openJobs')
-def openJobs():
-    page=request.args.get('page',0, type=int)    
-    first_login = request.args.get('first_login','0').strip()
-    jobTermOptions = MessageDetails.query.filter_by(category='Teaching Term Option').all()
-    jobTypeOptions = MessageDetails.query.filter_by(category='Job Type').all()
-    # print('User value in openJobs:'+str(user_type_val))
-    if first_login=='1':
+#     if request.method == 'POST' and form.validate():
+#         jobData=JobDetail(category=form.category.data,
+#             posted_by =teacherRow.teacher_id,school_id=teacherRow.school_id,description=form.description.data,min_pay=form.min_pay.data,max_pay=form.max_pay.data,
+#             start_date=form.start_date.data,subject=form.subject.data, 
+#             classes= form.classes.data, language= form.language.data,timings= form.timings.data,stay= form.stay.data, 
+#             fooding= form.food.data,term= form.term.data,status='Open',num_of_openings=form.num_of_openings.data,city =schoolCity.city,
+#             job_type =form.job_type.data,posted_on = datetime.today(),last_modified_date= datetime.today())
+#         db.session.add(jobData)
+#         db.session.commit()
+#         flash('New job posted created!')
+#         try:
+#             job_posted_email(teacherRow.email,teacherRow.teacher_name,form.category.data)
+#         except:
+#             pass
+#     else:
+#         #flash('Please fix the errors to submit')
+#         for fieldName, errorMessages in form.errors.items():
+#             for err in errorMessages:
+#                 print(err)
+#     indic='DashBoard'
+#     return render_template('postJob.html',indic=indic,title='Post Job',form=form,classSecCheckVal=classSecCheck())
+
+
+# @app.route('/openJobs')
+# def openJobs():
+#     page=request.args.get('page',0, type=int)    
+#     first_login = request.args.get('first_login','0').strip()
+#     jobTermOptions = MessageDetails.query.filter_by(category='Teaching Term Option').all()
+#     jobTypeOptions = MessageDetails.query.filter_by(category='Job Type').all()
+#     # print('User value in openJobs:'+str(user_type_val))
+#     if first_login=='1':
         
-        print('this is the first login section')
-        userRecord = User.query.filter_by(id=current_user.id).first() 
-        userRecord.user_type= '161'
-        db.session.commit()
-        flash('Please complete your profile before applying for jobs')
-        return redirect('edit_profile')
-    else:
-        print('first login not registered')
-        if current_user.is_anonymous:
-            return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
-        else:
-            return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,user_type_val=str(current_user.user_type))
+#         print('this is the first login section')
+#         userRecord = User.query.filter_by(id=current_user.id).first() 
+#         userRecord.user_type= '161'
+#         db.session.commit()
+#         flash('Please complete your profile before applying for jobs')
+#         return redirect('edit_profile')
+#     else:
+#         print('first login not registered')
+#         if current_user.is_anonymous:
+#             return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions)
+#         else:
+#             return render_template('openJobs.html',title='Look for Jobs',first_login=first_login,jobTermOptions=jobTermOptions,jobTypeOptions=jobTypeOptions,user_type_val=str(current_user.user_type))
 
 
-@app.route('/openJobsFilteredList')
-def openJobsFilteredList():
-    page=request.args.get('page',0, type=int)
-    recordsOnPage = 5
-    offsetVal = page *recordsOnPage
+# @app.route('/openJobsFilteredList')
+# def openJobsFilteredList():
+#     page=request.args.get('page',0, type=int)
+#     recordsOnPage = 5
+#     offsetVal = page *recordsOnPage
     
-    whereClause = ""
-    qjob_term = request.args.get('job_term') #all /short term / long term
-    qjob_type = request.args.get('job_type') #all /part time/ full time
-    qcity =  request.args.get('city')       # all/ home city
+#     whereClause = ""
+#     qjob_term = request.args.get('job_term') #all /short term / long term
+#     qjob_type = request.args.get('job_type') #all /part time/ full time
+#     qcity =  request.args.get('city')       # all/ home city
    
-    print("qterm is "+str(qjob_term))
-    print("qtype is "+str(qjob_type))
-    print("qcity is "+str(qcity))
+#     print("qterm is "+str(qjob_term))
+#     print("qtype is "+str(qjob_type))
+#     print("qcity is "+str(qcity))
 
-    whJobTerm=''
-    whJobType=''
-    whCity=''
+#     whJobTerm=''
+#     whJobType=''
+#     whCity=''
 
-    if qjob_term=='All' or qjob_term==None or qjob_term=='':
-        whJobTerm=None
-    else:
-        whJobTerm=" t1.term=\'"+str(qjob_term)+"\'"
-        whereClause = 'where ' + whJobTerm
+#     if qjob_term=='All' or qjob_term==None or qjob_term=='':
+#         whJobTerm=None
+#     else:
+#         whJobTerm=" t1.term=\'"+str(qjob_term)+"\'"
+#         whereClause = 'where ' + whJobTerm
 
     
-    if qjob_type=='All' or qjob_type==None or qjob_type=='':
-        whJobType=None
-    else:
-        whJobType=" t1.job_type=\'"+str(qjob_type)+"\'"
-        if whereClause=='':
-            whereClause = 'where '+whJobType
-        else:
-            whereClause =  whereClause + ' and '+whJobType
+#     if qjob_type=='All' or qjob_type==None or qjob_type=='':
+#         whJobType=None
+#     else:
+#         whJobType=" t1.job_type=\'"+str(qjob_type)+"\'"
+#         if whereClause=='':
+#             whereClause = 'where '+whJobType
+#         else:
+#             whereClause =  whereClause + ' and '+whJobType
     
-    if qcity=='All' or qcity==None or qcity=='':
-        whCity=None
-    else:
-        whCity=" t1.city=\'"+ str(qcity)+"\'"
-        if whereClause=='':
-            whereClause = 'where '+whCity
-        else:
-            whereClause = whereClause + ' and '+whCity
+#     if qcity=='All' or qcity==None or qcity=='':
+#         whCity=None
+#     else:
+#         whCity=" t1.city=\'"+ str(qcity)+"\'"
+#         if whereClause=='':
+#             whereClause = 'where '+whCity
+#         else:
+#             whereClause = whereClause + ' and '+whCity
     
-    print('this is the where clause' + whereClause)
-    #if whJobTerm!=None and whJobType!=None and whCity!=None:
-    #    whereClause = "where " + whJobTerm + "and "+whJobType + "and "+whCity
+#     print('this is the where clause' + whereClause)
+#     #if whJobTerm!=None and whJobType!=None and whCity!=None:
+#     #    whereClause = "where " + whJobTerm + "and "+whJobType + "and "+whCity
 
 
-    #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.job_type,t1.term, t1.subject,t1.posted_on, t1.job_id "
-    openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
-    openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
-    #openJobsQuery = openJobsQuery +" OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
-    #openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()    
-    openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
+#     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.job_type,t1.term, t1.subject,t1.posted_on, t1.job_id "
+#     openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
+#     openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
+#     #openJobsQuery = openJobsQuery +" OFFSET "+str(offsetVal)+" ROWS FETCH FIRST "+str(recordsOnPage)+" ROW ONLY; "
+#     #openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()    
+#     openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
     
-    if len(openJobsDataRows)==0:
-        print('returning 1')
-        return jsonify(['1'])
-    else:
-        next_page=page+1
+#     if len(openJobsDataRows)==0:
+#         print('returning 1')
+#         return jsonify(['1'])
+#     else:
+#         next_page=page+1
 
-        if page!=0:
-            prev_page=page-1
-        else:
-            prev_page=None
+#         if page!=0:
+#             prev_page=page-1
+#         else:
+#             prev_page=None
 
-        prev_url=None
-        next_url=None
-
-
-        if len(openJobsDataRows)==recordsOnPage:
-            next_url = url_for('openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-            prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-        elif len(openJobsDataRows)<recordsOnPage:
-            next_url = None
-            if prev_page!=None:
-                prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-            else:
-                prev_url==None
-        else:
-            next_url=None
-            prev_url=None
-        return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
+#         prev_url=None
+#         next_url=None
 
 
+#         if len(openJobsDataRows)==recordsOnPage:
+#             next_url = url_for('openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+#             prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+#         elif len(openJobsDataRows)<recordsOnPage:
+#             next_url = None
+#             if prev_page!=None:
+#                 prev_url = url_for('openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+#             else:
+#                 prev_url==None
+#         else:
+#             next_url=None
+#             prev_url=None
+#         return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
-@app.route('/jobDetail')
 
-def jobDetail():
-    job_id = request.args.get('job_id')
-    school_id = ''
-    userData = User.query.filter_by(id=current_user.id).first()
-    givenSchoolId=request.args.get('school_id')  
-    if givenSchoolId:
-        school_id = givenSchoolId
-    else:
-        school_id = userData.school_id
-    print(school_id)
-    #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
-    addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
-    jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
-    if current_user.is_anonymous:
-        print('user Anonymous')
-        jobApplicationRow = ''
-    else:
-        print('user exist')
-        jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
-    if jobApplicationRow:
-        applied=1
-    else:
-        applied=0
-    if current_user.is_anonymous:
-        return render_template('jobDetail.html', title='Job Detail', 
-            schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
-    else:
-        return render_template('jobDetail.html', title='Job Detail', 
-            schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+
+# @app.route('/jobDetail')
+
+# def jobDetail():
+#     job_id = request.args.get('job_id')
+#     school_id=request.args.get('school_id')  
+#     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+#     schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
+#     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
+#     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+#     if current_user.is_anonymous:
+#         print('user Anonymous')
+#         jobApplicationRow = ''
+#     else:
+#         print('user exist')
+#         jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+#     if jobApplicationRow:
+#         applied=1
+#     else:
+#         applied=0
+#     if current_user.is_anonymous:
+#         return render_template('jobDetail.html', title='Job Detail', 
+#             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
+#     else:
+#         return render_template('jobDetail.html', title='Job Detail', 
+#             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
     
 
 
 
-@app.route('/sendJobApplication',methods=['POST','GET'])
-@login_required
-def sendJobApplication():
-    print('We are in the right place')    
-    if request.method=='POST':
-        job_id_form = request.form.get('job_id_form')
-        available_from=request.form.get("availableFromID")
-        available_till=request.form.get("availableTillID")
-        if available_from=='':
-            available_from=None
-        if available_till=='':
-            available_till=None
-        school_id=request.form.get("school_id")
-        #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        jobApplyData=JobApplication(applier_user_id=current_user.id, job_id=job_id_form,
-                applied_on =datetime.today(),status='Applied',school_id=school_id,available_from=available_from,available_till=available_till,
-                last_modified_date=date.today())
-        db.session.add(jobApplyData)
-        db.session.commit()
-        flash('Job application submitted!')
-        #try:            
-        jobDetailRow = JobDetail.query.filter_by(job_id=job_id_form).first()
-        teacherRow = TeacherProfile.query.filter_by(teacher_id=jobDetailRow.posted_by).first()
-        new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
-        #except:
-        #    pass
-        return redirect(url_for('openJobs'))
 
-@app.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
-@login_required
-def appliedJobs():
-    appliedQuery = "select applied_on, t3.school_id,school_name, category, subject, t2.job_id, "
-    appliedQuery = appliedQuery + "t1.status as application_status, t2.status as job_status "
-    appliedQuery = appliedQuery + "from job_application t1 inner join job_detail t2 on "
-    appliedQuery = appliedQuery + "t1.job_id=t2.job_id inner join school_profile t3 on "
-    appliedQuery = appliedQuery + "t3.school_id=t1.school_id where t1.applier_user_id='"+str(current_user.id)+"'"
-    appliedRows = db.session.execute(text(appliedQuery)).fetchall()
-    return render_template('appliedJobs.html',title='Applied jobs', user_type_val=str(current_user.user_type),appliedRows=appliedRows)
+# @app.route('/jobDetail')
 
-
-@app.route('/jobApplications')  # this page shows all the applications received by the job poster for any specifc job post
-@login_required
-def jobApplications():
-    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    jobidDet=request.args.get('job_id')
-
-    job_id = ''
-    if jobidDet:
-        job_id = jobidDet
-    else:
-        jobDet = JobApplication.query.filter_by(school_id=teacher.school_id).first()
-        if jobDet:
-            job_id = jobDet.job_id
-        else:
-            job_id = 3
-    #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
-    #pending descision
-    jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
-    jobAppQuery=jobAppQuery+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
-    jobAppQuery=jobAppQuery+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
-    jobAppQuery=jobAppQuery+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Applied' order by applied_on desc"
-    jobApplications = db.session.execute(text(jobAppQuery)).fetchall()
-
-    #hired descision
-    jobAppQueryHired = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
-    jobAppQueryHired=jobAppQueryHired+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
-    jobAppQueryHired=jobAppQueryHired+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
-    jobAppQueryHired=jobAppQueryHired+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Hired' order by applied_on desc"
-    jobApplicationsHired = db.session.execute(text(jobAppQueryHired)).fetchall()
-
-    #shortlist descision
-    jobAppQueryShortlisted = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
-    jobAppQueryShortlisted=jobAppQueryShortlisted+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
-    jobAppQueryShortlisted=jobAppQueryShortlisted+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
-    jobAppQueryShortlisted=jobAppQueryShortlisted+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Shortlisted' order by applied_on desc"
-    jobApplicationsShortlisted = db.session.execute(text(jobAppQueryShortlisted)).fetchall()
-
-    #rejected descision
-    jobAppQueryRejected = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
-    jobAppQueryRejected=jobAppQueryRejected+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
-    jobAppQueryRejected=jobAppQueryRejected+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
-    jobAppQueryRejected=jobAppQueryRejected+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Rejected' order by applied_on desc"
-    jobApplicationsRejected = db.session.execute(text(jobAppQueryRejected)).fetchall()
+# def jobDetail():
+#     job_id = request.args.get('job_id')
+#     school_id = ''
+#     userData = User.query.filter_by(id=current_user.id).first()
+#     givenSchoolId=request.args.get('school_id')  
+#     if givenSchoolId:
+#         school_id = givenSchoolId
+#     else:
+#         school_id = userData.school_id
+#     print(school_id)
+#     #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+#     schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
+#     addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
+#     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+#     if current_user.is_anonymous:
+#         print('user Anonymous')
+#         jobApplicationRow = ''
+#     else:
+#         print('user exist')
+#         jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+#     if jobApplicationRow:
+#         applied=1
+#     else:
+#         applied=0
+#     if current_user.is_anonymous:
+#         return render_template('jobDetail.html', title='Job Detail', 
+#             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
+#     else:
+#         return render_template('jobDetail.html', title='Job Detail', 
+#             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
     
-    return render_template('jobApplications.html', classSecCheckVal=classSecCheck(),title='Job Applications',jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
 
 
-@app.route('/jobPosts')
-@login_required
-def jobPosts():
-    teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
-    return render_template('jobPosts.html',jobPosts=jobPosts, classSecCheckVal=classSecCheck(),school_id=teacher.school_id)
 
-@app.route('/processApplication')
-@login_required
-def processApplication():
-    applier_user_id = request.args.get('applier_user_id')
-    job_id = request.args.get('job_id')
-    process_type = request.args.get('process_type')
-    #try:
-    jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
-    jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
-    applierRow = User.query.filter_by(id=applier_user_id).first()
-    schoolRow = SchoolProfile.query.filter_by(school_id=jobApplicationRow.school_id).first()
+# @app.route('/sendJobApplication',methods=['POST','GET'])
+# @login_required
+# def sendJobApplication():
+#     print('We are in the right place')    
+#     if request.method=='POST':
+#         job_id_form = request.form.get('job_id_form')
+#         available_from=request.form.get("availableFromID")
+#         available_till=request.form.get("availableTillID")
+#         if available_from=='':
+#             available_from=None
+#         if available_till=='':
+#             available_till=None
+#         school_id=request.form.get("school_id")
+#         #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         jobApplyData=JobApplication(applier_user_id=current_user.id, job_id=job_id_form,
+#                 applied_on =datetime.today(),status='Applied',school_id=school_id,available_from=available_from,available_till=available_till,
+#                 last_modified_date=date.today())
+#         db.session.add(jobApplyData)
+#         db.session.commit()
+#         flash('Job application submitted!')
+#         #try:            
+#         jobDetailRow = JobDetail.query.filter_by(job_id=job_id_form).first()
+#         teacherRow = TeacherProfile.query.filter_by(teacher_id=jobDetailRow.posted_by).first()
+#         new_applicant_for_job(teacherRow.email,teacherRow.teacher_name,current_user.first_name + ' '+current_user.last_name,jobDetailRow.category)
+#         #except:
+#         #    pass
+#         return redirect(url_for('openJobs'))
 
-    print(process_type)
-    if process_type=='shortlist':
-        jobApplicationRow.status= 'Shortlisted'
-        flash('Application Shortlisted')
-        try:
-            application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Shortlisted')
-        except:
-            pass
-    elif process_type=='reject':
-        jobApplicationRow.status= 'Rejected'
-        flash('Application Rejected')
-        try:
-            application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Rejected')
-        except:
-            pass
-    elif process_type =='hire':
-        jobApplicationRow.status= 'Hired'
-        flash('Application Hired')
-        try:
-            application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Hired')
-        except:
-            pass
-    else:
-        flash('Error processing application idk')
-    db.session.commit()
+# @app.route('/appliedJobs')  # this page shows all the job posts that the user has applied to
+# @login_required
+# def appliedJobs():
+#     appliedQuery = "select applied_on, t3.school_id,school_name, category, subject, t2.job_id, "
+#     appliedQuery = appliedQuery + "t1.status as application_status, t2.status as job_status "
+#     appliedQuery = appliedQuery + "from job_application t1 inner join job_detail t2 on "
+#     appliedQuery = appliedQuery + "t1.job_id=t2.job_id inner join school_profile t3 on "
+#     appliedQuery = appliedQuery + "t3.school_id=t1.school_id where t1.applier_user_id='"+str(current_user.id)+"'"
+#     appliedRows = db.session.execute(text(appliedQuery)).fetchall()
+#     return render_template('appliedJobs.html',title='Applied jobs', user_type_val=str(current_user.user_type),appliedRows=appliedRows)
+
+
+# @app.route('/jobApplications')  # this page shows all the applications received by the job poster for any specifc job post
+# @login_required
+# def jobApplications():
+#     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     jobidDet=request.args.get('job_id')
+
+#     job_id = ''
+#     if jobidDet:
+#         job_id = jobidDet
+#     else:
+#         jobDet = JobApplication.query.filter_by(school_id=teacher.school_id).first()
+#         if jobDet:
+#             job_id = jobDet.job_id
+#         else:
+#             job_id = 3
+#     #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
+#     #pending descision
+#     jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
+#     jobAppQuery=jobAppQuery+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+#     jobAppQuery=jobAppQuery+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+#     jobAppQuery=jobAppQuery+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Applied' order by applied_on desc"
+#     jobApplications = db.session.execute(text(jobAppQuery)).fetchall()
+
+#     #hired descision
+#     jobAppQueryHired = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+#     jobAppQueryHired=jobAppQueryHired+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+#     jobAppQueryHired=jobAppQueryHired+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+#     jobAppQueryHired=jobAppQueryHired+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Hired' order by applied_on desc"
+#     jobApplicationsHired = db.session.execute(text(jobAppQueryHired)).fetchall()
+
+#     #shortlist descision
+#     jobAppQueryShortlisted = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+#     jobAppQueryShortlisted=jobAppQueryShortlisted+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+#     jobAppQueryShortlisted=jobAppQueryShortlisted+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+#     jobAppQueryShortlisted=jobAppQueryShortlisted+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Shortlisted' order by applied_on desc"
+#     jobApplicationsShortlisted = db.session.execute(text(jobAppQueryShortlisted)).fetchall()
+
+#     #rejected descision
+#     jobAppQueryRejected = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+#     jobAppQueryRejected=jobAppQueryRejected+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+#     jobAppQueryRejected=jobAppQueryRejected+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+#     jobAppQueryRejected=jobAppQueryRejected+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Rejected' order by applied_on desc"
+#     jobApplicationsRejected = db.session.execute(text(jobAppQueryRejected)).fetchall()
     
-    return redirect(url_for('jobApplications',job_id=job_id))
-    #except:
-    flash('Error processing application')
-    return redirect(url_for('jobApplications',job_id=job_id))
+#     return render_template('jobApplications.html', classSecCheckVal=classSecCheck(),title='Job Applications',jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
 
 
-@app.route('/submitPost', methods=['GET', 'POST'])
-@login_required
-def submitPost():
-    form = PostForm()
-    if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
-        db.session.add(post)
-        db.session.commit()
-        flash('Your post is now live!')
-        return redirect(url_for('submitPost'))
-    posts = [{
-        'author': {
-            'username': 'John'
-        },
-        'body': 'Beautiful day in Portland!'
-    }, {
-        'author': {
-            'username': 'Susan'
-        },
-        'body': 'The Avengers movie was so cool!'
-    }]
-    return render_template(
-        "submitPost.html", title='Submit Post', form=form, posts=posts)
+# @app.route('/jobPosts')
+# @login_required
+# def jobPosts():
+#     teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     jobPosts = JobDetail.query.filter_by(school_id=teacher.school_id).order_by(JobDetail.posted_on.desc()).all()
+#     return render_template('jobPosts.html',jobPosts=jobPosts, classSecCheckVal=classSecCheck(),school_id=teacher.school_id)
+
+# @app.route('/processApplication')
+# @login_required
+# def processApplication():
+#     applier_user_id = request.args.get('applier_user_id')
+#     job_id = request.args.get('job_id')
+#     process_type = request.args.get('process_type')
+#     #try:
+#     jobApplicationRow = JobApplication.query.filter_by(applier_user_id=applier_user_id, job_id=job_id).first()
+#     jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+#     applierRow = User.query.filter_by(id=applier_user_id).first()
+#     schoolRow = SchoolProfile.query.filter_by(school_id=jobApplicationRow.school_id).first()
+
+#     print(process_type)
+#     if process_type=='shortlist':
+#         jobApplicationRow.status= 'Shortlisted'
+#         flash('Application Shortlisted')
+#         try:
+#             application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Shortlisted')
+#         except:
+#             pass
+#     elif process_type=='reject':
+#         jobApplicationRow.status= 'Rejected'
+#         flash('Application Rejected')
+#         try:
+#             application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Rejected')
+#         except:
+#             pass
+#     elif process_type =='hire':
+#         jobApplicationRow.status= 'Hired'
+#         flash('Application Hired')
+#         try:
+#             application_processed(applierRow.email,applierRow.first_name + ' '+ applierRow.last_name, schoolRow.school_name,jobDetailRow.category, 'Hired')
+#         except:
+#             pass
+#     else:
+#         flash('Error processing application idk')
+#     db.session.commit()
+    
+#     return redirect(url_for('jobApplications',job_id=job_id))
+#     #except:
+#     flash('Error processing application')
+#     return redirect(url_for('jobApplications',job_id=job_id))
+
+
+# @app.route('/submitPost', methods=['GET', 'POST'])
+# @login_required
+# def submitPost():
+#     form = PostForm()
+#     if form.validate_on_submit():
+#         post = Post(body=form.post.data, author=current_user)
+#         db.session.add(post)
+#         db.session.commit()
+#         flash('Your post is now live!')
+#         return redirect(url_for('submitPost'))
+#     posts = [{
+#         'author': {
+#             'username': 'John'
+#         },
+#         'body': 'Beautiful day in Portland!'
+#     }, {
+#         'author': {
+#             'username': 'Susan'
+#         },
+#         'body': 'The Avengers movie was so cool!'
+#     }]
+#     return render_template(
+#         "submitPost.html", title='Submit Post', form=form, posts=posts)
 
 
 @app.route('/explore')
@@ -2443,7 +2502,7 @@ def liveClass():
         studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()       
         school_id = studentDetails.school_id
     else:        
-        return redirect(url_for('index'))
+        return redirect(url_for('dashboard.index'))
 
     print('##########Data:'+str(school_id))
     allLiveClassQuery = "select t1.class_sec_id, t2.class_val, t2.section "
@@ -2544,44 +2603,44 @@ def updateSearchIndex(task, fromPage="default"):
 
 
 @app.route('/courseHome')
-def courseHome():    
-    if ("school.alllearn" in str(request.url)):
-        print('#######this is the request url: '+ str(request.url))
-        return redirect(url_for('index')) 
-    #print(str(current_user.is_anonymous))
-    upcomingClassData = ""
+# def courseHome():    
+#     if ("school.alllearn" in str(request.url)):
+#         print('#######this is the request url: '+ str(request.url))
+#         return redirect(url_for('index')) 
+#     #print(str(current_user.is_anonymous))
+#     upcomingClassData = ""
     
-    #if current_user.is_anonymous==False:
-        #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
-        #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
-    enrolledCourses = "select ce.COURSE_ID, MAX(ce.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name,tp.teacher_id from course_enrollment ce "
-    enrolledCourses = enrolledCourses + "inner join course_detail cd on cd.course_id =ce.course_id "
-    enrolledCourses = enrolledCourses + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
-    enrolledCourses = enrolledCourses + "group by ce.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name, tp.teacher_id "
-    enrolledCourses = enrolledCourses + "having cd.course_status =276 and cd.is_archived ='N' order by max(ce.last_modified_date ) desc limit 8"
-    enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
-    recentlyAccessed = "select cd.COURSE_ID, MAX(cd.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name,cd.teacher_id from course_detail cd "
-    recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
-    recentlyAccessed = recentlyAccessed + "group by cd.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name having cd.course_status =276 and cd.is_archived ='N' order by max(cd.last_modified_date ) desc limit 8"
-    recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
+#     #if current_user.is_anonymous==False:
+#         #upcomingClassQuery = "select * from vw_course_reminder_everyday where email=" + str(current_user.email)
+#         #upcomingClassData = db.session.execute(upcomingClassQuery).fetchall()
+#     enrolledCourses = "select ce.COURSE_ID, MAX(ce.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name,tp.teacher_id from course_enrollment ce "
+#     enrolledCourses = enrolledCourses + "inner join course_detail cd on cd.course_id =ce.course_id "
+#     enrolledCourses = enrolledCourses + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
+#     enrolledCourses = enrolledCourses + "group by ce.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name, tp.teacher_id "
+#     enrolledCourses = enrolledCourses + "having cd.course_status =276 and cd.is_archived ='N' order by max(ce.last_modified_date ) desc limit 8"
+#     enrolledCourses = db.session.execute(text(enrolledCourses)).fetchall()
+#     recentlyAccessed = "select cd.COURSE_ID, MAX(cd.LAST_MODIFIED_DATE), cd.course_name, cd.average_rating , cd.description ,cd.image_url, cd.is_archived,cd.course_status, tp.teacher_name,cd.teacher_id from course_detail cd "
+#     recentlyAccessed = recentlyAccessed + "inner join teacher_profile tp on tp.teacher_id =cd.teacher_id "
+#     recentlyAccessed = recentlyAccessed + "group by cd.course_id,cd.course_name,cd.average_rating , cd.description , cd.image_url,cd.course_status, cd.is_archived, cd.teacher_id, tp.teacher_name having cd.course_status =276 and cd.is_archived ='N' order by max(cd.last_modified_date ) desc limit 8"
+#     recentlyAccessed = db.session.execute(text(recentlyAccessed)).fetchall() 
 
-    for rate in enrolledCourses:
-        print('Rating:'+str(rate.average_rating))
-        if rate.average_rating:
-            print('rate:'+str(rate.average_rating))
+#     for rate in enrolledCourses:
+#         print('Rating:'+str(rate.average_rating))
+#         if rate.average_rating:
+#             print('rate:'+str(rate.average_rating))
 
-    idealFor = CourseDetail.query.distinct(CourseDetail.ideal_for).all()
-    idealList = []
-    for ideal in idealFor:
-        print('ideal for:'+str(ideal.ideal_for))
-        if ideal.ideal_for:
-            data = ideal.ideal_for.split(',')
-            for d in data:
-                if d not in idealList:
-                    idealList.append(d)
-    print('List:'+str(idealList))
-    indic='DashBoard'
-    return render_template('courseHome.html',indic=indic,idealList=idealList,recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
+#     idealFor = CourseDetail.query.distinct(CourseDetail.ideal_for).all()
+#     idealList = []
+#     for ideal in idealFor:
+#         print('ideal for:'+str(ideal.ideal_for))
+#         if ideal.ideal_for:
+#             data = ideal.ideal_for.split(',')
+#             for d in data:
+#                 if d not in idealList:
+#                     idealList.append(d)
+#     print('List:'+str(idealList))
+#     indic='DashBoard'
+#     return render_template('courseHome.html',indic=indic,idealList=idealList,recentlyAccessed=recentlyAccessed,enrolledCourses=enrolledCourses,home=1, upcomingClassData=upcomingClassData)
 
 @app.route('/openLiveClass')
 def openLiveClass():
@@ -2608,7 +2667,7 @@ def openLiveClass():
 
     if topicData== None:
         flash('No relevant course and topic found!')
-        return redirect(url_for('courseDetail',course_id=course_id))
+        return redirect(url_for('course.courseDetail',course_id=course_id))
     
     #batchTestData = BatchTest.query.filter_by(batch_id=batch_id, is_archived='N', is_curren)
 
@@ -2654,55 +2713,55 @@ def openLiveClass():
     return render_template('openLiveClass.html',listTopics=listTopics,rating=rating,topicData=topicData
         ,lenComm=lenComm,ongoing=ongoing,title=pageTitle,meta_val=pageTitle,classVideo=videoExist.video_class_url,comments=comments,notesList=notesList,batch_id=batch_id,enrolled=enrolled)
 
-@app.route('/courseDetail')
-def courseDetail():
-    live_class_id = request.args.get('live_class_id')
-    course_id = request.args.get('course_id')
-    courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
-    teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
-    teacherUser = User.query.filter_by(id=teacher.user_id).first()
+# @app.route('/courseDetail')
+# def courseDetail():
+#     live_class_id = request.args.get('live_class_id')
+#     course_id = request.args.get('course_id')
+#     courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+#     teacher = TeacherProfile.query.filter_by(teacher_id=courseDet.teacher_id).first()
+#     teacherUser = User.query.filter_by(id=teacher.user_id).first()
 
-    upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
-    upcomingDate = db.session.execute(text(upcomingDate)).first()
-    checkEnrollment = ''
-    if upcomingDate and current_user.is_authenticated :
-        checkEnrollment = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,student_user_id=current_user.id).first()
+#     upcomingDate = "SELECT * FROM course_batch WHERE batch_start_date > NOW() and course_id='"+str(course_id)+"' ORDER BY batch_start_date LIMIT 1"
+#     upcomingDate = db.session.execute(text(upcomingDate)).first()
+#     checkEnrollment = ''
+#     if upcomingDate and current_user.is_authenticated :
+#         checkEnrollment = CourseEnrollment.query.filter_by(is_archived='N',course_id=course_id,student_user_id=current_user.id).first()
 
-    idealFor = courseDet.ideal_for.split(",")
+#     idealFor = courseDet.ideal_for.split(",")
     
-    levelId = courseDet.difficulty_level
-    level = MessageDetails.query.filter_by(msg_id=levelId,category='Difficulty Level').first()
-    #rating = CourseDetail.query.filter_by(course_id=course_id,is_archived='N').first()
-    #if rating:
-    #    print('Star rating:'+str(rating.average_rating))
-    comments = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+ "' and cr.comment <> ' '"
-    #print(comments)
-    comments = db.session.execute(text(comments)).fetchall()
-    lenComment = len(comments)
-    #print(comments)
-    otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' and cd.teacher_id='"+str(teacher.teacher_id)+"' and cd.course_status =276"
-    otherCourses = db.session.execute(text(otherCourses)).fetchall()
+#     levelId = courseDet.difficulty_level
+#     level = MessageDetails.query.filter_by(msg_id=levelId,category='Difficulty Level').first()
+#     #rating = CourseDetail.query.filter_by(course_id=course_id,is_archived='N').first()
+#     #if rating:
+#     #    print('Star rating:'+str(rating.average_rating))
+#     comments = "select u.username,cr.comment,cr.last_modified_date from course_review cr inner join public.user u on u.id=cr.user_id where cr.course_id = '"+str(course_id)+ "' and cr.comment <> ' '"
+#     #print(comments)
+#     comments = db.session.execute(text(comments)).fetchall()
+#     lenComment = len(comments)
+#     #print(comments)
+#     otherCourses = "select *from course_detail cd where cd.course_id <> '"+str(course_id)+"' and cd.teacher_id='"+str(teacher.teacher_id)+"' and cd.course_status =276"
+#     otherCourses = db.session.execute(text(otherCourses)).fetchall()
 
 
-    pageTitle = courseDet.course_name
-    return render_template('courseDetail.html',
-        lenComment=lenComment,comments=comments,otherCourses=otherCourses,level=level,
-        idealFor=idealFor,upcomingDate=upcomingDate,
-        courseDet=courseDet,meta_val=pageTitle,title=pageTitle,teacherUser=teacherUser,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher)
+#     pageTitle = courseDet.course_name
+#     return render_template('courseDetail.html',
+#         lenComment=lenComment,comments=comments,otherCourses=otherCourses,level=level,
+#         idealFor=idealFor,upcomingDate=upcomingDate,
+#         courseDet=courseDet,meta_val=pageTitle,title=pageTitle,teacherUser=teacherUser,checkEnrollment=checkEnrollment,course_id=course_id,teacher=teacher)
 
 
-@app.route('/courseTopicDetail')
-def courseTopicDetail():
-    course_id = request.args.get('course_id')
-    topicDet = "select case when count(tq.question_id) >0 then count(tq.question_id )"
-    topicDet = topicDet + " else 0 end as no_of_questions , topic_name,ct.video_class_url, ct.topic_id, course_id from course_topics ct "
-    topicDet = topicDet + " inner join topic_detail td on td.topic_id =ct.topic_id and ct.course_id =" + str(course_id)
-    topicDet = topicDet + " left join test_questions tq on tq.test_id =ct.test_id "    
-    topicDet = topicDet + " where ct.is_archived ='N' group by  topic_name, ct.topic_id, course_id,ct.video_class_url"
-    topicDet = topicDet + " order by topic_id asc "
-    #print(topicDet)
-    topicDet = db.session.execute(text(topicDet)).fetchall()
-    return render_template('_courseTopicDetail.html', topicDet=topicDet,course_id=course_id)
+# @app.route('/courseTopicDetail')
+# def courseTopicDetail():
+#     course_id = request.args.get('course_id')
+#     topicDet = "select case when count(tq.question_id) >0 then count(tq.question_id )"
+#     topicDet = topicDet + " else 0 end as no_of_questions , topic_name,ct.video_class_url, ct.topic_id, course_id from course_topics ct "
+#     topicDet = topicDet + " inner join topic_detail td on td.topic_id =ct.topic_id and ct.course_id =" + str(course_id)
+#     topicDet = topicDet + " left join test_questions tq on tq.test_id =ct.test_id "    
+#     topicDet = topicDet + " where ct.is_archived ='N' group by  topic_name, ct.topic_id, course_id,ct.video_class_url"
+#     topicDet = topicDet + " order by topic_id asc "
+#     #print(topicDet)
+#     topicDet = db.session.execute(text(topicDet)).fetchall()
+#     return render_template('_courseTopicDetail.html', topicDet=topicDet,course_id=course_id)
 
 @app.route('/fetchClassVideo',methods=['GET','POST'])
 def fetchClassVideo():
@@ -2903,7 +2962,7 @@ def tutorDashboard():
         TeacherId = TeacherProfile.query.filter_by(teacher_id=tutor_id).first()
     
     if TeacherId==None:
-        return redirect(url_for('courseHome'))
+        return redirect(url_for('course.courseHome'))
     else:
         tutor_id=TeacherId.teacher_id
     user = User.query.filter_by(id=TeacherId.user_id).first()
@@ -2978,189 +3037,189 @@ def createBatch():
     else:
         return ""
 
-@app.route('/teacherRegistration')
-def teacherRegistration():
-    print('inside teacher Registration')
-    School = "select *from school_profile sp where school_name not like '%_school' order by school_id desc"
-    School = db.session.execute(text(School)).fetchall()
-    NewSchool = "select *from school_profile order by school_id desc"
-    NewSchool = db.session.execute(text(NewSchool)).fetchall()
-    reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"' "
-    reviewStatus = db.session.execute(text(reviewStatus)).first()
-    teacher_id = request.args.get('teacher_id')
-    print(teacher_id)
-    teacherDetail = ''
-    bankDetail = ''
-    if teacher_id:
-        teacher = TeacherProfile.query.filter_by(teacher_id = teacher_id).first()
-        #for school in School:
-        #    print('School name:'+str(school.school_name))
-        teacherDetail = User.query.filter_by(id = teacher.user_id).first()
-        school_id = SchoolProfile.query.filter_by(school_id=current_user.school_id).first() 
-        email = str(current_user.email).lower().replace(' ','_')
-        vendorId = str(email)+str('_school_')+str(teacher.school_id)+str('_1')
-        print(vendorId)
-        bankDetail = BankDetail.query.filter_by(vendor_id=vendorId).first()
-        print('details')
-        print(bankDetail)
-        print(teacherDetail.about_me)
-        if reviewStatus:
-            return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
-        else:
-            return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
+# @app.route('/teacherRegistration')
+# def teacherRegistration():
+#     print('inside teacher Registration')
+#     School = "select *from school_profile sp where school_name not like '%_school' order by school_id desc"
+#     School = db.session.execute(text(School)).fetchall()
+#     NewSchool = "select *from school_profile order by school_id desc"
+#     NewSchool = db.session.execute(text(NewSchool)).fetchall()
+#     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"' "
+#     reviewStatus = db.session.execute(text(reviewStatus)).first()
+#     teacher_id = request.args.get('teacher_id')
+#     print(teacher_id)
+#     teacherDetail = ''
+#     bankDetail = ''
+#     if teacher_id:
+#         teacher = TeacherProfile.query.filter_by(teacher_id = teacher_id).first()
+#         #for school in School:
+#         #    print('School name:'+str(school.school_name))
+#         teacherDetail = User.query.filter_by(id = teacher.user_id).first()
+#         school_id = SchoolProfile.query.filter_by(school_id=current_user.school_id).first() 
+#         email = str(current_user.email).lower().replace(' ','_')
+#         vendorId = str(email)+str('_school_')+str(teacher.school_id)+str('_1')
+#         print(vendorId)
+#         bankDetail = BankDetail.query.filter_by(vendor_id=vendorId).first()
+#         print('details')
+#         print(bankDetail)
+#         print(teacherDetail.about_me)
+#         if reviewStatus:
+#             return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
+#         else:
+#             return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
     
-    if reviewStatus:
-        print('if not registered as teacher')
-        return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
-    else:
-        print('if not registered as teacher')
-        return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
-@app.route('/teacherRegForm',methods=['GET','POST'])
-def teacherRegForm():
-    bankName =request.form.get('bankName')
-    accountHolderName = request.form.get('accountHoldername')
-    accountNo = request.form.get('accountNumber')
-    IfscCode = request.form.get('ifscCode')
-    selectSchool = request.form.get('selectSchool')
-    selectedSchool = request.form.get('NewSchool')
+#     if reviewStatus:
+#         print('if not registered as teacher')
+#         return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,reviewStatus=reviewStatus.review_status,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
+#     else:
+#         print('if not registered as teacher')
+#         return render_template('teacherRegistration.html',School=School,NewSchool=NewSchool,bankDetail=bankDetail,teacherDetail=teacherDetail,teacher_id=teacher_id)
+# @app.route('/teacherRegForm',methods=['GET','POST'])
+# def teacherRegForm():
+#     bankName =request.form.get('bankName')
+#     accountHolderName = request.form.get('accountHoldername')
+#     accountNo = request.form.get('accountNumber')
+#     IfscCode = request.form.get('ifscCode')
+#     selectSchool = request.form.get('selectSchool')
+#     selectedSchool = request.form.get('NewSchool')
     # if selectSchool==None:
-    print('select school id')
-    print(selectSchool)
-    if selectSchool=='None':
-        selectSchool = selectedSchool
-    user_avatar = request.form.get('imageUrl')
-    about_me = request.form.get('about_me')
-    schoolName = str(current_user.email)+"_school"
-    current_user.about_me = about_me
-    teacher_id = request.args.get('teacher_id')
-    print('Teacher_id:'+str(teacher_id))
-    if teacher_id=='None':
-        teacher_id = ''
-        print(teacher_id)
-    if teacher_id:
-        user_id = TeacherProfile.query.filter_by(teacher_id=teacher_id).first()
-        schoolIds = user_id.school_id
-        user = User.query.filter_by(id=user_id.user_id).first()
-        user.user_avatar = user_avatar
-        user.about_me = about_me
-        db.session.commit()
-        school = ''
-        if selectSchool:
-            school = SchoolProfile.query.filter_by(school_id=selectSchool).first()
-        else:
-            schoolName = str(current_user.id)+str('_school')
-            board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
-            school = SchoolProfile(school_name = schoolName,registered_date=datetime.now(),last_modified_date=datetime.now(),board_id=board.msg_id,school_admin=teacher_id,school_type='individual')
-            db.session.add(school)
-            db.session.commit()
-            school = SchoolProfile.query.filter_by(school_name = schoolName).first()
-        user_id.school_id = school.school_id
-        user_id.review_status = '273'
-        db.session.commit()
-        print('previous school id:'+str(schoolIds))
+    # print('select school id')
+    # print(selectSchool)
+    # if selectSchool=='None':
+    #     selectSchool = selectedSchool
+    # user_avatar = request.form.get('imageUrl')
+    # about_me = request.form.get('about_me')
+    # schoolName = str(current_user.email)+"_school"
+    # current_user.about_me = about_me
+    # teacher_id = request.args.get('teacher_id')
+    # print('Teacher_id:'+str(teacher_id))
+    # if teacher_id=='None':
+    #     teacher_id = ''
+    #     print(teacher_id)
+    # if teacher_id:
+    #     user_id = TeacherProfile.query.filter_by(teacher_id=teacher_id).first()
+    #     schoolIds = user_id.school_id
+    #     user = User.query.filter_by(id=user_id.user_id).first()
+    #     user.user_avatar = user_avatar
+    #     user.about_me = about_me
+    #     db.session.commit()
+    #     school = ''
+    #     if selectSchool:
+    #         school = SchoolProfile.query.filter_by(school_id=selectSchool).first()
+    #     else:
+    #         schoolName = str(current_user.id)+str('_school')
+    #         board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
+    #         school = SchoolProfile(school_name = schoolName,registered_date=datetime.now(),last_modified_date=datetime.now(),board_id=board.msg_id,school_admin=teacher_id,school_type='individual')
+    #         db.session.add(school)
+    #         db.session.commit()
+    #         school = SchoolProfile.query.filter_by(school_name = schoolName).first()
+    #     user_id.school_id = school.school_id
+    #     user_id.review_status = '273'
+    #     db.session.commit()
+    #     print('previous school id:'+str(schoolIds))
         
-        vendor = str(current_user.email).lower().replace(' ','_')
-        vendorId = str(vendor) +'_school_'+ str(schoolIds) + '_1'
-        ven = str(vendor)+'_school_'+str(school.school_id)+'_1'
+    #     vendor = str(current_user.email).lower().replace(' ','_')
+    #     vendorId = str(vendor) +'_school_'+ str(schoolIds) + '_1'
+    #     ven = str(vendor)+'_school_'+str(school.school_id)+'_1'
         
-        print('current school id:'+str(school.school_id))
-        current_user.school_id = school.school_id
-        print(vendorId)
-        bankIdExist = BankDetail.query.filter_by(vendor_id=ven).first()
-        if bankIdExist:
-            bankIdExist.account_num = accountNo
-            bankIdExist.ifsc = IfscCode
-            bankIdExist.bank_name = bankName
-            bankIdExist.account_name = accountHolderName
-            db.session.commit()
-        else:
-            bankDet = BankDetail(account_num=accountNo,ifsc=IfscCode,vendor_id=ven,bank_name=bankName,account_name=accountHolderName,school_id=school.school_id,is_archived='N')
-            db.session.add(bankDet)
-            db.session.commit()
-            school.current_vendor_id = ven
-            db.session.commit()
-        reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+" '"
-        reviewStatus = db.session.execute(text(reviewStatus)).first()
-        print('Review status:'+str(reviewStatus.review_status))
-        return jsonify(reviewStatus.review_status)
-    print('School Id:'+str(selectSchool))
-    schoolEx = ''
-    if selectSchool:
-        schoolEx = SchoolProfile.query.filter_by(school_id=selectSchool).first()
-    if user_avatar!=None:
-        current_user.user_avatar = user_avatar
-    if about_me!=None:
-        current_user.about_me = about_me
-    board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
-    checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('Teacher:'+str(checkTeacher))
-    if checkTeacher==None:
-        ## Adding new school record
-        print('if teacher is none')
-        schoolAdd = ''
-        if selectSchool==None:
-            print('if school id is none')
-            schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
-            db.session.add(schoolAdd)
-            current_user.school_id = schoolAdd.school_id
-            db.session.commit()
-            exSchool = SchoolProfile.query.filter_by(school_name=schoolName,school_type='individual',board_id=board.msg_id).first()
-            schoolEx = exSchool
-        ##Adding new teacher record
-        print(schoolEx.school_id)
-        teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
-        db.session.add(teacherAdd)
-        db.session.commit()
-        #Updating school admin with the new teacher ID
-        #teacherEx = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        schoolEx.school_admin = checkTeacher.teacher_id
-        #generating vendor id
-        vendorId = str(schoolName).lower().replace(' ','_')
-        vendorId = str(vendorId) +'_'+ str(schoolEx.school_id) + '_1'
-        #schoolAdd.curr_vendor_id = vendorId
-        current_user.school_id = schoolEx.school_id
-        db.session.commit()
-        reviewId = MessageDetails.query.filter_by(description='Inreview',category='Review Status').first()
-        reviewInsert = "update teacher_profile set review_status='"+str(reviewId.msg_id)+"' where user_id='"+str(current_user.id)+"' "
-        #Send sms to tech team to follow up
-        reviewInsert = db.session.execute(text(reviewInsert))
-        message = "New tutor has been registered in the database. Please setup contact them on email: "+ current_user.email 
-        message = message + " and phone: " + current_user.phone + " for review and pg setup"
-        phoneList = "9008500227,9910368828"        
-        #calling SMS function        
-        smsResponse = sendSMS(message, phoneList)
-        print("This is the sms send response: " + smsResponse)
+    #     print('current school id:'+str(school.school_id))
+    #     current_user.school_id = school.school_id
+    #     print(vendorId)
+    #     bankIdExist = BankDetail.query.filter_by(vendor_id=ven).first()
+    #     if bankIdExist:
+    #         bankIdExist.account_num = accountNo
+    #         bankIdExist.ifsc = IfscCode
+    #         bankIdExist.bank_name = bankName
+    #         bankIdExist.account_name = accountHolderName
+    #         db.session.commit()
+    #     else:
+    #         bankDet = BankDetail(account_num=accountNo,ifsc=IfscCode,vendor_id=ven,bank_name=bankName,account_name=accountHolderName,school_id=school.school_id,is_archived='N')
+    #         db.session.add(bankDet)
+    #         db.session.commit()
+    #         school.current_vendor_id = ven
+    #         db.session.commit()
+    #     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+" '"
+    #     reviewStatus = db.session.execute(text(reviewStatus)).first()
+    #     print('Review status:'+str(reviewStatus.review_status))
+    #     return jsonify(reviewStatus.review_status)
+    # print('School Id:'+str(selectSchool))
+    # schoolEx = ''
+    # if selectSchool:
+    #     schoolEx = SchoolProfile.query.filter_by(school_id=selectSchool).first()
+    # if user_avatar!=None:
+    #     current_user.user_avatar = user_avatar
+    # if about_me!=None:
+    #     current_user.about_me = about_me
+    # board  = MessageDetails.query.filter_by(category='Board',description='Other').first()
+    # checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    # print('Teacher:'+str(checkTeacher))
+    # if checkTeacher==None:
+    #     ## Adding new school record
+    #     print('if teacher is none')
+    #     schoolAdd = ''
+    #     if selectSchool==None:
+    #         print('if school id is none')
+    #         schoolAdd = SchoolProfile(school_name=schoolName,board_id=board.msg_id,registered_date=datetime.now(),school_type='individual',last_modified_date=datetime.now())
+    #         db.session.add(schoolAdd)
+    #         current_user.school_id = schoolAdd.school_id
+    #         db.session.commit()
+    #         exSchool = SchoolProfile.query.filter_by(school_name=schoolName,school_type='individual',board_id=board.msg_id).first()
+    #         schoolEx = exSchool
+    #     ##Adding new teacher record
+    #     print(schoolEx.school_id)
+    #     teacherAdd = TeacherProfile(teacher_name=str(current_user.first_name)+' '+str(current_user.last_name),school_id=schoolEx.school_id,registration_date=datetime.now(),email=current_user.email,phone=current_user.phone,user_id=current_user.id,device_preference='195',last_modified_date=datetime.now())
+    #     db.session.add(teacherAdd)
+    #     db.session.commit()
+    #     #Updating school admin with the new teacher ID
+    #     #teacherEx = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #     checkTeacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    #     schoolEx.school_admin = checkTeacher.teacher_id
+    #     #generating vendor id
+    #     vendorId = str(schoolName).lower().replace(' ','_')
+    #     vendorId = str(vendorId) +'_'+ str(schoolEx.school_id) + '_1'
+    #     #schoolAdd.curr_vendor_id = vendorId
+    #     current_user.school_id = schoolEx.school_id
+    #     db.session.commit()
+    #     reviewId = MessageDetails.query.filter_by(description='Inreview',category='Review Status').first()
+    #     reviewInsert = "update teacher_profile set review_status='"+str(reviewId.msg_id)+"' where user_id='"+str(current_user.id)+"' "
+    #     #Send sms to tech team to follow up
+    #     reviewInsert = db.session.execute(text(reviewInsert))
+    #     message = "New tutor has been registered in the database. Please setup contact them on email: "+ current_user.email 
+    #     message = message + " and phone: " + current_user.phone + " for review and pg setup"
+    #     phoneList = "9008500227,9910368828"        
+    #     #calling SMS function        
+    #     smsResponse = sendSMS(message, phoneList)
+    #     print("This is the sms send response: " + smsResponse)
 
-        ##Section to bank details
-        print('Bank Details')
-        print(accountNo)
-        print(IfscCode)
-        print(bankName)
-        print(accountHolderName)
-        print(vendorId)
-        bankDetailAdd = BankDetail(account_num = accountNo, ifsc=IfscCode, bank_name=bankName, account_name=accountHolderName, 
-            school_id=schoolEx.school_id, vendor_id=vendorId,
-            is_archived='N')
-        db.session.add(bankDetailAdd)
-        db.session.commit()
-        schoolEx.curr_vendor_id = vendorId
-        db.session.commit()
-        ##Section to add vendor with payment gateway
+    #     ##Section to bank details
+    #     print('Bank Details')
+    #     print(accountNo)
+    #     print(IfscCode)
+    #     print(bankName)
+    #     print(accountHolderName)
+    #     print(vendorId)
+    #     bankDetailAdd = BankDetail(account_num = accountNo, ifsc=IfscCode, bank_name=bankName, account_name=accountHolderName, 
+    #         school_id=schoolEx.school_id, vendor_id=vendorId,
+    #         is_archived='N')
+    #     db.session.add(bankDetailAdd)
+    #     db.session.commit()
+    #     schoolEx.curr_vendor_id = vendorId
+    #     db.session.commit()
+    #     ##Section to add vendor with payment gateway
 
 
-        ## Section to create a roomid  for the teacher
-    print("####This is the current room id: " + str(checkTeacher.room_id))
-    if checkTeacher.room_id==None:            
-        roomResponse = roomCreation()
-        roomResponseJson = roomResponse.json()
-        print("New room ID created: " +str(roomResponseJson["url"]))
-        checkTeacher.room_id = str(roomResponseJson["url"])
-        db.session.commit()
-    reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+" '"
-    reviewStatus = db.session.execute(text(reviewStatus)).first()
-    print('Review status:'+str(reviewStatus.review_status))
-    return jsonify(reviewStatus.review_status)
+    #     ## Section to create a roomid  for the teacher
+    # print("####This is the current room id: " + str(checkTeacher.room_id))
+    # if checkTeacher.room_id==None:            
+    #     roomResponse = roomCreation()
+    #     roomResponseJson = roomResponse.json()
+    #     print("New room ID created: " +str(roomResponseJson["url"]))
+    #     checkTeacher.room_id = str(roomResponseJson["url"])
+    #     db.session.commit()
+    # reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+" '"
+    # reviewStatus = db.session.execute(text(reviewStatus)).first()
+    # print('Review status:'+str(reviewStatus.review_status))
+    # return jsonify(reviewStatus.review_status)
 
 
 @app.route('/getOnlineClassLink',methods=['GET','POST'])
@@ -3278,7 +3337,7 @@ def sendSMS(message, phoneList):
     #Response {"status":"SUCCESS", "subCode":"200", "message":"Vendor added successfully"}
 
 
-@app.route('/addCourse')
+@app.route('/addCourse')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 def addCourse():
     course_id = request.args.get('course_id')
     if course_id=='':
@@ -3286,1081 +3345,1081 @@ def addCourse():
         db.session.add(courId)
         db.session.commit()
         course_id = courId.course_id
-    return redirect(url_for('editCourse',course_id=course_id))
+    return redirect(url_for('course.editCourse',course_id=course_id))
 
-@app.route('/editCourse')
-def editCourse():
-    print('inside editCourse')
-    course_category = MessageDetails.query.filter_by(category='Course Category').first()
-    desc = course_category.description.split(',')
-    course_id=request.args.get('course_id')
-    teacherIdExist = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('userID:'+str(current_user.id))
-    print('Teacher:'+str(teacherIdExist))
-    reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"'"
-    reviewStatus = db.session.execute(text(reviewStatus)).first()
-    if reviewStatus:
-        print('REview status:'+str(reviewStatus.review_status))
-        if reviewStatus.review_status==273:
-            print('review status Inreview')
-            return redirect(url_for('teacherRegistration'))
-    if teacherIdExist==None:
-        return redirect(url_for('teacherRegistration'))
-    else:
-        print('Description:'+str(desc))
-        print('course_id:'+str(course_id))
-        if course_id:
-            courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
-            levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
-            courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
-            # topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
-            # topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
-            # topicDet = topicDet + "left join test_questions tq on ct.test_id = tq.test_id "
-            # topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
+# @app.route('/editCourse')
+# def editCourse():
+#     print('inside editCourse')
+#     course_category = MessageDetails.query.filter_by(category='Course Category').first()
+#     desc = course_category.description.split(',')
+#     course_id=request.args.get('course_id')
+#     teacherIdExist = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     print('userID:'+str(current_user.id))
+#     print('Teacher:'+str(teacherIdExist))
+#     reviewStatus = "select *from teacher_profile where user_id='"+str(current_user.id)+"'"
+#     reviewStatus = db.session.execute(text(reviewStatus)).first()
+#     if reviewStatus:
+#         print('REview status:'+str(reviewStatus.review_status))
+#         if reviewStatus.review_status==273:
+#             print('review status Inreview')
+#             return redirect(url_for('teacherRegistration'))
+#     if teacherIdExist==None:
+#         return redirect(url_for('teacherRegistration'))
+#     else:
+#         print('Description:'+str(desc))
+#         print('course_id:'+str(course_id))
+#         if course_id:
+#             courseDet = CourseDetail.query.filter_by(course_id=course_id).first()
+#             levelId = MessageDetails.query.filter_by(category='Difficulty Level',msg_id=courseDet.difficulty_level).first()
+#             courseNotes = TopicNotes.query.filter_by(course_id=course_id).first()
+#             # topicDet = "select count(*) as no_of_questions,td.topic_name,td.topic_id,ct.course_id from course_topics ct "
+#             # topicDet = topicDet + "inner join topic_detail td on ct.topic_id=td.topic_id "
+#             # topicDet = topicDet + "left join test_questions tq on ct.test_id = tq.test_id "
+#             # topicDet = topicDet + "where ct.course_id = '"+str(course_id)+"' and tq.is_archived='N' and ct.is_archived='N' group by td.topic_name,td.topic_id,ct.course_id "
             
-            topicL = []
-            topicsID = CourseTopics.query.filter_by(course_id=course_id,is_archived='N').all()
-            for topicId in topicsID:
-                topicList = []
-                topic_name = Topic.query.filter_by(topic_id=topicId.topic_id).first()
-                quesNo = TestQuestions.query.filter_by(test_id=topicId.test_id,is_archived='N').all()
-                questionNo = len(quesNo)
-                topicList.append(topic_name.topic_name)
-                topicList.append(questionNo)
-                topicList.append(topicId.topic_id)
-                notes = TopicNotes.query.filter_by(topic_id=topicId.topic_id,is_archived='N').first()
-                recording = "select *from course_topics where course_id='"+str(course_id)+"' and topic_id='"+str(topicId.topic_id)+"' and video_class_url<>'' order by topic_id asc"
-                recording = db.session.execute(text(recording)).first()
-                checkNotes = ''
-                checkRec = ''
-                if notes:
-                    checkNotes = notes.notes_name
-                if recording:
-                    checkRec = recording.video_class_url
-                topicList.append(checkNotes)
-                topicList.append(checkRec)
-                print(topicList)
-                topicL.append(topicList)
-            print(topicL)
-            for topic in topicL:
-                print(topic[0])
-                print(topic[1])
-                print(topic[2])
-            # topicDet = db.session.execute(text(topicDet)).fetchall()
-            idealFor = ''
-            if courseDet:
-                idealFor = courseDet.ideal_for
-            levelId = ''
-            if levelId:
-                levelId = levelId.description
-            print('Description:'+str(courseDet.description))
-            status = 1
-            return render_template('editCourse.html',status=status,levelId=levelId,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
-        else:
-            levelId = ''
-            return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
+#             topicL = []
+#             topicsID = CourseTopics.query.filter_by(course_id=course_id,is_archived='N').all()
+#             for topicId in topicsID:
+#                 topicList = []
+#                 topic_name = Topic.query.filter_by(topic_id=topicId.topic_id).first()
+#                 quesNo = TestQuestions.query.filter_by(test_id=topicId.test_id,is_archived='N').all()
+#                 questionNo = len(quesNo)
+#                 topicList.append(topic_name.topic_name)
+#                 topicList.append(questionNo)
+#                 topicList.append(topicId.topic_id)
+#                 notes = TopicNotes.query.filter_by(topic_id=topicId.topic_id,is_archived='N').first()
+#                 recording = "select *from course_topics where course_id='"+str(course_id)+"' and topic_id='"+str(topicId.topic_id)+"' and video_class_url<>'' order by topic_id asc"
+#                 recording = db.session.execute(text(recording)).first()
+#                 checkNotes = ''
+#                 checkRec = ''
+#                 if notes:
+#                     checkNotes = notes.notes_name
+#                 if recording:
+#                     checkRec = recording.video_class_url
+#                 topicList.append(checkNotes)
+#                 topicList.append(checkRec)
+#                 print(topicList)
+#                 topicL.append(topicList)
+#             print(topicL)
+#             for topic in topicL:
+#                 print(topic[0])
+#                 print(topic[1])
+#                 print(topic[2])
+#             # topicDet = db.session.execute(text(topicDet)).fetchall()
+#             idealFor = ''
+#             if courseDet:
+#                 idealFor = courseDet.ideal_for
+#             levelId = ''
+#             if levelId:
+#                 levelId = levelId.description
+#             print('Description:'+str(courseDet.description))
+#             status = 1
+#             return render_template('editCourse.html',status=status,levelId=levelId,idealFor=idealFor,desc=desc,courseDet=courseDet,course_id=course_id,topicDet=topicL)
+#         else:
+#             levelId = ''
+#             return render_template('editCourse.html',levelId=levelId,desc=desc,course_id=course_id)
     
 
 
-#clip = (VideoFileClip("frozen_trailer.mp4")
-#        .subclip((1,22.65),(1,23.2))
-#        .resize(0.3))
-#clip.write_gif("use_your_head.gif")
+# #clip = (VideoFileClip("frozen_trailer.mp4")
+# #        .subclip((1,22.65),(1,23.2))
+# #        .resize(0.3))
+# #clip.write_gif("use_your_head.gif")
 
 
 
-@app.route('/searchTopic',methods=['GET','POST'])
-def searchTopic():
-    topic = request.args.get('topic')
-    courseId = request.args.get('courseId')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    coursesId = CourseDetail.query.filter_by(teacher_id=teacher_id.teacher_id).all()
-    topicArray = []
-    for course_id in coursesId:
-        if str(course_id.course_id)!=str(courseId):
-            TopicIds = "select td.topic_id,td.topic_name from topic_detail td inner join course_topics ct on td.topic_id = ct.topic_id where td.topic_name like '"+str(topic)+"%'  and ct.course_id ='"+str(course_id.course_id)+"' and ct.is_archived='N'"
-            TopicIds = db.session.execute(text(TopicIds)).fetchall()
-            for top in TopicIds:
-                print('Topic:'+str(top))
-                topicArray.append(str(top.topic_id)+':'+str(top.topic_name)+':'+str(course_id.course_id))
-    if topicArray:
-        return jsonify([topicArray])
-    else:
-        return ""
+# @app.route('/searchTopic',methods=['GET','POST'])
+# def searchTopic():
+#     topic = request.args.get('topic')
+#     courseId = request.args.get('courseId')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     coursesId = CourseDetail.query.filter_by(teacher_id=teacher_id.teacher_id).all()
+#     topicArray = []
+#     for course_id in coursesId:
+#         if str(course_id.course_id)!=str(courseId):
+#             TopicIds = "select td.topic_id,td.topic_name from topic_detail td inner join course_topics ct on td.topic_id = ct.topic_id where td.topic_name like '"+str(topic)+"%'  and ct.course_id ='"+str(course_id.course_id)+"' and ct.is_archived='N'"
+#             TopicIds = db.session.execute(text(TopicIds)).fetchall()
+#             for top in TopicIds:
+#                 print('Topic:'+str(top))
+#                 topicArray.append(str(top.topic_id)+':'+str(top.topic_name)+':'+str(course_id.course_id))
+#     if topicArray:
+#         return jsonify([topicArray])
+#     else:
+#         return ""
 
-@app.route('/fetchQues',methods=['GET','POST'])
-def fetchQues():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
-    print('inside fetchQues')
-    courseId = request.args.get('courseId')
-    print('courseId:'+str(courseId))
-    topics = CourseTopics.query.filter_by(course_id=courseId,is_archived='N').order_by(CourseTopics.topic_id.desc()).all()
-    topicsDet = []
-    for topic in topics:
-        topicName = Topic.query.filter_by(topic_id=topic.topic_id).first()
-        quesIds = TestQuestions.query.filter_by(test_id=topic.test_id,is_archived='N').all()
-        quesNo = len(quesIds)
-        notes = TopicNotes.query.filter_by(topic_id=topic.topic_id,is_archived='N').first()
-        checkNotes = ''
-        checkRec = ''
-        if notes:
-            checkNotes = notes.notes_name
-        recording = "select *from course_topics where course_id='"+str(courseId)+"' and topic_id='"+str(topic.topic_id)+"' and video_class_url<>'' order by topic_id"
-        recording = db.session.execute(text(recording)).first()
-        if recording:
-            checkRec = recording.video_class_url
-        topic = topicName.topic_name.replace(",","/")
-        topicsDet.append(str(topic)+':'+str(quesNo)+':'+str(topicName.topic_id)+':'+str(checkNotes)+':'+str(checkRec))
-    if topicsDet:
-        return jsonify(topicsDet)
-    else:
-        return ""
+# @app.route('/fetchQues',methods=['GET','POST'])
+# def fetchQues():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#     print('inside fetchQues')
+#     courseId = request.args.get('courseId')
+#     print('courseId:'+str(courseId))
+#     topics = CourseTopics.query.filter_by(course_id=courseId,is_archived='N').order_by(CourseTopics.topic_id.desc()).all()
+#     topicsDet = []
+#     for topic in topics:
+#         topicName = Topic.query.filter_by(topic_id=topic.topic_id).first()
+#         quesIds = TestQuestions.query.filter_by(test_id=topic.test_id,is_archived='N').all()
+#         quesNo = len(quesIds)
+#         notes = TopicNotes.query.filter_by(topic_id=topic.topic_id,is_archived='N').first()
+#         checkNotes = ''
+#         checkRec = ''
+#         if notes:
+#             checkNotes = notes.notes_name
+#         recording = "select *from course_topics where course_id='"+str(courseId)+"' and topic_id='"+str(topic.topic_id)+"' and video_class_url<>'' order by topic_id"
+#         recording = db.session.execute(text(recording)).first()
+#         if recording:
+#             checkRec = recording.video_class_url
+#         topic = topicName.topic_name.replace(",","/")
+#         topicsDet.append(str(topic)+':'+str(quesNo)+':'+str(topicName.topic_id)+':'+str(checkNotes)+':'+str(checkRec))
+#     if topicsDet:
+#         return jsonify(topicsDet)
+#     else:
+#         return ""
 
-@app.route('/fetchRecording',methods=['GET','POST'])
-def fetchRecording():
-    print('inside fetchRecording')
-    topic_id = request.args.get('topic_id')
-    courseId = request.args.get('courseId')
-    record = CourseTopics.query.filter_by(course_id=courseId,topic_id=topic_id).first()
-    return jsonify(record.video_class_url)
+# @app.route('/fetchRecording',methods=['GET','POST'])
+# def fetchRecording():
+#     print('inside fetchRecording')
+#     topic_id = request.args.get('topic_id')
+#     courseId = request.args.get('courseId')
+#     record = CourseTopics.query.filter_by(course_id=courseId,topic_id=topic_id).first()
+#     return jsonify(record.video_class_url)
 
-@app.route('/deleteNotes',methods=['GET','POST'])
-def deleteNotes():
-    notes_id = request.args.get('notes_id')
-    notes = TopicNotes.query.filter_by(tn_id=notes_id).first()
-    notes.is_archived = 'Y'
-    db.session.commit()
-    return jsonify(notes.topic_id)
+# @app.route('/deleteNotes',methods=['GET','POST'])
+# def deleteNotes():
+#     notes_id = request.args.get('notes_id')
+#     notes = TopicNotes.query.filter_by(tn_id=notes_id).first()
+#     notes.is_archived = 'Y'
+#     db.session.commit()
+#     return jsonify(notes.topic_id)
 
 
-@app.route('/fetchNotes',methods=['GET','POST'])
-def fetchNotes():
-    print('inside fetchNotes')
-    topic_id = request.args.get('topic_id')
-    notes = TopicNotes.query.filter_by(topic_id=topic_id,is_archived='N').all()
-    notesData = []
-    for note in notes:
-        NewNotes = note.notes_name.replace(",","/")
-        notesData.append(str(NewNotes)+'!'+str(note.notes_url)+'!'+str(note.tn_id))
-    print(notesData)
-    if notesData:
-        return jsonify(notesData)
-    else:
-        return ""
+# @app.route('/fetchNotes',methods=['GET','POST'])
+# def fetchNotes():
+#     print('inside fetchNotes')
+#     topic_id = request.args.get('topic_id')
+#     notes = TopicNotes.query.filter_by(topic_id=topic_id,is_archived='N').all()
+#     notesData = []
+#     for note in notes:
+#         NewNotes = note.notes_name.replace(",","/")
+#         notesData.append(str(NewNotes)+'!'+str(note.notes_url)+'!'+str(note.tn_id))
+#     print(notesData)
+#     if notesData:
+#         return jsonify(notesData)
+#     else:
+#         return ""
 
-@app.route('/fetchRemQues',methods=['GET','POST'])
-def fetchRemQues():
-    quesIdList = request.get_json()
-    quesArray = []
-    for qId in quesIdList:
-        print('Question Id:'+str(qId))
-        quesObj = {}    
-        quesName = QuestionDetails.query.filter_by(question_id=qId).first()
-        quesObj['quesName'] = quesName.question_description
-        print('Ques:'+str(quesName.question_description))
-        quesOptions = QuestionOptions.query.filter_by(question_id=qId).all()
-        i=0
-        opt1=''
-        opt2=''
-        opt3=''
-        opt4=''
-        for option in quesOptions:
-            if i==0:
-                opt1 = option.option_desc
-            elif i==1:
-                opt2 = option.option_desc
-            elif i==2:
-                opt3 = option.option_desc
-            else:
-                opt4 = option.option_desc
-            i=i+1
-            print('quesOptions:'+str(option.option_desc))
-        quesArray.append(str(quesName.question_description)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId))
-    print('quesArray:')
-    print(quesArray)
-    if quesArray:
-        return jsonify(quesArray)
-    else:
-        return ""
+# @app.route('/fetchRemQues',methods=['GET','POST'])
+# def fetchRemQues():
+#     quesIdList = request.get_json()
+#     quesArray = []
+#     for qId in quesIdList:
+#         print('Question Id:'+str(qId))
+#         quesObj = {}    
+#         quesName = QuestionDetails.query.filter_by(question_id=qId).first()
+#         quesObj['quesName'] = quesName.question_description
+#         print('Ques:'+str(quesName.question_description))
+#         quesOptions = QuestionOptions.query.filter_by(question_id=qId).all()
+#         i=0
+#         opt1=''
+#         opt2=''
+#         opt3=''
+#         opt4=''
+#         for option in quesOptions:
+#             if i==0:
+#                 opt1 = option.option_desc
+#             elif i==1:
+#                 opt2 = option.option_desc
+#             elif i==2:
+#                 opt3 = option.option_desc
+#             else:
+#                 opt4 = option.option_desc
+#             i=i+1
+#             print('quesOptions:'+str(option.option_desc))
+#         quesArray.append(str(quesName.question_description)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId))
+#     print('quesArray:')
+#     print(quesArray)
+#     if quesArray:
+#         return jsonify(quesArray)
+#     else:
+#         return ""
 
-@app.route('/topicName',methods=['GET','POST'])
-def topicName():
-    print('inside topicName')
-    topicId = request.args.get('topic_id')
-    topicName = Topic.query.filter_by(topic_id=topicId).first()
-    topic_name = topicName.topic_name
-    print('topic name:'+topic_name)
+# @app.route('/topicName',methods=['GET','POST'])
+# def topicName():
+#     print('inside topicName')
+#     topicId = request.args.get('topic_id')
+#     topicName = Topic.query.filter_by(topic_id=topicId).first()
+#     topic_name = topicName.topic_name
+#     print('topic name:'+topic_name)
 
-    return jsonify(topic_name)
+#     return jsonify(topic_name)
 
-@app.route('/fetchTopicQues',methods=['GET','POST'])
-def fetchTopicsQues():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
-    print('inside fetchTopics')
-    topic_id = request.args.get('topic_id')
-    courseId = request.args.get('courseId')
-    print('topic_id:'+str(topic_id))
-    topics = CourseTopics.query.filter_by(topic_id=topic_id,is_archived='N').first()
-    topicName = Topic.query.filter_by(topic_id=topics.topic_id).first()
-    print('Topic name:'+str(topicName.topic_name))
-    quesIds = TestQuestions.query.filter_by(test_id=topics.test_id,is_archived='N').all()
-    # topicNotes = TopicNotes.query.filter_by(topic_id=topics.topic_id).first()
-    # NotesName = topicNotes.notes_name
-    # NotesUrl = topicNotes.notes_url
-    quesArray = []
-    NewTopicName = ''
-    if len(quesIds)==0:
-        NewTopicName = topicName.topic_name.replace(",","/")
-        quesArray.append(str('')+':'+str(NewTopicName)+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str(topicName.topic_id))
-    for qId in quesIds:
-        quesObj = {}    
-        quesName = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
-        quesObj['quesName'] = quesName.question_description
-        quesObj['topic_name'] = topicName.topic_name
-        print('Ques:'+str(quesName.question_description))
-        print('topicName:'+str(topicName.topic_name))
-        quesOptions = QuestionOptions.query.filter_by(question_id=qId.question_id).all()
-        i=0
-        opt1=''
-        opt2=''
-        opt3=''
-        opt4=''
-        for option in quesOptions:
-            if i==0:
-                opt1 = option.option_desc
-            elif i==1:
-                opt2 = option.option_desc
-            elif i==2:
-                opt3 = option.option_desc
-            else:
-                opt4 = option.option_desc
-            i=i+1
-            print('quesOptions:'+str(option.option_desc))
-        NewTopicName = topicName.topic_name.replace(",","/")
-        quesArray.append(str(quesName.question_description)+':'+str(NewTopicName)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId.question_id)+':'+str(topicName.topic_id))
-    print('quesArray:')
-    print(quesArray)
-    if quesArray:
-        return jsonify(quesArray)
-    else:
-        return ""
+# @app.route('/fetchTopicQues',methods=['GET','POST'])
+# def fetchTopicsQues():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#     print('inside fetchTopics')
+#     topic_id = request.args.get('topic_id')
+#     courseId = request.args.get('courseId')
+#     print('topic_id:'+str(topic_id))
+#     topics = CourseTopics.query.filter_by(topic_id=topic_id,is_archived='N').first()
+#     topicName = Topic.query.filter_by(topic_id=topics.topic_id).first()
+#     print('Topic name:'+str(topicName.topic_name))
+#     quesIds = TestQuestions.query.filter_by(test_id=topics.test_id,is_archived='N').all()
+#     # topicNotes = TopicNotes.query.filter_by(topic_id=topics.topic_id).first()
+#     # NotesName = topicNotes.notes_name
+#     # NotesUrl = topicNotes.notes_url
+#     quesArray = []
+#     NewTopicName = ''
+#     if len(quesIds)==0:
+#         NewTopicName = topicName.topic_name.replace(",","/")
+#         quesArray.append(str('')+':'+str(NewTopicName)+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str('')+':'+str(topicName.topic_id))
+#     for qId in quesIds:
+#         quesObj = {}    
+#         quesName = QuestionDetails.query.filter_by(question_id=qId.question_id).first()
+#         quesObj['quesName'] = quesName.question_description
+#         quesObj['topic_name'] = topicName.topic_name
+#         print('Ques:'+str(quesName.question_description))
+#         print('topicName:'+str(topicName.topic_name))
+#         quesOptions = QuestionOptions.query.filter_by(question_id=qId.question_id).all()
+#         i=0
+#         opt1=''
+#         opt2=''
+#         opt3=''
+#         opt4=''
+#         for option in quesOptions:
+#             if i==0:
+#                 opt1 = option.option_desc
+#             elif i==1:
+#                 opt2 = option.option_desc
+#             elif i==2:
+#                 opt3 = option.option_desc
+#             else:
+#                 opt4 = option.option_desc
+#             i=i+1
+#             print('quesOptions:'+str(option.option_desc))
+#         NewTopicName = topicName.topic_name.replace(",","/")
+#         quesArray.append(str(quesName.question_description)+':'+str(NewTopicName)+':'+str(opt1)+':'+str(opt2)+':'+str(opt3)+':'+str(opt4)+':'+str(qId.question_id)+':'+str(topicName.topic_id))
+#     print('quesArray:')
+#     print(quesArray)
+#     if quesArray:
+#         return jsonify(quesArray)
+#     else:
+#         return ""
 
-@app.route('/deleteTopic',methods=['GET','POST'])
-def deleteTopic():
-    print('inside deleteTopic')
-    topicId = request.args.get('topicId')
-    print('Topic id:'+str(topicId))
-    course_id = request.args.get('course_id')
-    courseTopic = CourseTopics.query.filter_by(topic_id=topicId,course_id=course_id,is_archived='N').first()
-    courseTopic.is_archived = 'Y'
-    db.session.commit()
-    notes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' and is_archived='N'"
-    notes = db.session.execute(text(notes))
-    db.session.commit()
-    return jsonify("1")
+# @app.route('/deleteTopic',methods=['GET','POST'])
+# def deleteTopic():
+#     print('inside deleteTopic')
+#     topicId = request.args.get('topicId')
+#     print('Topic id:'+str(topicId))
+#     course_id = request.args.get('course_id')
+#     courseTopic = CourseTopics.query.filter_by(topic_id=topicId,course_id=course_id,is_archived='N').first()
+#     courseTopic.is_archived = 'Y'
+#     db.session.commit()
+#     notes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' and is_archived='N'"
+#     notes = db.session.execute(text(notes))
+#     db.session.commit()
+#     return jsonify("1")
 
-@app.route('/updateCourseTopic',methods=['GET','POST'])
-def updateCourseTopic():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
-    print('inside updateCourseTopic')
-    topicId = request.args.get('topicId')
-    courseId = request.args.get('courseId')
-    topicName = request.args.get('topicName')
-    print('Topic Id:'+str(topicId))
-    print('courseId:'+str(courseId))
-    quesIds = request.get_json()
-    print(quesIds)
-    topicDet = Topic.query.filter_by(topic_id=topicId).first()
-    topicDet.topic_name = topicName
-    db.session.commit()
-    testId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId).first()
-    # totalQId = TestQuestions.query.filter_by(test_id=testId.test_id).all()
-    deleteAll = "update test_questions set is_archived='Y' where test_id='"+str(testId.test_id)+"' "
-    deleteAll = db.session.execute(text(deleteAll))
-    # print('Total Question Ids:'+str(totalQId))
-    print('Total not deleted Ques Ids:'+str(quesIds))
-    print(quesIds)
-    print('Length of Ques Ids:'+str(len(quesIds)))
-    total_marks = 10*int(len(quesIds))
-    print('Total marks:'+str(total_marks))
-    testDet = TestDetails.query.filter_by(test_id=testId.test_id).first()
-    # db.session.add(testDet)
-    testDet.total_marks = total_marks
-    db.session.commit()
-        # testId = "select max(test_id) as test_id from test_details"
-        # testId = db.session.execute(text(testId)).first()
-    # courseTopic = ''
-    # if courseId:
-    #     courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
-    #     db.session.add(courseTopic)
-    # else:
-    #     courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
-    #     db.session.add(courseTopic)
-    # db.session.commit()
-    if len(quesIds)!=0:
-        for quesId in quesIds:
-            print('QuesID:'+str(quesId))
-            if quesId!='[' or quesId!=']':
-                testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(testQues)
-                db.session.commit()
-            # quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
-            # quesDet.topic_id=topicDet.topic_id
+# @app.route('/updateCourseTopic',methods=['GET','POST'])
+# def updateCourseTopic():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#     print('inside updateCourseTopic')
+#     topicId = request.args.get('topicId')
+#     courseId = request.args.get('courseId')
+#     topicName = request.args.get('topicName')
+#     print('Topic Id:'+str(topicId))
+#     print('courseId:'+str(courseId))
+#     quesIds = request.get_json()
+#     print(quesIds)
+#     topicDet = Topic.query.filter_by(topic_id=topicId).first()
+#     topicDet.topic_name = topicName
+#     db.session.commit()
+#     testId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId).first()
+#     # totalQId = TestQuestions.query.filter_by(test_id=testId.test_id).all()
+#     deleteAll = "update test_questions set is_archived='Y' where test_id='"+str(testId.test_id)+"' "
+#     deleteAll = db.session.execute(text(deleteAll))
+#     # print('Total Question Ids:'+str(totalQId))
+#     print('Total not deleted Ques Ids:'+str(quesIds))
+#     print(quesIds)
+#     print('Length of Ques Ids:'+str(len(quesIds)))
+#     total_marks = 10*int(len(quesIds))
+#     print('Total marks:'+str(total_marks))
+#     testDet = TestDetails.query.filter_by(test_id=testId.test_id).first()
+#     # db.session.add(testDet)
+#     testDet.total_marks = total_marks
+#     db.session.commit()
+#         # testId = "select max(test_id) as test_id from test_details"
+#         # testId = db.session.execute(text(testId)).first()
+#     # courseTopic = ''
+#     # if courseId:
+#     #     courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+#     #     db.session.add(courseTopic)
+#     # else:
+#     #     courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+#     #     db.session.add(courseTopic)
+#     # db.session.commit()
+#     if len(quesIds)!=0:
+#         for quesId in quesIds:
+#             print('QuesID:'+str(quesId))
+#             if quesId!='[' or quesId!=']':
+#                 testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+#                 db.session.add(testQues)
+#                 db.session.commit()
+#             # quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+#             # quesDet.topic_id=topicDet.topic_id
             
     
-    return jsonify("1")
+#     return jsonify("1")
 
 
 
-@app.route('/addCourseTopic',methods=['GET','POST'])
-def addCourseTopic():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
-    print('inside addCourseTopic')
-    topicName = request.args.get('topicName')
-    courseId = request.args.get('courseId')
-    topicId = request.args.get('topicId')
-    courId = request.args.get('courId')
-    print('My course ID:'+str(courseId))
-    print('selected topic id:'+str(topicId))
-    print('courseId of selected topic:'+str(courId))
+# @app.route('/addCourseTopic',methods=['GET','POST'])
+# def addCourseTopic():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#     print('inside addCourseTopic')
+#     topicName = request.args.get('topicName')
+#     courseId = request.args.get('courseId')
+#     topicId = request.args.get('topicId')
+#     courId = request.args.get('courId')
+#     print('My course ID:'+str(courseId))
+#     print('selected topic id:'+str(topicId))
+#     print('courseId of selected topic:'+str(courId))
     
     
 
-    if courId:
-        quesIds = request.get_json()
-        total_marks = 10*len(quesIds)
-        print('Total marks:'+str(total_marks))
-        testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
-        db.session.add(testDet)
-        db.session.commit()
-        testId = "select max(test_id) as test_id from test_details"
-        testId = db.session.execute(text(testId)).first()
+#     if courId:
+#         quesIds = request.get_json()
+#         total_marks = 10*len(quesIds)
+#         print('Total marks:'+str(total_marks))
+#         testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
+#         db.session.add(testDet)
+#         db.session.commit()
+#         testId = "select max(test_id) as test_id from test_details"
+#         testId = db.session.execute(text(testId)).first()
 
-        if courId:
-            myTestId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId,is_archived='N').first()
-            testID = CourseTopics.query.filter_by(course_id=courId,topic_id=topicId).first()
-            questionIds = TestQuestions.query.filter_by(test_id=testID.test_id).all()
-            print(questionIds)
-            for q in questionIds:
-                print('Question ID:'+str(q.question_id))
-                print('test id in which question stored:'+str(testId.test_id))
-                Questions = TestQuestions(test_id=testId.test_id,question_id=q.question_id,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(Questions)
-                db.session.commit()
-        courseTopic = ''
-        if courseId:
-            courseTopic = CourseTopics(course_id=courseId,topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(courseTopic)
-        else:
-            courseTopic = CourseTopics(topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(courseTopic)
-        db.session.commit()
-        for quesId in quesIds:
-            print('QuesID:'+str(quesId))
-            testQues = TestQuestions(test_id=testId.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(testQues)
+#         if courId:
+#             myTestId = CourseTopics.query.filter_by(course_id=courseId,topic_id=topicId,is_archived='N').first()
+#             testID = CourseTopics.query.filter_by(course_id=courId,topic_id=topicId).first()
+#             questionIds = TestQuestions.query.filter_by(test_id=testID.test_id).all()
+#             print(questionIds)
+#             for q in questionIds:
+#                 print('Question ID:'+str(q.question_id))
+#                 print('test id in which question stored:'+str(testId.test_id))
+#                 Questions = TestQuestions(test_id=testId.test_id,question_id=q.question_id,is_archived='N',last_modified_date=datetime.now())
+#                 db.session.add(Questions)
+#                 db.session.commit()
+#         courseTopic = ''
+#         if courseId:
+#             courseTopic = CourseTopics(course_id=courseId,topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(courseTopic)
+#         else:
+#             courseTopic = CourseTopics(topic_id=topicId,test_id=testId.test_id,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(courseTopic)
+#         db.session.commit()
+#         for quesId in quesIds:
+#             print('QuesID:'+str(quesId))
+#             testQues = TestQuestions(test_id=testId.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(testQues)
         
-            quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
-            quesDet.topic_id=topicId
-            db.session.commit()
-        return jsonify(topicId)
-    else:
-        print('Topic name:'+str(topicName))
-        print('courseId:'+str(courseId))
-        quesIds = request.get_json()
-        print(quesIds)
-        # courseId = CourseDetail.query.filter_by(course_name=courseName,teacher_id=teacherData.teacher_id,school_id=teacherData.school_id).first()
+#             quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+#             quesDet.topic_id=topicId
+#             db.session.commit()
+#         return jsonify(topicId)
+#     else:
+#         print('Topic name:'+str(topicName))
+#         print('courseId:'+str(courseId))
+#         quesIds = request.get_json()
+#         print(quesIds)
+#         # courseId = CourseDetail.query.filter_by(course_name=courseName,teacher_id=teacherData.teacher_id,school_id=teacherData.school_id).first()
         
-        # for quesId in quesIds:
-        #     print(quesId)
-        topicDet = Topic(topic_name=topicName,chapter_name=topicName,board_id=board.board_id,teacher_id=teacherData.teacher_id)
-        db.session.add(topicDet)
-        db.session.commit()
-        # topicId = "select max(topic_id) as topic_id from topic_detail"
-        # topicId = db.session.execute(text(topicId)).first()
+#         # for quesId in quesIds:
+#         #     print(quesId)
+#         topicDet = Topic(topic_name=topicName,chapter_name=topicName,board_id=board.board_id,teacher_id=teacherData.teacher_id)
+#         db.session.add(topicDet)
+#         db.session.commit()
+#         # topicId = "select max(topic_id) as topic_id from topic_detail"
+#         # topicId = db.session.execute(text(topicId)).first()
         
-        topicTr = TopicTracker(school_id=teacherData.school_id,topic_id=topicDet.topic_id,is_covered='N',reteach_count=0,is_archived='N',last_modified_date=datetime.now())
-        db.session.add(topicTr)
-        db.session.commit()
-        total_marks = 10*len(quesIds)
-        print('Total marks:'+str(total_marks))
-        testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
-        db.session.add(testDet)
-        db.session.commit()
-        # testId = "select max(test_id) as test_id from test_details"
-        # testId = db.session.execute(text(testId)).first()
-        courseTopic = ''
-        if courseId:
-            courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(courseTopic)
-        else:
-            courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(courseTopic)
-        db.session.commit()
-        if quesIds:
-            for quesId in quesIds:
-                testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
-                db.session.add(testQues)
+#         topicTr = TopicTracker(school_id=teacherData.school_id,topic_id=topicDet.topic_id,is_covered='N',reteach_count=0,is_archived='N',last_modified_date=datetime.now())
+#         db.session.add(topicTr)
+#         db.session.commit()
+#         total_marks = 10*len(quesIds)
+#         print('Total marks:'+str(total_marks))
+#         testDet = TestDetails(board_id=board.board_id,school_id=teacherData.school_id,test_type='Practice Test',total_marks=total_marks,teacher_id=teacherData.teacher_id,date_of_creation=datetime.now(),last_modified_date=datetime.now())
+#         db.session.add(testDet)
+#         db.session.commit()
+#         # testId = "select max(test_id) as test_id from test_details"
+#         # testId = db.session.execute(text(testId)).first()
+#         courseTopic = ''
+#         if courseId:
+#             courseTopic = CourseTopics(course_id=courseId,topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(courseTopic)
+#         else:
+#             courseTopic = CourseTopics(topic_id=topicDet.topic_id,test_id=testDet.test_id,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(courseTopic)
+#         db.session.commit()
+#         if quesIds:
+#             for quesId in quesIds:
+#                 testQues = TestQuestions(test_id=testDet.test_id,question_id=quesId,is_archived='N',last_modified_date=datetime.now())
+#                 db.session.add(testQues)
                 
-                quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
-                quesDet.topic_id=topicDet.topic_id
-                db.session.commit()
-        return jsonify(topicDet.topic_id)
+#                 quesDet = QuestionDetails.query.filter_by(question_id=quesId).first()
+#                 quesDet.topic_id=topicDet.topic_id
+#                 db.session.commit()
+#         return jsonify(topicDet.topic_id)
     
-@app.route('/fetchTickCorrect',methods=['GET','POST'])
-def fetchTickCorrect():
-    print('inside fetchTickCorrect')
-    correctOpt = []
-    topic_id = request.args.get('topic_id')
-    print('TopicId:'+str(topic_id))
-    # quesIdsList = TestQuestions.query.filter_by(topic_id=topic_id).all()
-    quesList  = request.get_json()
-    print('Question List:')
-    print(quesList)
-    for quesId in quesList:
-        print('Question Id:'+str(quesId))
-        corr = QuestionOptions.query.filter_by(question_id=quesId,is_correct='Y').first()
-        correctOpt.append(str(corr.option_desc)+':'+str(quesId))
-    return jsonify(correctOpt)
+# @app.route('/fetchTickCorrect',methods=['GET','POST'])
+# def fetchTickCorrect():
+#     print('inside fetchTickCorrect')
+#     correctOpt = []
+#     topic_id = request.args.get('topic_id')
+#     print('TopicId:'+str(topic_id))
+#     # quesIdsList = TestQuestions.query.filter_by(topic_id=topic_id).all()
+#     quesList  = request.get_json()
+#     print('Question List:')
+#     print(quesList)
+#     for quesId in quesList:
+#         print('Question Id:'+str(quesId))
+#         corr = QuestionOptions.query.filter_by(question_id=quesId,is_correct='Y').first()
+#         correctOpt.append(str(corr.option_desc)+':'+str(quesId))
+#     return jsonify(correctOpt)
 
-@app.route('/addRecording',methods=['GET','POST'])
-def addRecording():
-    topic_id = request.args.get('topic_id')
-    course_id = request.args.get('course_id')
-    videoRec = CourseTopics.query.filter_by(topic_id=topic_id,course_id=course_id).first()
-    recordingURL = request.form.get('recordingURL')
-    print('recording Url:'+str(recordingURL))
-    videoRecordUrl = request.form.get('videoRecordUrl')
-    print('video url:'+str(videoRecordUrl))
+# @app.route('/addRecording',methods=['GET','POST'])
+# def addRecording():
+#     topic_id = request.args.get('topic_id')
+#     course_id = request.args.get('course_id')
+#     videoRec = CourseTopics.query.filter_by(topic_id=topic_id,course_id=course_id).first()
+#     recordingURL = request.form.get('recordingURL')
+#     print('recording Url:'+str(recordingURL))
+#     videoRecordUrl = request.form.get('videoRecordUrl')
+#     print('video url:'+str(videoRecordUrl))
     
-    print('video recording url:'+str(videoRecordUrl))
-    if recordingURL:
-        videoRec.video_class_url = recordingURL
-    else:
-        videoRec.video_class_url = videoRecordUrl
-    db.session.commit()
-    return jsonify("1")
+#     print('video recording url:'+str(videoRecordUrl))
+#     if recordingURL:
+#         videoRec.video_class_url = recordingURL
+#     else:
+#         videoRec.video_class_url = videoRecordUrl
+#     db.session.commit()
+#     return jsonify("1")
 
-@app.route('/updateNotes',methods=['GET','POST'])
-def updateNotes():
-    topicId = request.args.get('topic_id')
-    notesName = request.form.getlist('notesName')
-    notesURL = request.form.getlist('notesURL')
-    videoNotesUrl = request.form.getlist('videoNotesUrl')
-    print('topicId:'+str(topicId))
-    # print('Notes name:'+str(notesName))  
-    existNotes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' "
-    existNotes = db.session.execute(text(existNotes))
-    print('Length of notes url array:'+str(len(notesURL)))
-    for i in range(len(notesName)):
-        print('inside for loop:'+str(i))
-        print('NotesName:'+str(notesName[i]))
-        print('notesUrl:'+str(notesURL[i]))
-        print('videoNotesUrl:'+str(videoNotesUrl[i]))
-        print('index:'+str(i))
-        if i!=0:
-            if notesURL[i]:
-                print('url not null')
-                if notesName[i]:
-                    print('notes name not null')
-                    if notesURL[i]:
-                        courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-                        addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-                        db.session.add(addNotes)
-                        db.session.commit()
-                    else:
-                        return ""
-                else:
-                    return ""
-            else:
-                if notesName[i]: 
-                    if videoNotesUrl[i]:
-                        courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-                        addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-                        db.session.add(addNotes)
-                        db.session.commit()
-                    else:
-                        return ""
-                else:
-                    return ""
-    return jsonify("1")
+# @app.route('/updateNotes',methods=['GET','POST'])
+# def updateNotes():
+#     topicId = request.args.get('topic_id')
+#     notesName = request.form.getlist('notesName')
+#     notesURL = request.form.getlist('notesURL')
+#     videoNotesUrl = request.form.getlist('videoNotesUrl')
+#     print('topicId:'+str(topicId))
+#     # print('Notes name:'+str(notesName))  
+#     existNotes = "update topic_notes set is_archived='Y' where topic_id='"+str(topicId)+"' "
+#     existNotes = db.session.execute(text(existNotes))
+#     print('Length of notes url array:'+str(len(notesURL)))
+#     for i in range(len(notesName)):
+#         print('inside for loop:'+str(i))
+#         print('NotesName:'+str(notesName[i]))
+#         print('notesUrl:'+str(notesURL[i]))
+#         print('videoNotesUrl:'+str(videoNotesUrl[i]))
+#         print('index:'+str(i))
+#         if i!=0:
+#             if notesURL[i]:
+#                 print('url not null')
+#                 if notesName[i]:
+#                     print('notes name not null')
+#                     if notesURL[i]:
+#                         courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+#                         addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+#                         db.session.add(addNotes)
+#                         db.session.commit()
+#                     else:
+#                         return ""
+#                 else:
+#                     return ""
+#             else:
+#                 if notesName[i]: 
+#                     if videoNotesUrl[i]:
+#                         courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+#                         addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+#                         db.session.add(addNotes)
+#                         db.session.commit()
+#                     else:
+#                         return ""
+#                 else:
+#                     return ""
+#     return jsonify("1")
 
-@app.route('/addNotes',methods=['GET','POST'])
-def addNotes():
-    topicId = request.args.get('topic_id')
-    notesName = request.form.getlist('notesName')
-    notesURL = request.form.getlist('notesURL')
-    videoNotesUrl = request.form.getlist('videoNotesUrl')
-    print('topicId:'+str(topicId))
-    print('Notes name:'+str(notesName))
-    for i in range(len(notesName)):
-        print('inside for loop:'+str(i))
-        print('NotesName:'+str(notesName[i]))
-        print('notesUrl:'+str(notesURL[i]))
-        print('videoNotesUrl:'+str(videoNotesUrl[i]))
-        print('index:'+str(i))
-        if notesURL[i]:
-            print('url not null')
-            if notesName[i]:
-                print('notes name not null')
-                if notesURL[i]:
-                    courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-                    addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-                    db.session.add(addNotes)
-                    db.session.commit()
-                else:
-                    return ""
-            else:
-                return ""
-        else:
-            if notesName[i]: 
-                if videoNotesUrl[i]:
-                    print('inside when notes name and file uploaded')
-                    courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
-                    addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
-                    db.session.add(addNotes)
-                    db.session.commit()
-                else:
-                    return ""
-            # return ""
-            else:
-                return ""
-    return jsonify("1")
+# @app.route('/addNotes',methods=['GET','POST'])
+# def addNotes():
+#     topicId = request.args.get('topic_id')
+#     notesName = request.form.getlist('notesName')
+#     notesURL = request.form.getlist('notesURL')
+#     videoNotesUrl = request.form.getlist('videoNotesUrl')
+#     print('topicId:'+str(topicId))
+#     print('Notes name:'+str(notesName))
+#     for i in range(len(notesName)):
+#         print('inside for loop:'+str(i))
+#         print('NotesName:'+str(notesName[i]))
+#         print('notesUrl:'+str(notesURL[i]))
+#         print('videoNotesUrl:'+str(videoNotesUrl[i]))
+#         print('index:'+str(i))
+#         if notesURL[i]:
+#             print('url not null')
+#             if notesName[i]:
+#                 print('notes name not null')
+#                 if notesURL[i]:
+#                     courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+#                     addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=notesURL[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+#                     db.session.add(addNotes)
+#                     db.session.commit()
+#                 else:
+#                     return ""
+#             else:
+#                 return ""
+#         else:
+#             if notesName[i]: 
+#                 if videoNotesUrl[i]:
+#                     print('inside when notes name and file uploaded')
+#                     courseId = CourseTopics.query.filter_by(topic_id=topicId).first()
+#                     addNotes = TopicNotes(topic_id=topicId,course_id=courseId.course_id,notes_name=notesName[i],notes_url=videoNotesUrl[i],notes_type=226,is_archived='N',last_modified_date=datetime.now())
+#                     db.session.add(addNotes)
+#                     db.session.commit()
+#                 else:
+#                     return ""
+#             # return ""
+#             else:
+#                 return ""
+#     return jsonify("1")
 
-@app.route('/addNewQuestion',methods=['GET','POST'])
-def addNewQuestion():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
-    print('inside add question')
-    corr = request.args.get('corr')
-    ques = request.args.get('ques')
-    opt1 = request.args.get('opt1')
-    opt2 = request.args.get('opt2')
-    opt3 = request.args.get('opt3')
-    opt4 = request.args.get('opt4')
-    print('question Desc:'+str(ques))
-    print('option 1:'+str(opt1))
-    print('option 2:'+str(opt2))
-    print('option 3:'+str(opt3))
-    print('option 4:'+str(opt4))
-    print('correct option:'+str(corr))
-    quesCreate = QuestionDetails(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N')
-    db.session.add(quesCreate)
-    db.session.commit()
-    for i in range(4):
-        op = request.args.get('opt'+str(i+1))
-        correctOption = ''
-        if str(corr) == str(i+1):
-            correctOption = 'Y'
-        else:
-            correctOption = 'N'
-        option = ''
-        if i==0:
-            option = 'A'
-        elif i==1:
-            option = 'B'
-        elif i==2:
-            option = 'C'
-        else:
-            option = 'D'
-        # ques_det = QuestionDetails.query.filter_by(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N').first()
-        options = QuestionOptions(option=option,is_correct=correctOption,option_desc=op,question_id=quesCreate.question_id,weightage='10',last_modified_date=datetime.now())
-        db.session.add(options)
-        db.session.commit()
-    return jsonify(quesCreate.question_id)
+# @app.route('/addNewQuestion',methods=['GET','POST'])
+# def addNewQuestion():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#     print('inside add question')
+#     corr = request.args.get('corr')
+#     ques = request.args.get('ques')
+#     opt1 = request.args.get('opt1')
+#     opt2 = request.args.get('opt2')
+#     opt3 = request.args.get('opt3')
+#     opt4 = request.args.get('opt4')
+#     print('question Desc:'+str(ques))
+#     print('option 1:'+str(opt1))
+#     print('option 2:'+str(opt2))
+#     print('option 3:'+str(opt3))
+#     print('option 4:'+str(opt4))
+#     print('correct option:'+str(corr))
+#     quesCreate = QuestionDetails(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N')
+#     db.session.add(quesCreate)
+#     db.session.commit()
+#     for i in range(4):
+#         op = request.args.get('opt'+str(i+1))
+#         correctOption = ''
+#         if str(corr) == str(i+1):
+#             correctOption = 'Y'
+#         else:
+#             correctOption = 'N'
+#         option = ''
+#         if i==0:
+#             option = 'A'
+#         elif i==1:
+#             option = 'B'
+#         elif i==2:
+#             option = 'C'
+#         else:
+#             option = 'D'
+#         # ques_det = QuestionDetails.query.filter_by(board_id=board.board_id,question_description=ques,question_type='MCQ1',suggested_weightage='10',is_private='N',archive_status='N').first()
+#         options = QuestionOptions(option=option,is_correct=correctOption,option_desc=op,question_id=quesCreate.question_id,weightage='10',last_modified_date=datetime.now())
+#         db.session.add(options)
+#         db.session.commit()
+#     return jsonify(quesCreate.question_id)
     
-@app.route('/fetchQuesList',methods=['GET','POST'])
-def fetchQuesList():
-    print('inside fetchQuesList')
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    quesList = request.get_json()
-    indic = request.args.get('indic')
-    print('questionIdList:')
-    print(quesList)
-    for ques in quesList:
-        print('Question_id:')
-        print(ques)
-    if indic=='1':
-        for quesId in quesList:
-            quesDesc = QuestionDetails.query.filter_by(question_id=quesId).first()
-            print(quesDesc.question_description)
-            quesOptions = QuestionOptions.query.filter_by(question_id=quesId).all()
-            op1=''
-            op2=''
-            op3=''
-            op4=''
-            optionList = []
-            quesDetails = []
-            corrOption = ''
-            for options in quesOptions:
-                print('Option Desc:'+str(options.option_desc))
-                optionList.append(options.option_desc)
-                if options.is_correct=='Y':
-                    corrOption = options.option_desc
-            for i in range(len(optionList)):
-                if i==0:
-                    op1=optionList[i]
-                elif i==1:
-                    op2=optionList[i]
-                elif i==2:
-                    op3=optionList[i]
-                elif i==3:
-                    op4=optionList[i]
-        print('Question:'+str(quesDesc.question_description)+'op1:'+str(op1)+'op2:'+str(op2)+'op3:'+str(op3)+'op4:'+str(op4))
-        quesDetails.append(str(quesDesc.question_description)+':'+str(op1)+':'+str(op2)+':'+str(op3)+':'+str(op4)+':'+str(corrOption))
-    return jsonify([quesDetails])
+# @app.route('/fetchQuesList',methods=['GET','POST'])
+# def fetchQuesList():
+#     print('inside fetchQuesList')
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     quesList = request.get_json()
+#     indic = request.args.get('indic')
+#     print('questionIdList:')
+#     print(quesList)
+#     for ques in quesList:
+#         print('Question_id:')
+#         print(ques)
+#     if indic=='1':
+#         for quesId in quesList:
+#             quesDesc = QuestionDetails.query.filter_by(question_id=quesId).first()
+#             print(quesDesc.question_description)
+#             quesOptions = QuestionOptions.query.filter_by(question_id=quesId).all()
+#             op1=''
+#             op2=''
+#             op3=''
+#             op4=''
+#             optionList = []
+#             quesDetails = []
+#             corrOption = ''
+#             for options in quesOptions:
+#                 print('Option Desc:'+str(options.option_desc))
+#                 optionList.append(options.option_desc)
+#                 if options.is_correct=='Y':
+#                     corrOption = options.option_desc
+#             for i in range(len(optionList)):
+#                 if i==0:
+#                     op1=optionList[i]
+#                 elif i==1:
+#                     op2=optionList[i]
+#                 elif i==2:
+#                     op3=optionList[i]
+#                 elif i==3:
+#                     op4=optionList[i]
+#         print('Question:'+str(quesDesc.question_description)+'op1:'+str(op1)+'op2:'+str(op2)+'op3:'+str(op3)+'op4:'+str(op4))
+#         quesDetails.append(str(quesDesc.question_description)+':'+str(op1)+':'+str(op2)+':'+str(op3)+':'+str(op4)+':'+str(corrOption))
+#     return jsonify([quesDetails])
 
-@app.route('/saveAndPublishedCourse',methods=['GET','POST'])
-def saveAndPublishedCourse():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #print('inside saveCourse')
-    course = request.form.get('course')
-    courseId = request.args.get('course_id')
-    description = request.form.get('description')
-    imageUrl = request.form.get('imageUrl')
-    video_url = request.form.get('videoUrl')
-    idealfor = request.args.get('idealfor')
-    level = request.form.get('level')
-    private = request.form.get('private')
-    #print('Course name:'+str(course))
-    #print('courseId:'+str(courseId))
-    #print('description name:'+str(description))
-    #print('Image Url:'+str(imageUrl))
-    #print('Private:'+str(private))
-    course_status = request.args.get('course_status')
-    #print('course status:'+str(course_status))
-    #
-    #print('video_url :'+str(video_url))
-    print('Ideal for:'+str(idealfor))
-    #print('level:'+str(level))
-    updateIndex=False
-    levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
-    courseDet = CourseDetail.query.filter_by(course_id=courseId,description=description,summary_url=video_url,
-    teacher_id=teacherData.teacher_id,school_id=teacherData.school_id,ideal_for=idealfor,difficulty_level=levelId.msg_id).first()
-    if courseDet:
-        course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
-        courseDet.course_status=course_status_id.msg_id
-        db.session.commit()
-        print('returning from first')
-        if app.config["MODE"]=="PROD":
-            updateIndex = updateSearchIndex("send","saveCourse")
-        if updateIndex==True:
-            return jsonify("1")
-        else:
-            return jsonify("2")
-    else:
-        course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
-        courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
-        if private:
-            print('if course status is private')
-            courseDet.description=description
-            courseDet.summary_url=video_url
-            courseDet.teacher_id=teacherData.teacher_id
-            courseDet.school_id=teacherData.school_id
-            if idealfor:
-                courseDet.ideal_for=idealfor
-            courseDet.course_status=course_status_id.msg_id
-            courseDet.is_private='Y'
-            courseDet.image_url = imageUrl
-            courseDet.is_archived = 'N'
-            courseDet.difficulty_level=levelId.msg_id
-        else:
-            print('if course status is public')
-            courseDet.description=description
-            courseDet.summary_url=video_url
-            courseDet.teacher_id=teacherData.teacher_id
-            courseDet.school_id=teacherData.school_id
-            if idealfor:
-                courseDet.ideal_for=idealfor
-            courseDet.course_status=course_status_id.msg_id
-            courseDet.is_private='N'
-            courseDet.image_url = imageUrl
-            courseDet.is_archived = 'N'
-            courseDet.difficulty_level=levelId.msg_id
-        db.session.commit()
-        updateIndex = updateSearchIndex("send","saveCourse")
-        if updateIndex==True:
-            return jsonify("1")
-        else:
-            return jsonify("2")
+# @app.route('/saveAndPublishedCourse',methods=['GET','POST'])
+# def saveAndPublishedCourse():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     #print('inside saveCourse')
+#     course = request.form.get('course')
+#     courseId = request.args.get('course_id')
+#     description = request.form.get('description')
+#     imageUrl = request.form.get('imageUrl')
+#     video_url = request.form.get('videoUrl')
+#     idealfor = request.args.get('idealfor')
+#     level = request.form.get('level')
+#     private = request.form.get('private')
+#     #print('Course name:'+str(course))
+#     #print('courseId:'+str(courseId))
+#     #print('description name:'+str(description))
+#     #print('Image Url:'+str(imageUrl))
+#     #print('Private:'+str(private))
+#     course_status = request.args.get('course_status')
+#     #print('course status:'+str(course_status))
+#     #
+#     #print('video_url :'+str(video_url))
+#     print('Ideal for:'+str(idealfor))
+#     #print('level:'+str(level))
+#     updateIndex=False
+#     levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
+#     courseDet = CourseDetail.query.filter_by(course_id=courseId,description=description,summary_url=video_url,
+#     teacher_id=teacherData.teacher_id,school_id=teacherData.school_id,ideal_for=idealfor,difficulty_level=levelId.msg_id).first()
+#     if courseDet:
+#         course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+#         courseDet.course_status=course_status_id.msg_id
+#         db.session.commit()
+#         print('returning from first')
+#         if app.config["MODE"]=="PROD":
+#             updateIndex = updateSearchIndex("send","saveCourse")
+#         if updateIndex==True:
+#             return jsonify("1")
+#         else:
+#             return jsonify("2")
+#     else:
+#         course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+#         courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
+#         if private:
+#             print('if course status is private')
+#             courseDet.description=description
+#             courseDet.summary_url=video_url
+#             courseDet.teacher_id=teacherData.teacher_id
+#             courseDet.school_id=teacherData.school_id
+#             if idealfor:
+#                 courseDet.ideal_for=idealfor
+#             courseDet.course_status=course_status_id.msg_id
+#             courseDet.is_private='Y'
+#             courseDet.image_url = imageUrl
+#             courseDet.is_archived = 'N'
+#             courseDet.difficulty_level=levelId.msg_id
+#         else:
+#             print('if course status is public')
+#             courseDet.description=description
+#             courseDet.summary_url=video_url
+#             courseDet.teacher_id=teacherData.teacher_id
+#             courseDet.school_id=teacherData.school_id
+#             if idealfor:
+#                 courseDet.ideal_for=idealfor
+#             courseDet.course_status=course_status_id.msg_id
+#             courseDet.is_private='N'
+#             courseDet.image_url = imageUrl
+#             courseDet.is_archived = 'N'
+#             courseDet.difficulty_level=levelId.msg_id
+#         db.session.commit()
+#         updateIndex = updateSearchIndex("send","saveCourse")
+#         if updateIndex==True:
+#             return jsonify("1")
+#         else:
+#             return jsonify("2")
 
 
 
-@app.route('/saveCourse',methods=['GET','POST'])
-def saveCourse():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('inside saveCourse')
-    course = request.form.get('course')
-    courseId = request.args.get('course_id')
-    description = request.form.get('description')
-    # setDate = request.form.get('setDate')
-    # startTime = request.form.get('startTime')
-    # endTime = request.form.get('endTime')
-    # days = request.form.getlist('Days')
-    imageUrl = ''
-    imgUrl= request.form.get('imageUrl')
-    if imgUrl!=None:
-        imageUrl = imgUrl
-    video_url = request.form.get('videoUrl')
-    idealfor = request.args.get('idealfor')
-    level = request.form.get('level')
-    private = request.form.get('private')
-    print('Course name:'+str(course))
-    print('courseId:'+str(courseId))
-    print('description name:'+str(description))
-    print('Private:'+str(private))
-    print('course Image:'+str(imageUrl))
-    course_status = request.args.get('course_status')
-    print('course status:'+str(course_status))
+# @app.route('/saveCourse',methods=['GET','POST'])
+# def saveCourse():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     print('inside saveCourse')
+#     course = request.form.get('course')
+#     courseId = request.args.get('course_id')
+#     description = request.form.get('description')
+#     # setDate = request.form.get('setDate')
+#     # startTime = request.form.get('startTime')
+#     # endTime = request.form.get('endTime')
+#     # days = request.form.getlist('Days')
+#     imageUrl = ''
+#     imgUrl= request.form.get('imageUrl')
+#     if imgUrl!=None:
+#         imageUrl = imgUrl
+#     video_url = request.form.get('videoUrl')
+#     idealfor = request.args.get('idealfor')
+#     level = request.form.get('level')
+#     private = request.form.get('private')
+#     print('Course name:'+str(course))
+#     print('courseId:'+str(courseId))
+#     print('description name:'+str(description))
+#     print('Private:'+str(private))
+#     print('course Image:'+str(imageUrl))
+#     course_status = request.args.get('course_status')
+#     print('course status:'+str(course_status))
    
-    print('video_url :'+str(video_url))
-    print('Ideal for:'+str(idealfor))
-    print('level:'+str(level))
-    levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
-    course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
-    courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
-    if private:
-        print('if course status is private')
-        courseDet.description=description
-        courseDet.summary_url=video_url
-        courseDet.teacher_id=teacherData.teacher_id
-        courseDet.school_id=teacherData.school_id
-        if idealfor:
-            courseDet.ideal_for=idealfor
-        courseDet.course_status=course_status_id.msg_id
-        courseDet.is_private='Y'
-        courseDet.image_url = imageUrl
-        courseDet.is_archived = 'N'
-        courseDet.difficulty_level=levelId.msg_id
-    else:
-        print('if course status is public')
-        courseDet.description=description
-        courseDet.summary_url=video_url
-        courseDet.teacher_id=teacherData.teacher_id
-        courseDet.school_id=teacherData.school_id
-        if idealfor:
-            courseDet.ideal_for=idealfor
-        courseDet.course_status=course_status_id.msg_id
-        courseDet.is_private='N'
-        courseDet.image_url = imageUrl
-        courseDet.is_archived = 'N'
-        courseDet.difficulty_level=levelId.msg_id
-    db.session.commit()
-    print('course:'+str(course))
-    print('Desc:'+str(description))
-    print('url:'+str(video_url))
-    print('teacher_id:'+str(teacherData.teacher_id))
-    print('school_id:'+str(teacherData.school_id))
-    print('idealfor:'+str(idealfor))
-    print('course_status:'+str(course_status_id.msg_id))    
-    return jsonify("1")
+#     print('video_url :'+str(video_url))
+#     print('Ideal for:'+str(idealfor))
+#     print('level:'+str(level))
+#     levelId = MessageDetails.query.filter_by(description=level,category='Difficulty Level').first()
+#     course_status_id = MessageDetails.query.filter_by(category='Course Status',description=course_status).first()
+#     courseDet = CourseDetail.query.filter_by(course_id=courseId).first()
+#     if private:
+#         print('if course status is private')
+#         courseDet.description=description
+#         courseDet.summary_url=video_url
+#         courseDet.teacher_id=teacherData.teacher_id
+#         courseDet.school_id=teacherData.school_id
+#         if idealfor:
+#             courseDet.ideal_for=idealfor
+#         courseDet.course_status=course_status_id.msg_id
+#         courseDet.is_private='Y'
+#         courseDet.image_url = imageUrl
+#         courseDet.is_archived = 'N'
+#         courseDet.difficulty_level=levelId.msg_id
+#     else:
+#         print('if course status is public')
+#         courseDet.description=description
+#         courseDet.summary_url=video_url
+#         courseDet.teacher_id=teacherData.teacher_id
+#         courseDet.school_id=teacherData.school_id
+#         if idealfor:
+#             courseDet.ideal_for=idealfor
+#         courseDet.course_status=course_status_id.msg_id
+#         courseDet.is_private='N'
+#         courseDet.image_url = imageUrl
+#         courseDet.is_archived = 'N'
+#         courseDet.difficulty_level=levelId.msg_id
+#     db.session.commit()
+#     print('course:'+str(course))
+#     print('Desc:'+str(description))
+#     print('url:'+str(video_url))
+#     print('teacher_id:'+str(teacherData.teacher_id))
+#     print('school_id:'+str(teacherData.school_id))
+#     print('idealfor:'+str(idealfor))
+#     print('course_status:'+str(course_status_id.msg_id))    
+#     return jsonify("1")
 
-@app.route('/courseEntry',methods=['GET','POST'])
-def courseEntry():
-    course = request.args.get('course')
-    course_id = "select max(course_id) as course_id from course_detail "
-    course_id = db.session.execute(text(course_id)).first()
-    courseDet = CourseDetail.query.filter_by(course_id=course_id.course_id).first()
-    courseDet.course_name = course
-    db.session.commit()
-    # courseId = "select max(course_id) as course_id from course_detail"
-    # courseId = db.session.execute(text(courseId)).first()
-    return jsonify(courseDet.course_id)
+# @app.route('/courseEntry',methods=['GET','POST'])
+# def courseEntry():
+#     course = request.args.get('course')
+#     course_id = "select max(course_id) as course_id from course_detail "
+#     course_id = db.session.execute(text(course_id)).first()
+#     courseDet = CourseDetail.query.filter_by(course_id=course_id.course_id).first()
+#     courseDet.course_name = course
+#     db.session.commit()
+#     # courseId = "select max(course_id) as course_id from course_detail"
+#     # courseId = db.session.execute(text(courseId)).first()
+#     return jsonify(courseDet.course_id)
 
-    # return render_template('editCourse.html')
+#     # return render_template('editCourse.html')
 
 
-@app.route('/myCourses')
-def myCourses():
+# @app.route('/myCourses')
+# def myCourses():
 
-    return render_template('myCourses.html')
+#     return render_template('myCourses.html')
 
-@app.route('/paymentForm')
-def paymentForm():    
-    if current_user.is_authenticated:
-        #if current_user.country==None:
-        #    flash('Please update your profile before donating ')
-        #    return jsonify(['2'])
+# @app.route('/paymentForm')
+# def paymentForm():    
+#     if current_user.is_authenticated:
+#         #if current_user.country==None:
+#         #    flash('Please update your profile before donating ')
+#         #    return jsonify(['2'])
 
-        #qschool_id = request.args.get('school_id')
-        amount =  request.args.get('amount') 
-        qbatch_id = request.args.get('batch_id')                
-        #amount =              #hard coded value
-        #qbatch_id = 1               #hard coded value
+#         #qschool_id = request.args.get('school_id')
+#         amount =  request.args.get('amount') 
+#         qbatch_id = request.args.get('batch_id')                
+#         #amount =              #hard coded value
+#         #qbatch_id = 1               #hard coded value
 
-        if amount=='other':
-            amount = 0
-        #donation_for = request.args.get('donation_for')
-        #if donation_for =='' or donation_for=='undefined':            
-        #    donation_for=24
+#         if amount=='other':
+#             amount = 0
+#         #donation_for = request.args.get('donation_for')
+#         #if donation_for =='' or donation_for=='undefined':            
+#         #    donation_for=24
         
-        courseBatchData = CourseBatch.query.filter_by(batch_id = qbatch_id).first()
-        courseDetailData =CourseDetail.query.filter_by(course_id=courseBatchData.course_id).first()
-        schoolData = SchoolProfile.query.filter_by(school_id=courseDetailData.school_id).first() 
-        print("this is the batch id: "+str(courseBatchData.batch_id))
+#         courseBatchData = CourseBatch.query.filter_by(batch_id = qbatch_id).first()
+#         courseDetailData =CourseDetail.query.filter_by(course_id=courseBatchData.course_id).first()
+#         schoolData = SchoolProfile.query.filter_by(school_id=courseDetailData.school_id).first() 
+#         print("this is the batch id: "+str(courseBatchData.batch_id))
 
-        print("this is the course desc: "+str(courseDetailData.description))
-        #New section added to handle different vendors     
-        #if schoolData.curr_sub_charge_type== 41:
-        #    schoolShare = 100-int(schoolData.curr_sub_charge)
-        #    selfShare = schoolData.curr_sub_charge             
-        #else:
+#         print("this is the course desc: "+str(courseDetailData.description))
+#         #New section added to handle different vendors     
+#         #if schoolData.curr_sub_charge_type== 41:
+#         #    schoolShare = 100-int(schoolData.curr_sub_charge)
+#         #    selfShare = schoolData.curr_sub_charge             
+#         #else:
 
-        #every payment amout is to be split in the ratio 97:3 :: Tutor: allLearn
-        schoolShare = 97
-        selfShare = 3
-        vendorData = [
-            {
-                "vendorId": schoolData.curr_vendor_id,
-                "commission": 97 #int(schoolShare)
-            }, 
-            {
-                "vendorId":"SELF",
-                "commission":3 #int(selfShare)
-            }
-        ]
+#         #every payment amout is to be split in the ratio 97:3 :: Tutor: allLearn
+#         schoolShare = 97
+#         selfShare = 3
+#         vendorData = [
+#             {
+#                 "vendorId": schoolData.curr_vendor_id,
+#                 "commission": 97 #int(schoolShare)
+#             }, 
+#             {
+#                 "vendorId":"SELF",
+#                 "commission":3 #int(selfShare)
+#             }
+#         ]
 
-        #vendorData=    [{"vendorId":"VENDOR1","commission":30}, {"vendorId":"VENDOR2","commission":40}]        
-        vendorData = json.dumps(vendorData, separators=(',', ':'))
-        print(vendorData)
-        vendorDataEncoded = base64.b64encode(vendorData.encode('utf-8')).decode('utf-8')
-        print(vendorDataEncoded)
-        #end of section
+#         #vendorData=    [{"vendorId":"VENDOR1","commission":30}, {"vendorId":"VENDOR2","commission":40}]        
+#         vendorData = json.dumps(vendorData, separators=(',', ':'))
+#         print(vendorData)
+#         vendorDataEncoded = base64.b64encode(vendorData.encode('utf-8')).decode('utf-8')
+#         print(vendorDataEncoded)
+#         #end of section
 
-        note = "Enrollment transaction"   
-        payer_name = current_user.first_name + ' ' + current_user.last_name
+#         note = "Enrollment transaction"   
+#         payer_name = current_user.first_name + ' ' + current_user.last_name
 
-        messageData = "" #MessageDetails.query.filter_by(msg_id=payment_for).first()
+#         messageData = "" #MessageDetails.query.filter_by(msg_id=payment_for).first()
 
-        #Inserting new order and transaction detail in db
+#         #Inserting new order and transaction detail in db
 
-        transactionNewInsert = PaymentTransaction(amount=courseBatchData.course_batch_fee,note=note, 
-            payer_user_id=current_user.id, payer_name=str(payer_name),payer_phone=current_user.phone, payer_email=current_user.email,
-            school_id=courseDetailData.school_id, teacher_id=courseDetailData.teacher_id,batch_id=qbatch_id, trans_type=254, payment_for= 264, tran_status=256, date=datetime.today()) 
-        db.session.add(transactionNewInsert)
-        db.session.commit()
+#         transactionNewInsert = PaymentTransaction(amount=courseBatchData.course_batch_fee,note=note, 
+#             payer_user_id=current_user.id, payer_name=str(payer_name),payer_phone=current_user.phone, payer_email=current_user.email,
+#             school_id=courseDetailData.school_id, teacher_id=courseDetailData.teacher_id,batch_id=qbatch_id, trans_type=254, payment_for= 264, tran_status=256, date=datetime.today()) 
+#         db.session.add(transactionNewInsert)
+#         db.session.commit()
 
-        #Fetching all required details for the form and signature creation
+#         #Fetching all required details for the form and signature creation
 
-        #transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
-        transactionData  = transactionNewInsert
-        orderId= str(transactionData.tran_id).zfill(9)
-        print("#######order id: "+str(orderId))
-        currency = transactionData.currency
-        appId= app.config['ALLLEARN_CASHFREE_APP_ID']
-        returnUrl = url_for('paymentResponse',_external=True)
-        notifyUrl = url_for('notifyUrl',_external=True)
-        return render_template('_paymentForm.html',courseDetailData=courseDetailData,courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
-    else:
-        flash('Please login to enroll')
-        return jsonify(['1'])
+#         #transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
+#         transactionData  = transactionNewInsert
+#         orderId= str(transactionData.tran_id).zfill(9)
+#         print("#######order id: "+str(orderId))
+#         currency = transactionData.currency
+#         appId= app.config['ALLLEARN_CASHFREE_APP_ID']
+#         returnUrl = url_for('paymentResponse',_external=True)
+#         notifyUrl = url_for('notifyUrl',_external=True)
+#         return render_template('_paymentForm.html',courseDetailData=courseDetailData,courseBatchData=courseBatchData, vendorDataEncoded=vendorDataEncoded,messageData=messageData,notifyUrl=notifyUrl,returnUrl=returnUrl, schoolData=schoolData, appId=appId, orderId = orderId, amount = amount, orderCurrency = currency, orderNote = note, customerName = payer_name)
+#     else:
+#         flash('Please login to enroll')
+#         return jsonify(['1'])
 
-@app.route('/freeEnrollment')
-def freeEnrollment():
-    if current_user.is_authenticated:
-        batch_id = request.args.get('batch_id')
-        courseBatchData = CourseBatch.query.filter_by(batch_id =batch_id , is_archived='N').first()
-        courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
-        courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, 
-            batch_id = batch_id, student_user_id=current_user.id, is_archived='N', 
-            last_modified_date = datetime.today())   
-        db.session.add(courseEnrollmentData)
-        db.session.commit()
-        flash('Course Enrolled')
-        return jsonify(['0'])
-    else:
-        flash('Please login to enroll')
-        return jsonify(['1'])
+# @app.route('/freeEnrollment')
+# def freeEnrollment():
+#     if current_user.is_authenticated:
+#         batch_id = request.args.get('batch_id')
+#         courseBatchData = CourseBatch.query.filter_by(batch_id =batch_id , is_archived='N').first()
+#         courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
+#         courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, 
+#             batch_id = batch_id, student_user_id=current_user.id, is_archived='N', 
+#             last_modified_date = datetime.today())   
+#         db.session.add(courseEnrollmentData)
+#         db.session.commit()
+#         flash('Course Enrolled')
+#         return jsonify(['0'])
+#     else:
+#         flash('Please login to enroll')
+#         return jsonify(['1'])
 
 
-@app.route('/request', methods=["POST"])
-def handlerequest():
-    mode = app.config["MODE"] # <-------Change to TEST for test server, PROD for production
-    platformSub = request.args.get('platformSub')
-    if platformSub=="1":
-        postData = {
-            "appId" : request.form['appId'], 
-            "orderId" : request.form['orderId'], 
-            "orderAmount" : request.form['orderAmount'], 
-            "orderCurrency" : request.form['orderCurrency'], 
-            "orderNote" : request.form['orderNote'], 
-            "customerName" : request.form['customerName'], 
-            "customerPhone" : request.form['customerPhone'], 
-            "customerEmail" : request.form['customerEmail'], 
-            "returnUrl" : request.form['returnUrl'], 
-            "notifyUrl" : request.form['notifyUrl'],
-        }
-    else:
-        postData = {
-            "appId" : request.form['appId'], 
-            "orderId" : request.form['orderId'], 
-            "orderAmount" : request.form['orderAmount'], 
-            "orderCurrency" : request.form['orderCurrency'], 
-            "orderNote" : request.form['orderNote'], 
-            "customerName" : request.form['customerName'], 
-            "customerPhone" : request.form['customerPhone'], 
-            "customerEmail" : request.form['customerEmail'], 
-            "returnUrl" : request.form['returnUrl'], 
-            "notifyUrl" : request.form['notifyUrl'],
-            "vendorSplit" : request.form['vendorSplit']
-        }
-    #vendorSplit = request.form['vendorSplit']
-    sortedKeys = sorted(postData)
-    signatureData = ""
-    for key in sortedKeys:
-      signatureData += key+postData[key]
-    message = signatureData.encode('utf-8')
-    #get secret key from config
-    secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
-    signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
+# @app.route('/request', methods=["POST"])
+# def handlerequest():
+#     mode = app.config["MODE"] # <-------Change to TEST for test server, PROD for production
+#     platformSub = request.args.get('platformSub')
+#     if platformSub=="1":
+#         postData = {
+#             "appId" : request.form['appId'], 
+#             "orderId" : request.form['orderId'], 
+#             "orderAmount" : request.form['orderAmount'], 
+#             "orderCurrency" : request.form['orderCurrency'], 
+#             "orderNote" : request.form['orderNote'], 
+#             "customerName" : request.form['customerName'], 
+#             "customerPhone" : request.form['customerPhone'], 
+#             "customerEmail" : request.form['customerEmail'], 
+#             "returnUrl" : request.form['returnUrl'], 
+#             "notifyUrl" : request.form['notifyUrl'],
+#         }
+#     else:
+#         postData = {
+#             "appId" : request.form['appId'], 
+#             "orderId" : request.form['orderId'], 
+#             "orderAmount" : request.form['orderAmount'], 
+#             "orderCurrency" : request.form['orderCurrency'], 
+#             "orderNote" : request.form['orderNote'], 
+#             "customerName" : request.form['customerName'], 
+#             "customerPhone" : request.form['customerPhone'], 
+#             "customerEmail" : request.form['customerEmail'], 
+#             "returnUrl" : request.form['returnUrl'], 
+#             "notifyUrl" : request.form['notifyUrl'],
+#             "vendorSplit" : request.form['vendorSplit']
+#         }
+#     #vendorSplit = request.form['vendorSplit']
+#     sortedKeys = sorted(postData)
+#     signatureData = ""
+#     for key in sortedKeys:
+#       signatureData += key+postData[key]
+#     message = signatureData.encode('utf-8')
+#     #get secret key from config
+#     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
+#     signature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode("utf-8")   
             
-    transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
-    transactionData.order_id=postData["orderId"]
-    #transactionData.anonymous_donor = anonymous_donor
-    #transactionData.anonymous_amount = hide_amount
-    transactionData.tran_status = 257 
-    transactionData.request_sign_hash = signature
-    transactionData.amount = postData["orderAmount"]
+#     transactionData = PaymentTransaction.query.filter_by(payer_user_id=current_user.id).order_by(PaymentTransaction.date.desc()).first()
+#     transactionData.order_id=postData["orderId"]
+#     #transactionData.anonymous_donor = anonymous_donor
+#     #transactionData.anonymous_amount = hide_amount
+#     transactionData.tran_status = 257 
+#     transactionData.request_sign_hash = signature
+#     transactionData.amount = postData["orderAmount"]
 
-    #updating user phone number
-    if current_user.phone==None or current_user.phone=="":
-        userDataUpdate = User.query.filter_by(id=current_user.id).first()
-        userDataUpdate.phone = request.form['customerPhone']
-    db.session.commit()
+#     #updating user phone number
+#     if current_user.phone==None or current_user.phone=="":
+#         userDataUpdate = User.query.filter_by(id=current_user.id).first()
+#         userDataUpdate.phone = request.form['customerPhone']
+#     db.session.commit()
 
-    if mode == 'PROD': 
-      url = "https://www.cashfree.com/checkout/post/submit"
-    else: 
-      url = "https://test.cashfree.com/billpay/checkout/post/submit"
-    return render_template('request.html', postData = postData,signature = signature,url = url, platformSub=platformSub)
+#     if mode == 'PROD': 
+#       url = "https://www.cashfree.com/checkout/post/submit"
+#     else: 
+#       url = "https://test.cashfree.com/billpay/checkout/post/submit"
+#     return render_template('request.html', postData = postData,signature = signature,url = url, platformSub=platformSub)
 
 
-#this is the page after response from payment gateway
-@app.route('/paymentResponse', methods=["POST"])
-def paymentResponse():
-    payment = request.args.get('payment')
+# #this is the page after response from payment gateway
+# @app.route('/paymentResponse', methods=["POST"])
+# def paymentResponse():
+#     payment = request.args.get('payment')
 
-    postData = {
-    "orderId" : request.form['orderId'], 
-    "orderAmount" : request.form['orderAmount'], 
-    "referenceId" : request.form['referenceId'], 
-    "txStatus" : request.form['txStatus'], 
-    "paymentMode" : request.form['paymentMode'], 
-    "txMsg" : request.form['txMsg'], 
-    "signature" : request.form['signature'], 
-    "txTime" : request.form['txTime']
-    }
+#     postData = {
+#     "orderId" : request.form['orderId'], 
+#     "orderAmount" : request.form['orderAmount'], 
+#     "referenceId" : request.form['referenceId'], 
+#     "txStatus" : request.form['txStatus'], 
+#     "paymentMode" : request.form['paymentMode'], 
+#     "txMsg" : request.form['txMsg'], 
+#     "signature" : request.form['signature'], 
+#     "txTime" : request.form['txTime']
+#     }
 
-    signatureData = ""
-    signatureData = postData['orderId'] + postData['orderAmount'] + postData['referenceId'] + postData['txStatus'] + postData['paymentMode'] + postData['txMsg'] + postData['txTime']
+#     signatureData = ""
+#     signatureData = postData['orderId'] + postData['orderAmount'] + postData['referenceId'] + postData['txStatus'] + postData['paymentMode'] + postData['txMsg'] + postData['txTime']
 
-    message = signatureData.encode('utf-8')
-    # get secret key from your config
-    secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
-    computedsignature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode('utf-8')   
-    print("####this is the txStatus: "+str(postData["txStatus"]))
-    messageData = MessageDetails.query.filter_by(description = postData["txStatus"]).first()
+#     message = signatureData.encode('utf-8')
+#     # get secret key from your config
+#     secret = app.config['ALLLEARN_CASHFREE_SECRET_KEY'].encode('utf-8')
+#     computedsignature = base64.b64encode(hmac.new(secret,message,digestmod=hashlib.sha256).digest()).decode('utf-8')   
+#     print("####this is the txStatus: "+str(postData["txStatus"]))
+#     messageData = MessageDetails.query.filter_by(description = postData["txStatus"]).first()
 
-    #updating response transaction details into the DB
-    transactionData = PaymentTransaction.query.filter_by(order_id=postData["orderId"]).first()
-    currency = transactionData.currency
+#     #updating response transaction details into the DB
+#     transactionData = PaymentTransaction.query.filter_by(order_id=postData["orderId"]).first()
+#     currency = transactionData.currency
  
-    transactionData.gateway_ref_id = postData["referenceId"]
-    if transactionData.tran_status!=263:
-        transactionData.tran_status = messageData.msg_id
-    transactionData.payment_mode = postData["paymentMode"]
-    transactionData.tran_msg = postData["txMsg"]
-    transactionData.tran_time = postData["txTime"]
-    transactionData.response_sign_hash = postData["signature"]
-    if postData["signature"]==computedsignature:
-        transactionData.response_sign_check="Matched"
-    else:
-        transactionData.response_sign_check="Not Matched"
-    schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
-    if payment!='sub':
-        #updating school data
-        if transactionData.tran_status==258 or transactionData.tran_status==263:
-            courseBatchData = CourseBatch.query.filter_by(batch_id = transactionData.batch_id, is_archived='N').first()
-            if courseBatchData!=None:
-                courseBatchData.total_fee_received = int(courseBatchData.total_fee_received)  + int(transactionData.amount)
-                courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
+#     transactionData.gateway_ref_id = postData["referenceId"]
+#     if transactionData.tran_status!=263:
+#         transactionData.tran_status = messageData.msg_id
+#     transactionData.payment_mode = postData["paymentMode"]
+#     transactionData.tran_msg = postData["txMsg"]
+#     transactionData.tran_time = postData["txTime"]
+#     transactionData.response_sign_hash = postData["signature"]
+#     if postData["signature"]==computedsignature:
+#         transactionData.response_sign_check="Matched"
+#     else:
+#         transactionData.response_sign_check="Not Matched"
+#     schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
+#     if payment!='sub':
+#         #updating school data
+#         if transactionData.tran_status==258 or transactionData.tran_status==263:
+#             courseBatchData = CourseBatch.query.filter_by(batch_id = transactionData.batch_id, is_archived='N').first()
+#             if courseBatchData!=None:
+#                 courseBatchData.total_fee_received = int(courseBatchData.total_fee_received)  + int(transactionData.amount)
+#                 courseBatchData.students_enrolled = int(courseBatchData.students_enrolled) + 1
 
-                courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
-                    last_modified_date = datetime.today())   
-                db.session.add(courseEnrollmentData)
-                courseDataQuery = "select course_id, course_name, tp.teacher_id, teacher_name from course_detail cd"
-                courseDataQuery = courseDataQuery + " inner join teacher_profile tp on tp.teacher_id=cd.teacher_id"
-                courseDataQuery = courseDataQuery + " and course_id="+ str(courseBatchData.course_id) 
-                courseData = db.session.execute(courseDataQuery).first()
-    db.session.commit()
+#                 courseEnrollmentData = CourseEnrollment(course_id= courseBatchData.course_id, batch_id = transactionData.batch_id, student_user_id=current_user.id, is_archived='N', 
+#                     last_modified_date = datetime.today())   
+#                 db.session.add(courseEnrollmentData)
+#                 courseDataQuery = "select course_id, course_name, tp.teacher_id, teacher_name from course_detail cd"
+#                 courseDataQuery = courseDataQuery + " inner join teacher_profile tp on tp.teacher_id=cd.teacher_id"
+#                 courseDataQuery = courseDataQuery + " and course_id="+ str(courseBatchData.course_id) 
+#                 courseData = db.session.execute(courseDataQuery).first()
+#     db.session.commit()
 
-    return render_template('paymentResponse.html',courseData=courseData, courseBatchData=courseBatchData,transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
-
-
+#     return render_template('paymentResponse.html',courseData=courseData, courseBatchData=courseBatchData,transactionData = transactionData,payment=payment,postData=postData,computedsignature=computedsignature, schoolData=schoolData,currency=currency)
 
 
-@app.route('/notifyUrl',methods=["POST"])
-def notifyUrl():
-    postData = {
-      "orderId" : request.form['orderId'], 
-      "orderAmount" : request.form['orderAmount'], 
-      "referenceId" : request.form['referenceId'], 
-      "txStatus" : request.form['txStatus'], 
-      "paymentMode" : request.form['paymentMode'], 
-      "txMsg" : request.form['txMsg'], 
-      "txTime" : request.form['txTime'], 
-    }
+
+
+# @app.route('/notifyUrl',methods=["POST"])
+# def notifyUrl():
+#     postData = {
+#       "orderId" : request.form['orderId'], 
+#       "orderAmount" : request.form['orderAmount'], 
+#       "referenceId" : request.form['referenceId'], 
+#       "txStatus" : request.form['txStatus'], 
+#       "paymentMode" : request.form['paymentMode'], 
+#       "txMsg" : request.form['txMsg'], 
+#       "txTime" : request.form['txTime'], 
+#     }
     
-    transactionData = Transaction.query.filter_by(order_id = postData["orderId"]).first()
-    schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
-    if transactionData!=None:
-        transactionData.tran_status = 263
-        db.session.commit()        
-        #donation_success_email_donor(schoolData.name, transactionData.donor_name,transactionData.donor_email,postData)
-    else:
-        print('############### no transaction detail found')
-    return str(0)
+#     transactionData = Transaction.query.filter_by(order_id = postData["orderId"]).first()
+#     schoolData = SchoolProfile.query.filter_by(school_id=transactionData.school_id).first()
+#     if transactionData!=None:
+#         transactionData.tran_status = 263
+#         db.session.commit()        
+#         #donation_success_email_donor(schoolData.name, transactionData.donor_name,transactionData.donor_email,postData)
+#     else:
+#         print('############### no transaction detail found')
+#     return str(0)
 
 
-def requestSignGenerator(appId, orderId, orderAmount, orderCurrency, orderNote, customerName, customerPhone,customerEmail, returnUrl, notifyUrl):    
-    postData = {
-      "appId" : appId,
-      "orderId" : orderId,
-      "orderAmount" : orderAmount,
-      "orderCurrency" : orderCurrency,
-      "orderNote" : orderNote,
-      "customerName" : customerName,
-      "customerPhone" : customerPhone,
-      "customerEmail" : customerEmail,
-      "returnUrl" : returnUrl,
-      "notifyUrl" : notifyUrl
-    }
-    sortedKeys = sorted(postData)
-    signatureData = ""
-    for key in sortedKeys:
-      signatureData += key+postData[key]
+# def requestSignGenerator(appId, orderId, orderAmount, orderCurrency, orderNote, customerName, customerPhone,customerEmail, returnUrl, notifyUrl):    
+#     postData = {
+#       "appId" : appId,
+#       "orderId" : orderId,
+#       "orderAmount" : orderAmount,
+#       "orderCurrency" : orderCurrency,
+#       "orderNote" : orderNote,
+#       "customerName" : customerName,
+#       "customerPhone" : customerPhone,
+#       "customerEmail" : customerEmail,
+#       "returnUrl" : returnUrl,
+#       "notifyUrl" : notifyUrl
+#     }
+#     sortedKeys = sorted(postData)
+#     signatureData = ""
+#     for key in sortedKeys:
+#       signatureData += key+postData[key]
 
-    message = bytes(signatureData,encoding='utf-8')
-    #get secret key from your config
-    secret = bytes(app.config['ALLLEARN_CASHFREE_SECRET_KEY'],encoding='utf-8')
-    signature = base64.b64encode(hmac.new(secret, message,digestmod=hashlib.sha256).digest())
-    return signature
+#     message = bytes(signatureData,encoding='utf-8')
+#     #get secret key from your config
+#     secret = bytes(app.config['ALLLEARN_CASHFREE_SECRET_KEY'],encoding='utf-8')
+#     signature = base64.b64encode(hmac.new(secret, message,digestmod=hashlib.sha256).digest())
+#     return signature
 
 
-def verifyResponseSign(receivedResponseSign, postData):
-    signatureData = postData["orderId"] + postData["orderAmount"] + postData["referenceId"] + postData["txStatus"] + postData["paymentMode"] + postData["txMsg"] + postData["txTime"]
-    message = bytes(signatureData).encode('utf-8')
-    #get secret key from your config
-    secret = bytes(app.config['ALLLEARN_CASHFREE_SECRET_KEY']).encode('utf-8')
-    signature = base64.b64encode(hmac.new(secret, message,digestmod=hashlib.sha256).digest())
-    if signature==receivedResponseSign:
-        return True
-    else:
-        return False
+# def verifyResponseSign(receivedResponseSign, postData):
+#     signatureData = postData["orderId"] + postData["orderAmount"] + postData["referenceId"] + postData["txStatus"] + postData["paymentMode"] + postData["txMsg"] + postData["txTime"]
+#     message = bytes(signatureData).encode('utf-8')
+#     #get secret key from your config
+#     secret = bytes(app.config['ALLLEARN_CASHFREE_SECRET_KEY']).encode('utf-8')
+#     signature = base64.b64encode(hmac.new(secret, message,digestmod=hashlib.sha256).digest())
+#     if signature==receivedResponseSign:
+#         return True
+#     else:
+#         return False
 
 
 ##Routes to manage class notifications
@@ -4382,50 +4441,50 @@ def sendClassNotification():
 
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('index'))
     
-    #new arg added for google login
-    #gSigninData = request.args.get
+#     #new arg added for google login
+#     #gSigninData = request.args.get
 
-    #default form submit action
-    form = RegistrationForm() 
-    if form.validate_on_submit():
-        print('Validated form submit')
-        #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
-        #By default we're setting the user as course taker
-        user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='145', phone=form.phone.data,
-            first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
-        checkTeacherProf = TeacherProfile.query.filter_by(email=form.email.data).first()
-        #if a student has already been added during school registration then simply add the new user's id to it's student profile value
-        checkStudentProf = StudentProfile.query.filter_by(email=form.email.data).first()
+#     #default form submit action
+#     form = RegistrationForm() 
+#     if form.validate_on_submit():
+#         print('Validated form submit')
+#         #we're setting the username as email address itself. That way a user won't need to think of a new username to register. 
+#         #By default we're setting the user as course taker
+#         user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='145', phone=form.phone.data,
+#             first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
+#         user.set_password(form.password.data)
+#         db.session.add(user)
+#         db.session.commit()
+#         #if a teacher has already been added during school registration then simply add the new user's id to it's teacher profile value        
+#         checkTeacherProf = TeacherProfile.query.filter_by(email=form.email.data).first()
+#         #if a student has already been added during school registration then simply add the new user's id to it's student profile value
+#         checkStudentProf = StudentProfile.query.filter_by(email=form.email.data).first()
 
-        if checkTeacherProf!=None:
-            checkTeacherProf.user_id=user.id
-            db.session.commit()        
-        elif checkStudentProf!=None:
-            checkStudentProf.user_id=user.id
-            db.session.commit()
-        else:
-            pass
+#         if checkTeacherProf!=None:
+#             checkTeacherProf.user_id=user.id
+#             db.session.commit()        
+#         elif checkStudentProf!=None:
+#             checkStudentProf.user_id=user.id
+#             db.session.commit()
+#         else:
+#             pass
 
-        full_name = str(form.first_name.data)+ ' '+str(form.last_name.data)
-        flash('Congratulations '+full_name+', you are now a registered user!')
-        welcome_email(str(form.email.data), full_name)
-        return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form)
+#         full_name = str(form.first_name.data)+ ' '+str(form.last_name.data)
+#         flash('Congratulations '+full_name+', you are now a registered user!')
+#         welcome_email(str(form.email.data), full_name)
+#         return redirect(url_for('login'))
+#     return render_template('register.html', title='Register', form=form)
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+# @app.route('/logout')
+# @login_required
+# def logout():
+#     logout_user()
+#     return redirect(url_for('index'))
 
 
 @app.route('/teachingApplicantProfile/<user_id>')
@@ -4484,185 +4543,185 @@ def user(username):
         return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessSchoolRequestListRows=accessSchoolRequestListRows,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    print('Inside login')    
-    if current_user.is_authenticated:  
-        print(request.url)    
-        if current_user.user_type=='161':
-            return redirect(url_for('openJobs'))
-        else:
-            return redirect(url_for('index'))
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     print('Inside login')    
+#     if current_user.is_authenticated:  
+#         print(request.url)    
+#         if current_user.user_type=='161':
+#             return redirect(url_for('job_post.openJobs'))
+#         else:
+#             return redirect(url_for('index'))
 
-    #new section for google login
-    glogin = request.args.get('glogin')
-    gemail = request.args.get('gemail')
-    ##end of new section
+#     #new section for google login
+#     glogin = request.args.get('glogin')
+#     gemail = request.args.get('gemail')
+#     ##end of new section
     
-    form = LoginForm()
-    print('Validation')
-    print(form.validate_on_submit())
-    session['isGooglelogin'] = ''
-    if form.validate_on_submit() or glogin=="True":
-        if glogin=="True":
-            print("###glogin val"+ str(glogin))
-            print("###email received from page"+ str(gemail))
-            user=User.query.filter_by(email=gemail).first()   
-            if user is None:
-                flash("Email not registered")
-                print('Email not registered')
-                return redirect(url_for('login'))
-        else: 
-            print('Input data:'+str(form.email.data))
-            checkEmailValidation = check(form.email.data)
-            user = ''
-            if checkEmailValidation == 'Y':
-                user=User.query.filter_by(email=form.email.data).first() 
-            else:
-                Input = form.email.data
-                print('Type:'+str(type(Input)))
-                In = Input.upper()
-                string = 'stud_'
-                strg = string.upper()
-                print('Type:'+str(type(strg))+'String:'+str(strg))
-                if In.find(strg) == 0:
-                    print('this is student id')
-                    studentId = Input[5:]
-                    print('studentId:'+str(studentId))
-                    studData = StudentProfile.query.filter_by(student_id=studentId).first()
-                    email = studData.email
-                    user=User.query.filter_by(email=email).first() 
-                else:
-                    print('phone no')
-                    user=User.query.filter_by(phone=Input).first()
+    # form = LoginForm()
+    # print('Validation')
+    # print(form.validate_on_submit())
+    # session['isGooglelogin'] = ''
+    # if form.validate_on_submit() or glogin=="True":
+    #     if glogin=="True":
+    #         print("###glogin val"+ str(glogin))
+    #         print("###email received from page"+ str(gemail))
+    #         user=User.query.filter_by(email=gemail).first()   
+    #         if user is None:
+    #             flash("Email not registered")
+    #             print('Email not registered')
+    #             return redirect(url_for('login'))
+    #     else: 
+    #         print('Input data:'+str(form.email.data))
+    #         checkEmailValidation = check(form.email.data)
+    #         user = ''
+    #         if checkEmailValidation == 'Y':
+    #             user=User.query.filter_by(email=form.email.data).first() 
+    #         else:
+    #             Input = form.email.data
+    #             print('Type:'+str(type(Input)))
+    #             In = Input.upper()
+    #             string = 'stud_'
+    #             strg = string.upper()
+    #             print('Type:'+str(type(strg))+'String:'+str(strg))
+    #             if In.find(strg) == 0:
+    #                 print('this is student id')
+    #                 studentId = Input[5:]
+    #                 print('studentId:'+str(studentId))
+    #                 studData = StudentProfile.query.filter_by(student_id=studentId).first()
+    #                 email = studData.email
+    #                 user=User.query.filter_by(email=email).first() 
+    #             else:
+    #                 print('phone no')
+    #                 user=User.query.filter_by(phone=Input).first()
 
   
-            try:             
-                if user is None or not user.check_password(form.password.data):        
-                    flash("Invalid email or password")
-                    return redirect(url_for('login'))
-            except:
-                flash("Invalid email or password")
-                return redirect(url_for('login'))
+#             try:             
+#                 if user is None or not user.check_password(form.password.data):        
+#                     flash("Invalid email or password")
+#                     return redirect(url_for('login'))
+#             except:
+#                 flash("Invalid email or password")
+#                 return redirect(url_for('login'))
 
-        #logging in the user with flask login
-        try:
-            login_user(user,remember=form.remember_me.data)
-        except:
-            flash("Invalid email or password")
-            return redirect(url_for('login'))
+#         #logging in the user with flask login
+#         try:
+#             login_user(user,remember=form.remember_me.data)
+#         except:
+#             flash("Invalid email or password")
+#             return redirect(url_for('login'))
 
-        next_page = request.args.get('next')
-        print('next_page',next_page)
-        if not next_page or url_parse(next_page).netloc != '':
-            print('if next_page is not empty',next_page)
-            next_page = url_for('index')
+#         next_page = request.args.get('next')
+#         print('next_page',next_page)
+#         if not next_page or url_parse(next_page).netloc != '':
+#             print('if next_page is not empty',next_page)
+#             next_page = url_for('index')
         
-        #setting global variables
-        session['classSecVal'] = classSecCheck()
-        session['schoolName'] = schoolNameVal()
+#         #setting global variables
+#         session['classSecVal'] = classSecCheck()
+#         session['schoolName'] = schoolNameVal()
         
-        print('user name')
-        #print(session['username'])
-        school_id = ''
-        print('user type')
-        #print(session['userType'])
-        session['studentId'] = ''
-        if current_user.user_type==253:
-            school_id=1
-        elif current_user.user_type==71:
-            userProfileData = User.query.filter_by(id=current_user.id).first()
-            school_id = userProfileData.school_id
-        elif current_user.user_type==134:
-            studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
-            school_id = studentProfileData.school_id            
-            session['studentId'] = studentProfileData.student_id
-        else:
-            userData = User.query.filter_by(id=current_user.id).first()
-            school_id = userData.school_id
+        # print('user name')
+        # #print(session['username'])
+        # school_id = ''
+        # print('user type')
+        # #print(session['userType'])
+        # session['studentId'] = ''
+        # if current_user.user_type==253:
+        #     school_id=1
+        # elif current_user.user_type==71:
+        #     userProfileData = User.query.filter_by(id=current_user.id).first()
+        #     school_id = userProfileData.school_id
+        # elif current_user.user_type==134:
+        #     studentProfileData = StudentProfile.query.filter_by(user_id=current_user.id).first()
+        #     school_id = studentProfileData.school_id            
+        #     session['studentId'] = studentProfileData.student_id
+        # else:
+        #     userData = User.query.filter_by(id=current_user.id).first()
+        #     school_id = userData.school_id
 
-        school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
-        session['school_logo'] = ''
-        print('school_pro:'+str(school_pro))
-        session['isGooglelogin'] = ''
-        if school_pro:
-            session['school_logo'] = school_pro.school_logo
-            session['schoolPicture'] = school_pro.school_picture
-            session['schoolName'] = school_pro.school_name
-            session['font'] = school_pro.font
-            print('session[font]:'+str(session['font']))
-            session['primary_color'] = school_pro.primary_color
-            session['isGooglelogin'] = school_pro.google_login
-            print('session[isGooglelogin]:'+str(session['isGooglelogin']))
-            print('school_pro.google_login:'+str(school_pro.google_login))
-            session['show_school_name'] = school_pro.show_school_name
-            teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
-            userData = User.query.filter_by(id=teacherData.user_id).first()
-            session['phone'] = userData.phone
-            session['email'] = userData.email
-        print(session['primary_color'])
-        query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
-        print(query)
-        print('Modules')
-        moduleDetRow = db.session.execute(query).fetchall()
-        print('School profile')
-        #print(session['schoolPicture'])
-        # det_list = [1,2,3,4,5]
-        session['moduleDet'] = []
-        detList = session['moduleDet']
+        # school_pro = SchoolProfile.query.filter_by(school_id=school_id).first()
+        # session['school_logo'] = ''
+        # print('school_pro:'+str(school_pro))
+        # session['isGooglelogin'] = ''
+        # if school_pro:
+        #     session['school_logo'] = school_pro.school_logo
+        #     session['schoolPicture'] = school_pro.school_picture
+        #     session['schoolName'] = school_pro.school_name
+        #     session['font'] = school_pro.font
+        #     print('session[font]:'+str(session['font']))
+        #     session['primary_color'] = school_pro.primary_color
+        #     session['isGooglelogin'] = school_pro.google_login
+        #     print('session[isGooglelogin]:'+str(session['isGooglelogin']))
+        #     print('school_pro.google_login:'+str(school_pro.google_login))
+        #     session['show_school_name'] = school_pro.show_school_name
+        #     teacherData = TeacherProfile.query.filter_by(teacher_id=school_pro.school_admin).first()
+        #     userData = User.query.filter_by(id=teacherData.user_id).first()
+        #     session['phone'] = userData.phone
+        #     session['email'] = userData.email
+        # print(session['primary_color'])
+        # query = "select user_type,md.module_name,description, module_url, module_type from module_detail md inner join module_access ma on md.module_id = ma.module_id where user_type = '"+str(current_user.user_type)+"' and ma.is_archived = 'N' and md.is_archived = 'N' order by module_type"
+        # print(query)
+        # print('Modules')
+        # moduleDetRow = db.session.execute(query).fetchall()
+        # print('School profile')
+        # #print(session['schoolPicture'])
+        # # det_list = [1,2,3,4,5]
+        # session['moduleDet'] = []
+        # detList = session['moduleDet']
         
-        for det in moduleDetRow:
-            eachList = []
-            # print(det.module_name)
-            # print(det.module_url)
-            eachList.append(det.module_name)
-            eachList.append(det.module_url)
-            eachList.append(det.module_type)
-            # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
-            detList.append(eachList)
-        session['moduleDet'] = detList
-        # for each in session['moduleDet']:
-        #     print('module_name'+str(each[0]))
-        #     print('module_url'+str(each[1]))
-        #     print('module_type'+str(each[2]))
-        #print(session['schoolName'])
+#         for det in moduleDetRow:
+#             eachList = []
+#             # print(det.module_name)
+#             # print(det.module_url)
+#             eachList.append(det.module_name)
+#             eachList.append(det.module_url)
+#             eachList.append(det.module_type)
+#             # detList.append(str(det.module_name)+":"+str(det.module_url)+":"+str(det.module_type))
+#             detList.append(eachList)
+#         session['moduleDet'] = detList
+#         # for each in session['moduleDet']:
+#         #     print('module_name'+str(each[0]))
+#         #     print('module_url'+str(each[1]))
+#         #     print('module_type'+str(each[2]))
+#         #print(session['schoolName'])
 
-        return redirect(next_page)        
-        #return redirect(url_for('index'))
-    # schoolDataQuery = "select *from school_profile"
-    # schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
-    schoolName = ''
-    schoolLogo = ''
-    primaryColor = '' 
-    phone = ''
-    email = ''
-    print('Url:'+str(request.url))
-    subDom = request.url
-    newDom = 'login'
-    print('login:'+str(newDom))
-    newSubDom = subDom.partition(newDom)
-    newSub = newSubDom[0] + newSubDom[1]
-    print('newSubDom:'+str(newSub))
-    schoolDataQuery = "select *from school_profile where sub_domain like '"+str(newSub)+"%'"
-    schoolData = db.session.execute(text(schoolDataQuery)).fetchall()   
-    print(subDom)
-    font=''
-    for row in schoolData:
-        print(row)
-        if row:
-            schoolName = row.school_name
-            schoolLogo = row.school_logo
-            primaryColor = row.primary_color
-            font = row.font
-            print('font:'+str(font))
-            print('primaryColor:'+str(primaryColor))
-            teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
-            userData = User.query.filter_by(id=teacherData.user_id).first()
-            phone = userData.phone
-            email = userData.email
-    print('phone:'+str(phone))
-    print('email:'+str(email))
-    return render_template('login.html',font=font,phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
+#         return redirect(next_page)        
+#         #return redirect(url_for('index'))
+#     # schoolDataQuery = "select *from school_profile"
+#     # schoolData = db.session.execute(text(schoolDataQuery)).fetchall()
+#     schoolName = ''
+#     schoolLogo = ''
+#     primaryColor = '' 
+#     phone = ''
+#     email = ''
+#     print('Url:'+str(request.url))
+#     subDom = request.url
+#     newDom = 'login'
+#     print('login:'+str(newDom))
+#     newSubDom = subDom.partition(newDom)
+#     newSub = newSubDom[0] + newSubDom[1]
+#     print('newSubDom:'+str(newSub))
+#     schoolDataQuery = "select *from school_profile where sub_domain like '"+str(newSub)+"%'"
+#     schoolData = db.session.execute(text(schoolDataQuery)).fetchall()   
+#     print(subDom)
+#     font=''
+#     for row in schoolData:
+#         print(row)
+#         if row:
+#             schoolName = row.school_name
+#             schoolLogo = row.school_logo
+#             primaryColor = row.primary_color
+#             font = row.font
+#             print('font:'+str(font))
+#             print('primaryColor:'+str(primaryColor))
+#             teacherData = TeacherProfile.query.filter_by(teacher_id=row.school_admin).first()
+#             userData = User.query.filter_by(id=teacherData.user_id).first()
+#             phone = userData.phone
+#             email = userData.email
+#     print('phone:'+str(phone))
+#     print('email:'+str(email))
+#     return render_template('login.html',font=font,phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
 @app.route('/success',methods=['POST'])
 def success():
@@ -4998,1303 +5057,1303 @@ def requestUserAccess():
 
 
 
-@app.route('/syllabus')
-@login_required
-def syllabus():
-    fromSchoolRegistration = False
-    subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
-    school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
-    classValues = db.session.execute(text(classValues)).fetchall()
-    classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
-    classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
-    subjectValues = MessageDetails.query.filter_by(category='Subject').all()
-    bookName = BookDetails.query.all()
-    chapterNum = Topic.query.distinct().all()
-    topicId = Topic.query.all()
-    generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
-    generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
-    for clas in classValues:
-        print('Class value:'+str(clas.class_val))
-    indic='DashBoard'
-    return render_template('syllabus.html',indic=indic,title='Syllabus',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
+# @app.route('/syllabus')
+# @login_required
+# def syllabus():
+#     fromSchoolRegistration = False
+#     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     boardRows = MessageDetails.query.filter_by(msg_id=board.board_id).first()
+#     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     classValues = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' group by class_val order by s"
+#     classValues = db.session.execute(text(classValues)).fetchall()
+#     classValuesGeneral = "SELECT class_val,sum(class_sec_id) as s FROM class_section cs group by class_val order by s"
+#     classValuesGeneral = db.session.execute(text(classValuesGeneral)).fetchall()
+#     subjectValues = MessageDetails.query.filter_by(category='Subject').all()
+#     bookName = BookDetails.query.all()
+#     chapterNum = Topic.query.distinct().all()
+#     topicId = Topic.query.all()
+#     generalBoardId = SchoolProfile.query.with_entities(SchoolProfile.board_id).filter_by(school_id=teacher_id.school_id).first()
+#     generalBoard = MessageDetails.query.filter_by(msg_id=generalBoardId.board_id).first()
+#     for clas in classValues:
+#         print('Class value:'+str(clas.class_val))
+#     indic='DashBoard'
+#     return render_template('syllabus.html',indic=indic,title='Syllabus',generalBoard=generalBoard,boardRowsId = boardRows.msg_id , boardRows=boardRows.description,subjectValues=subjectValues,school_name=school_id.school_name,classValues=classValues,classValuesGeneral=classValuesGeneral,bookName=bookName,chapterNum=chapterNum,topicId=topicId,fromSchoolRegistration=fromSchoolRegistration,user_type_val=str(current_user.user_type))
 
-@app.route('/addSyllabus',methods=['GET','POST'])
-def addSyllabus():
-    print('inside add syllabus')
-    classes = request.get_json()
-    # class_val = request.args.get('class_val')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    for class_val in classes:
-        classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
-        if classExist == None:
-            addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now())
-            db.session.add(addClass)
-            db.session.commit()
-    # class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
-    # for subject in subjects:
-    #     subject_id = MessageDetails.query.filter_by(description=subject,category='Subject').first()
-    #     subjExist = ''
-    #     subjExist = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
-    #     print(subjExist)
-    #     if subjExist == None:
-    #         print('is subjExist is null')
-    #         addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id,last_modified_date=datetime.now())
-    #         db.session.add(addSubject)
-    #         db.session.commit()
-        # bookNames = BookDetails.query.distinct(BookDetails.book_name).filter_by(subject_id=subject_id.msg_id,class_val=class_val).all()
-        print('after add subjects')
-        # for book_name in bookNames:
-        #     book_id = BookDetails.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,book_name=book_name.book_name).first()
-        #     addBook = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id.book_id,is_archived='N')
-        #     db.session.add(addBook)
-        #     db.session.commit()
-        # insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count,is_archived, last_modified_date) (select subject_id, '"+str(class_sec_id.class_sec_id)+"', 'N', topic_id, '"+str(teacher_id.school_id)+"', 0,'N',current_date from Topic_detail where class_val="+str(class_val)+")"
-        # db.session.execute(text(insertRow))
-        # db.session.commit()
-    return ("Syllabus added successfully")
-
-
-@app.route('/generalSyllabusClasses')
-def generalSyllabusClasses():
-    board_id=request.args.get('board_id')
-    classArray = []
-    distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
-    distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
-    for val in distinctClasses:
-        classArray.append(val.class_val)
-    if classArray:
-        return jsonify([classArray])
-    else:
-        return ""
-
-@app.route('/syllabusClasses')
-@login_required
-def syllabusClasses():
-    board_id=request.args.get('board_id')
-    classSectionArray = []
-    sectionArray = []
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
-    distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
-    for val in distinctClasses:
-        #print(val.class_val)
-        sections = ClassSection.query.distinct(ClassSection.section).filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
-        # sectionsString = ''
-        sectionsString = '['
-        i=1
-        for section in sections:
-            #print(len(sections))
-            if i<len(sections):
-                sectionsString = sectionsString + str(section.section)+';'
-            else:
-                sectionsString = sectionsString + str(section.section)
-            i = i + 1
-        sectionsString = sectionsString + ']'
-        classSectionArray.append(str(val.class_val)+':'+str(sectionsString))
-    if classSectionArray:
-        return jsonify([classSectionArray])
-    else:
-        return ""
+# @app.route('/addSyllabus',methods=['GET','POST'])
+# def addSyllabus():
+#     print('inside add syllabus')
+#     classes = request.get_json()
+#     # class_val = request.args.get('class_val')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     for class_val in classes:
+#         classExist = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id).first()
+#         if classExist == None:
+#             addClass = ClassSection(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id,last_modified_date=datetime.now())
+#             db.session.add(addClass)
+#             db.session.commit()
+#     # class_sec_id = ClassSection.query.filter_by(class_val=class_val,section='A',school_id=teacher_id.school_id,student_count=0,class_teacher=teacher_id.teacher_id).first()
+#     # for subject in subjects:
+#     #     subject_id = MessageDetails.query.filter_by(description=subject,category='Subject').first()
+#     #     subjExist = ''
+#     #     subjExist = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id).first()
+#     #     print(subjExist)
+#     #     if subjExist == None:
+#     #         print('is subjExist is null')
+#     #         addSubject = BoardClassSubject(board_id=board_id.board_id,class_val=class_val,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher_id.school_id,last_modified_date=datetime.now())
+#     #         db.session.add(addSubject)
+#     #         db.session.commit()
+#         # bookNames = BookDetails.query.distinct(BookDetails.book_name).filter_by(subject_id=subject_id.msg_id,class_val=class_val).all()
+#         print('after add subjects')
+#         # for book_name in bookNames:
+#         #     book_id = BookDetails.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,book_name=book_name.book_name).first()
+#         #     addBook = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id.book_id,is_archived='N')
+#         #     db.session.add(addBook)
+#         #     db.session.commit()
+#         # insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count,is_archived, last_modified_date) (select subject_id, '"+str(class_sec_id.class_sec_id)+"', 'N', topic_id, '"+str(teacher_id.school_id)+"', 0,'N',current_date from Topic_detail where class_val="+str(class_val)+")"
+#         # db.session.execute(text(insertRow))
+#         # db.session.commit()
+#     return ("Syllabus added successfully")
 
 
-@app.route('/generalSyllabusSubjects',methods=['GET','POST'])
-def generalSyllabusSubjects():
-    board_id=request.args.get('board_id')
-    class_val=request.args.get('class_val')
-    sujectArray=[]
-    subjects = "select distinct description,msg_id from message_detail md inner join topic_detail td on md.msg_id = td.subject_id where td.class_val = '"+str(class_val)+"' order by description"
-    subjects = db.session.execute(text(subjects)).fetchall()
-    for val in subjects:
-        # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
-        sujectArray.append(str(val.msg_id)+":"+str(val.description))
-    if sujectArray:
-        return jsonify([sujectArray])   
-    else:
-        return ""
+# @app.route('/generalSyllabusClasses')
+# def generalSyllabusClasses():
+#     board_id=request.args.get('board_id')
+#     classArray = []
+#     distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs GROUP BY class_val order by s"
+#     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
+#     for val in distinctClasses:
+#         classArray.append(val.class_val)
+#     if classArray:
+#         return jsonify([classArray])
+#     else:
+#         return ""
 
-@app.route('/syllabusSubjects')
-@login_required
-def syllabusSubjects():
-    board_id=request.args.get('board_id')
-    class_val=request.args.get('class_val')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,school_id=teacher_id.school_id,is_archived='N').all()
-    sujectArray=[]
-    subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"' and bcs.is_archived= 'N' order by description"
-    subjects = db.session.execute(text(subjects)).fetchall()
-    for val in subjects:
-        # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
-        sujectArray.append(str(val.msg_id)+":"+str(val.description))
-    if sujectArray:
-        return jsonify([sujectArray])   
-    else:
-        return ""
+# @app.route('/syllabusClasses')
+# @login_required
+# def syllabusClasses():
+#     board_id=request.args.get('board_id')
+#     classSectionArray = []
+#     sectionArray = []
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     distinctClasses = "SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id = '"+str(teacher_id.school_id)+"' GROUP BY class_val order by s"
+#     distinctClasses = db.session.execute(text(distinctClasses)).fetchall()
+#     for val in distinctClasses:
+#         #print(val.class_val)
+#         sections = ClassSection.query.distinct(ClassSection.section).filter_by(school_id=teacher_id.school_id,class_val=val.class_val).all()
+#         # sectionsString = ''
+#         sectionsString = '['
+#         i=1
+#         for section in sections:
+#             #print(len(sections))
+#             if i<len(sections):
+#                 sectionsString = sectionsString + str(section.section)+';'
+#             else:
+#                 sectionsString = sectionsString + str(section.section)
+#             i = i + 1
+#         sectionsString = sectionsString + ']'
+#         classSectionArray.append(str(val.class_val)+':'+str(sectionsString))
+#     if classSectionArray:
+#         return jsonify([classSectionArray])
+#     else:
+#         return ""
 
-@app.route('/fetchSubjects',methods=['GET','POST'])
-def fetchSubjects():
-    class_val = request.args.get('class_val')
-    board = request.args.get('board')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board,school_id=teacher_id.school_id,is_archived='N').all()
-    sujectArray=[]
-    subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"' and bcs.is_archived= 'N' order by description"
-    subjects = db.session.execute(text(subjects)).fetchall()
-    for val in subjects:
-        # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
-        sujectArray.append(str(val.msg_id)+":"+str(val.description))
-    if sujectArray:
-        return jsonify([sujectArray])   
-    else:
-        return "" 
 
-@app.route('/fetchRemSubjects',methods=['GET','POST'])
-def fetchRemSubjects():
-    print('inside fetchRemSubjects')
-    class_val = request.args.get('class_val')
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
-    distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id.board_id,school_id=teacher.school_id,is_archived='Y').all()
-    subjectArray=[]
-    generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
-    generalSubjects = generalSubjects + "where md.msg_id not in (select distinct msg_id from message_detail md "
-    generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
-    generalSubjects = generalSubjects + ")  order by description"
-    print('Query: '+str(generalSubjects))
-    generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
-    subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' order by description"
-    print(subjects)
-    subjects = db.session.execute(text(subjects)).fetchall()
-    for val in subjects:
-        # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
-        subjectArray.append(str(val.msg_id)+":"+str(val.description))
-    for val in generalSubjects:
-        subjectArray.append(str(val.msg_id)+":"+str(val.description))
-    if subjectArray:
-        return jsonify([subjectArray])   
-    else:
-        return ""
+# @app.route('/generalSyllabusSubjects',methods=['GET','POST'])
+# def generalSyllabusSubjects():
+#     board_id=request.args.get('board_id')
+#     class_val=request.args.get('class_val')
+#     sujectArray=[]
+#     subjects = "select distinct description,msg_id from message_detail md inner join topic_detail td on md.msg_id = td.subject_id where td.class_val = '"+str(class_val)+"' order by description"
+#     subjects = db.session.execute(text(subjects)).fetchall()
+#     for val in subjects:
+#         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
+#         sujectArray.append(str(val.msg_id)+":"+str(val.description))
+#     if sujectArray:
+#         return jsonify([sujectArray])   
+#     else:
+#         return ""
 
-@app.route('/addSubject',methods=['GET','POST'])
-def addSubject():
-    subject_id = request.args.get('subject')
-    board_id=request.args.get('board')
-    class_val=request.args.get('class_val')
-    print('Subject:'+str(subject_id))
-    # subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id,school_id=teacher_id.school_id).first()
-    if subjExist==None:
-        addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
-        db.session.add(addSubject)
-        db.session.commit()
-    else:
-        insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
-        insertSubject.is_archived = 'N'
-        db.session.add(insertSubject)
-        db.session.commit()
-    return ('update data successfully')
+# @app.route('/syllabusSubjects')
+# @login_required
+# def syllabusSubjects():
+#     board_id=request.args.get('board_id')
+#     class_val=request.args.get('class_val')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,school_id=teacher_id.school_id,is_archived='N').all()
+#     sujectArray=[]
+#     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"' and bcs.is_archived= 'N' order by description"
+#     subjects = db.session.execute(text(subjects)).fetchall()
+#     for val in subjects:
+#         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
+#         sujectArray.append(str(val.msg_id)+":"+str(val.description))
+#     if sujectArray:
+#         return jsonify([sujectArray])   
+#     else:
+#         return ""
 
-@app.route('/addChapter',methods=['GET','POST'])
-def addChapter():
-    topics=request.get_json()
-    print('inside add Chapter')
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    chapterName = request.args.get('chapterName')
+# @app.route('/fetchSubjects',methods=['GET','POST'])
+# def fetchSubjects():
+#     class_val = request.args.get('class_val')
+#     board = request.args.get('board')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board,school_id=teacher_id.school_id,is_archived='N').all()
+#     sujectArray=[]
+#     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"' and bcs.is_archived= 'N' order by description"
+#     subjects = db.session.execute(text(subjects)).fetchall()
+#     for val in subjects:
+#         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
+#         sujectArray.append(str(val.msg_id)+":"+str(val.description))
+#     if sujectArray:
+#         return jsonify([sujectArray])   
+#     else:
+#         return "" 
+
+# @app.route('/fetchRemSubjects',methods=['GET','POST'])
+# def fetchRemSubjects():
+#     print('inside fetchRemSubjects')
+#     class_val = request.args.get('class_val')
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher.school_id).first()
+#     distinctSubject = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id.board_id,school_id=teacher.school_id,is_archived='Y').all()
+#     subjectArray=[]
+#     generalSubjects = "select distinct msg_id,description from topic_detail td inner join message_detail md on md.msg_id=td.subject_id "
+#     generalSubjects = generalSubjects + "where md.msg_id not in (select distinct msg_id from message_detail md "
+#     generalSubjects = generalSubjects + "inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' "
+#     generalSubjects = generalSubjects + ")  order by description"
+#     print('Query: '+str(generalSubjects))
+#     generalSubjects = db.session.execute(text(generalSubjects)).fetchall()
+#     subjects = "select distinct description,msg_id from message_detail md inner join board_class_subject bcs on md.msg_id = bcs.subject_id where bcs.class_val = '"+str(class_val)+"' and school_id='"+str(teacher.school_id)+"' and bcs.is_archived= 'Y' order by description"
+#     print(subjects)
+#     subjects = db.session.execute(text(subjects)).fetchall()
+#     for val in subjects:
+#         # subject = MessageDetails.query.filter_by(msg_id=val.subject_id).first()
+#         subjectArray.append(str(val.msg_id)+":"+str(val.description))
+#     for val in generalSubjects:
+#         subjectArray.append(str(val.msg_id)+":"+str(val.description))
+#     if subjectArray:
+#         return jsonify([subjectArray])   
+#     else:
+#         return ""
+
+# @app.route('/addSubject',methods=['GET','POST'])
+# def addSubject():
+#     subject_id = request.args.get('subject')
+#     board_id=request.args.get('board')
+#     class_val=request.args.get('class_val')
+#     print('Subject:'+str(subject_id))
+#     # subject_id = MessageDetails.query.filter_by(description=subjectVal,category='Subject').first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     subjExist = BoardClassSubject.query.filter_by(class_val=class_val,board_id=board_id,subject_id=subject_id,school_id=teacher_id.school_id).first()
+#     if subjExist==None:
+#         addSubject = BoardClassSubject(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='N')
+#         db.session.add(addSubject)
+#         db.session.commit()
+#     else:
+#         insertSubject = BoardClassSubject.query.filter_by(class_val=class_val,subject_id=subject_id,school_id=teacher_id.school_id,board_id=board_id,is_archived='Y').first()
+#         insertSubject.is_archived = 'N'
+#         db.session.add(insertSubject)
+#         db.session.commit()
+#     return ('update data successfully')
+
+# @app.route('/addChapter',methods=['GET','POST'])
+# def addChapter():
+#     topics=request.get_json()
+#     print('inside add Chapter')
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     chapterName = request.args.get('chapterName')
     
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    chapter_num = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName).first()
-    print(topics)
-    print('School id:'+str(teacher_id.school_id))
-    for topic in topics:
-        print('inside for')
-        print(topic)
-        # topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
-        existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     chapter_num = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName).first()
+#     print(topics)
+#     print('School id:'+str(teacher_id.school_id))
+#     for topic in topics:
+#         print('inside for')
+#         print(topic)
+#         # topic_id = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,topic_name=topic).first()
+#         existInTT = TopicTracker.query.filter_by(topic_id=topic,school_id=teacher_id.school_id,class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id).first()
         
-        if existInTT:
-            updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic)+"'"
-            print(updateTT)
-            updateTT = db.session.execute(text(updateTT))
-        else:
-            insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(insertTT)
-        db.session.commit()
-    return ("data updated successfully")
+#         if existInTT:
+#             updateTT = "update topic_tracker set is_archived='N' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic)+"'"
+#             print(updateTT)
+#             updateTT = db.session.execute(text(updateTT))
+#         else:
+#             insertTT = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(insertTT)
+#         db.session.commit()
+#     return ("data updated successfully")
 
-@app.route('/addBook',methods=['GET','POST'])
-def addBook():
-    book_id = request.args.get('book')
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    print("class_val"+str(class_val))
-    print("subject id"+str(subject_id.msg_id))
-    print("book id"+str(book_id))
-    book = BookDetails.query.filter_by(book_id=book_id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+# @app.route('/addBook',methods=['GET','POST'])
+# def addBook():
+#     book_id = request.args.get('book')
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     print("class_val"+str(class_val))
+#     print("subject id"+str(subject_id.msg_id))
+#     print("book id"+str(book_id))
+#     book = BookDetails.query.filter_by(book_id=book_id).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
     
-    for book_id in bookIds:
-        updateBCSB = BoardClassSubjectBooks.query.filter_by(school_id=teacher_id.school_id,class_val=class_val,
-        subject_id=subject_id.msg_id,book_id=book_id.book_id).first()
-        if updateBCSB:
-            updateBCSB.is_archived = 'N'
-        else:
-            addBook = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id.book_id,is_archived='N',last_modified_date=datetime.now())
-            db.session.add(addBook)
-        db.session.commit()
-    return ("data updated successfully")
+#     for book_id in bookIds:
+#         updateBCSB = BoardClassSubjectBooks.query.filter_by(school_id=teacher_id.school_id,class_val=class_val,
+#         subject_id=subject_id.msg_id,book_id=book_id.book_id).first()
+#         if updateBCSB:
+#             updateBCSB.is_archived = 'N'
+#         else:
+#             addBook = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id.book_id,is_archived='N',last_modified_date=datetime.now())
+#             db.session.add(addBook)
+#         db.session.commit()
+#     return ("data updated successfully")
 
 
 
-@app.route('/addNewSubject',methods=['GET','POST'])
-def addNewSubject():
-    subject = request.args.get('subject')
-    subject = subject.title()
-    class_val = request.args.get('class_val')
-    board = request.args.get('board')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    insertSubject = MessageDetails(category='Subject',description=subject)
-    db.session.add(insertSubject)
-    db.session.commit()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    insertBCS = BoardClassSubject(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board,is_archived='N')
-    db.session.add(insertBCS)
-    db.session.commit()
-    return ('New Subject added successfully')
+# @app.route('/addNewSubject',methods=['GET','POST'])
+# def addNewSubject():
+#     subject = request.args.get('subject')
+#     subject = subject.title()
+#     class_val = request.args.get('class_val')
+#     board = request.args.get('board')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     insertSubject = MessageDetails(category='Subject',description=subject)
+#     db.session.add(insertSubject)
+#     db.session.commit()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     insertBCS = BoardClassSubject(class_val=class_val,subject_id=subject_id.msg_id,school_id=teacher_id.school_id,board_id=board,is_archived='N')
+#     db.session.add(insertBCS)
+#     db.session.commit()
+#     return ('New Subject added successfully')
 
-@app.route('/addNewBook',methods=['GET','POST'])
-def addNewBook():
-    bookName = request.args.get('book')
-    bookLink = request.args.get('bookLink')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-    bookName = bookName.strip()
-    for x in bookName.lower(): 
-        if x in punctuations: 
-            bookName = bookName.replace(x, "") 
-            print(bookName)
-        else:
-            break
-    if bookName==None or bookName=='':
-        return "NA"
-    bookName = bookName.strip()
-    bookLink = bookLink.strip()
-    for x in bookLink.lower(): 
-        if x in punctuations: 
-            bookLink = bookLink.replace(x, "") 
-            print(bookLink)
-        else:
-            break
-    bookLink = bookLink.strip()
-    book = bookName.title()
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    print('class in addNewBook:'+str(class_val))
-    subject_id= MessageDetails.query.filter_by(description=subject).first()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    bookExist = BookDetails.query.filter_by(board_id=board_id.board_id,book_name=bookName,class_val=class_val,subject_id=subject_id.msg_id).first()
-    if bookExist==None:
-        if bookLink:
-            insertBook = BookDetails(board_id=board_id.board_id,book_name=book,class_val=class_val,subject_id=subject_id.msg_id,teacher_id=teacher_id.teacher_id,book_link=bookLink,last_modified_date=datetime.now())
-        else:
-            insertBook = BookDetails(board_id=board_id.board_id,book_name=book,class_val=class_val,subject_id=subject_id.msg_id,teacher_id=teacher_id.teacher_id,last_modified_date=datetime.now())
-        db.session.add(insertBook)
-        db.session.commit()
-        book_id = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book).first()
-        insertInBCSB = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,
-        book_id=book_id.book_id,is_archived='N',last_modified_date=datetime.now())
-        db.session.add(insertInBCSB)
-        db.session.commit()
-    return ('New Book added successfully')
+# @app.route('/addNewBook',methods=['GET','POST'])
+# def addNewBook():
+#     bookName = request.args.get('book')
+#     bookLink = request.args.get('bookLink')
+#     punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#     bookName = bookName.strip()
+#     for x in bookName.lower(): 
+#         if x in punctuations: 
+#             bookName = bookName.replace(x, "") 
+#             print(bookName)
+#         else:
+#             break
+#     if bookName==None or bookName=='':
+#         return "NA"
+#     bookName = bookName.strip()
+#     bookLink = bookLink.strip()
+#     for x in bookLink.lower(): 
+#         if x in punctuations: 
+#             bookLink = bookLink.replace(x, "") 
+#             print(bookLink)
+#         else:
+#             break
+#     bookLink = bookLink.strip()
+#     book = bookName.title()
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     print('class in addNewBook:'+str(class_val))
+#     subject_id= MessageDetails.query.filter_by(description=subject).first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     bookExist = BookDetails.query.filter_by(board_id=board_id.board_id,book_name=bookName,class_val=class_val,subject_id=subject_id.msg_id).first()
+#     if bookExist==None:
+#         if bookLink:
+#             insertBook = BookDetails(board_id=board_id.board_id,book_name=book,class_val=class_val,subject_id=subject_id.msg_id,teacher_id=teacher_id.teacher_id,book_link=bookLink,last_modified_date=datetime.now())
+#         else:
+#             insertBook = BookDetails(board_id=board_id.board_id,book_name=book,class_val=class_val,subject_id=subject_id.msg_id,teacher_id=teacher_id.teacher_id,last_modified_date=datetime.now())
+#         db.session.add(insertBook)
+#         db.session.commit()
+#         book_id = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book).first()
+#         insertInBCSB = BoardClassSubjectBooks(school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id,
+#         book_id=book_id.book_id,is_archived='N',last_modified_date=datetime.now())
+#         db.session.add(insertInBCSB)
+#         db.session.commit()
+#     return ('New Book added successfully')
 
-@app.route('/checkForChapter',methods=['GET','POST'])
-def checkForChapter():
-    print('inside checkForChapter')
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    chapterNum = request.args.get('chapter_num')
-    bookId = request.args.get('bookId')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-    for x in chapterNum: 
-        if x in punctuations: 
-            chapterNum = chapterNum.replace(x, "") 
-            print(chapterNum)
-            return "NA"
-        else:
-            break
-    chapterName = request.args.get('chapter_name')
-    for x in chapterName.lower(): 
-        if x in punctuations: 
-            chapterName = chapterName.replace(x, "") 
-            print(chapterName)
-            return "NA"
-        else:
-            break
-    subject_id= MessageDetails.query.filter_by(description=subject).first()
-    print('Book Id:'+str(bookId))
-    book = BookDetails.query.filter_by(book_id=bookId).first()
-    bookIds = BookDetails.query.filter_by(class_val=class_val,book_name=book.book_name,subject_id=subject_id.msg_id).all()
-    print('class_val:'+str(class_val)+'subject:'+str(subject_id.msg_id)+'Book name:'+str(book.book_name))
-    # bookIds = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book.book_name).all()
-    k = 0
-    print(book.book_name)
-    for book_id in bookIds:
-        print(str(class_val)+' '+str(subject_id.msg_id)+' '+str(chapterNum)+' '+str(book_id.book_id))
-        topic1 = "select chapter_name,topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+str(class_val)+"' and td.subject_id='"+str(subject_id.msg_id)+"' and td.book_id='"+str(book_id.book_id)+"' and tt.is_archived='N' and td.chapter_num='"+str(chapterNum)+"' "
-        topic1 = db.session.execute(text(topic1)).first()
-        topic2 = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName,book_id=book_id.book_id).first()
-        print('inside for')
-        print(book_id.book_id)
-        print(topic1)
-        if topic1 or topic2:
-            k = 1
-    print(k)
-    if k==1:
-        return ""
-    else:
-        return "1"
+# @app.route('/checkForChapter',methods=['GET','POST'])
+# def checkForChapter():
+#     print('inside checkForChapter')
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     chapterNum = request.args.get('chapter_num')
+#     bookId = request.args.get('bookId')
+#     punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#     for x in chapterNum: 
+#         if x in punctuations: 
+#             chapterNum = chapterNum.replace(x, "") 
+#             print(chapterNum)
+#             return "NA"
+#         else:
+#             break
+#     chapterName = request.args.get('chapter_name')
+#     for x in chapterName.lower(): 
+#         if x in punctuations: 
+#             chapterName = chapterName.replace(x, "") 
+#             print(chapterName)
+#             return "NA"
+#         else:
+#             break
+#     subject_id= MessageDetails.query.filter_by(description=subject).first()
+#     print('Book Id:'+str(bookId))
+#     book = BookDetails.query.filter_by(book_id=bookId).first()
+#     bookIds = BookDetails.query.filter_by(class_val=class_val,book_name=book.book_name,subject_id=subject_id.msg_id).all()
+#     print('class_val:'+str(class_val)+'subject:'+str(subject_id.msg_id)+'Book name:'+str(book.book_name))
+#     # bookIds = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_name=book.book_name).all()
+#     k = 0
+#     print(book.book_name)
+#     for book_id in bookIds:
+#         print(str(class_val)+' '+str(subject_id.msg_id)+' '+str(chapterNum)+' '+str(book_id.book_id))
+#         topic1 = "select chapter_name,topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+str(class_val)+"' and td.subject_id='"+str(subject_id.msg_id)+"' and td.book_id='"+str(book_id.book_id)+"' and tt.is_archived='N' and td.chapter_num='"+str(chapterNum)+"' "
+#         topic1 = db.session.execute(text(topic1)).first()
+#         topic2 = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_name=chapterName,book_id=book_id.book_id).first()
+#         print('inside for')
+#         print(book_id.book_id)
+#         print(topic1)
+#         if topic1 or topic2:
+#             k = 1
+#     print(k)
+#     if k==1:
+#         return ""
+#     else:
+#         return "1"
 
-@app.route('/addClassSection',methods=['POST'])
-def addClassSection():
-    print('inside addClassSection')
-    sections=request.get_json()
-    class_val = request.args.get('class_val')
-    print('class values:'+str(class_val))
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    for section in sections:
-        # class_section = class_section.split(':')
-        # class_val = class_section[0]
-        # section = class_section[1]
-        checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
-        if checkClass:
-            return ""
-    for section in sections:
-        # print(section)
-        # class_section = class_section.split(':')
-        # class_val = class_section[0]
-        # section = class_section[1]
+# @app.route('/addClassSection',methods=['POST'])
+# def addClassSection():
+#     print('inside addClassSection')
+#     sections=request.get_json()
+#     class_val = request.args.get('class_val')
+#     print('class values:'+str(class_val))
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     for section in sections:
+#         # class_section = class_section.split(':')
+#         # class_val = class_section[0]
+#         # section = class_section[1]
+#         checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
+#         if checkClass:
+#             return ""
+#     for section in sections:
+#         # print(section)
+#         # class_section = class_section.split(':')
+#         # class_val = class_section[0]
+#         # section = class_section[1]
         
-        print('Class:'+str(class_val)+' Section:'+str(section))
-        class_data=ClassSection(class_val=str(class_val),section=str(section).upper(),student_count=0,school_id=teacher_id.school_id,last_modified_date=datetime.now())
-        db.session.add(class_data)
-        db.session.commit()
+#         print('Class:'+str(class_val)+' Section:'+str(section))
+#         class_data=ClassSection(class_val=str(class_val),section=str(section).upper(),student_count=0,school_id=teacher_id.school_id,last_modified_date=datetime.now())
+#         db.session.add(class_data)
+#         db.session.commit()
     
-    for section in sections:
-        # class_section = class_section.split(':')
-        # class_val = class_section[0]
-        # section = class_section[1]
-        class_id = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
-        topic_tracker = TopicTracker.query.filter_by(class_sec_id=class_id.class_sec_id,school_id=teacher_id.school_id).first()
-        if topic_tracker:
-            print('data already present')
-        else:
-            print('insert data into topic tracker')
-            insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(class_id.class_sec_id)+"', 'N', topic_id, '"+str(teacher_id.school_id)+"', 0,current_date from Topic_detail where class_val='"+str(class_val)+"')"
-            db.session.execute(text(insertRow))
-        db.session.commit()   
+#     for section in sections:
+#         # class_section = class_section.split(':')
+#         # class_val = class_section[0]
+#         # section = class_section[1]
+#         class_id = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
+#         topic_tracker = TopicTracker.query.filter_by(class_sec_id=class_id.class_sec_id,school_id=teacher_id.school_id).first()
+#         if topic_tracker:
+#             print('data already present')
+#         else:
+#             print('insert data into topic tracker')
+#             insertRow = "insert into topic_tracker (subject_id, class_sec_id, is_covered, topic_id, school_id, reteach_count, last_modified_date) (select subject_id, '"+str(class_id.class_sec_id)+"', 'N', topic_id, '"+str(teacher_id.school_id)+"', 0,current_date from Topic_detail where class_val='"+str(class_val)+"')"
+#             db.session.execute(text(insertRow))
+#         db.session.commit()   
 
-    return "success"
+#     return "success"
 
-@app.route('/checkForBook',methods=['GET','POST'])
-def checkForBook():
-    book = request.args.get('book')
-    book = book.title()
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-    bookName = book.strip()
-    for x in bookName.lower(): 
-        if x in punctuations: 
-            bookName = bookName.replace(x, "") 
-            print(bookName)
-        else:
-            break
-    if bookName==None or bookName=='':
-        return "NA"
-    subject_id = MessageDetails.query.filter_by(category='Subject',description=subject).first()
-    checkBook = BookDetails.query.filter_by(book_name=bookName,class_val=class_val,subject_id=subject_id.msg_id).first()
-    if checkBook:
-        return (book)
-    else:
-        return ""
+# @app.route('/checkForBook',methods=['GET','POST'])
+# def checkForBook():
+#     book = request.args.get('book')
+#     book = book.title()
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#     bookName = book.strip()
+#     for x in bookName.lower(): 
+#         if x in punctuations: 
+#             bookName = bookName.replace(x, "") 
+#             print(bookName)
+#         else:
+#             break
+#     if bookName==None or bookName=='':
+#         return "NA"
+#     subject_id = MessageDetails.query.filter_by(category='Subject',description=subject).first()
+#     checkBook = BookDetails.query.filter_by(book_name=bookName,class_val=class_val,subject_id=subject_id.msg_id).first()
+#     if checkBook:
+#         return (book)
+#     else:
+#         return ""
 
-@app.route('/checkForSubject',methods=['GET','POST'])
-def checkForSubject():
-    subject = request.args.get('subject')
-    subject = subject.title()
-    print('inside check for subject:'+str(subject))
-    class_val = request.args.get('class_val')
-    board = request.args.get('board')
-    checkSubject = MessageDetails.query.filter_by(category='Subject',description=subject).first()
-    if checkSubject:
-        return (subject)
-    else:
-        return ""
+# @app.route('/checkForSubject',methods=['GET','POST'])
+# def checkForSubject():
+#     subject = request.args.get('subject')
+#     subject = subject.title()
+#     print('inside check for subject:'+str(subject))
+#     class_val = request.args.get('class_val')
+#     board = request.args.get('board')
+#     checkSubject = MessageDetails.query.filter_by(category='Subject',description=subject).first()
+#     if checkSubject:
+#         return (subject)
+#     else:
+#         return ""
 
-@app.route('/checkforClassSection',methods=['GET','POST'])
-def checkforClassSection():
-    sections=request.get_json()
-    class_val = request.args.get('class_val')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('inside checkforClassSection')
-    print(sections)
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-    class_val = class_val.strip()
-    print('before remove punc class:'+str(class_val))
-    if class_val==None or class_val=='':
-        print('if clas_val is none')
-        return "NB"
+# @app.route('/checkforClassSection',methods=['GET','POST'])
+# def checkforClassSection():
+#     sections=request.get_json()
+#     class_val = request.args.get('class_val')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     print('inside checkforClassSection')
+#     print(sections)
+#     punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#     class_val = class_val.strip()
+#     print('before remove punc class:'+str(class_val))
+#     if class_val==None or class_val=='':
+#         print('if clas_val is none')
+#         return "NB"
     
-    for x in class_val: 
-        if x in punctuations: 
-            class_val = class_val.replace(x, "") 
-            print('after remove punc class:'+str(class_val))
-            return "NA"
-        else:
-            break
-    for section in sections:
-        # class_section = class_section.split(':')
-        # class_val = class_section[0]
-        # section = class_section[1]
-        punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-        section = section.strip()
-        for x in section.lower(): 
-            if x in punctuations: 
-                section = section.replace(x, "") 
-                print(section)
-                return "NA"
-            else:
-                break
-        if section==None or section=='':
-            print('if section is none')
-            return "NB"
-        print('class_val:'+class_val)
-        print('section:'+section.upper())
-        checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
-        if checkClass:
-            return str(class_val)+':'+str(section.upper())
-    return ""
+#     for x in class_val: 
+#         if x in punctuations: 
+#             class_val = class_val.replace(x, "") 
+#             print('after remove punc class:'+str(class_val))
+#             return "NA"
+#         else:
+#             break
+#     for section in sections:
+#         # class_section = class_section.split(':')
+#         # class_val = class_section[0]
+#         # section = class_section[1]
+#         punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#         section = section.strip()
+#         for x in section.lower(): 
+#             if x in punctuations: 
+#                 section = section.replace(x, "") 
+#                 print(section)
+#                 return "NA"
+#             else:
+#                 break
+#         if section==None or section=='':
+#             print('if section is none')
+#             return "NB"
+#         print('class_val:'+class_val)
+#         print('section:'+section.upper())
+#         checkClass = ClassSection.query.filter_by(class_val=str(class_val),section=section.upper(),school_id=teacher_id.school_id).first()
+#         if checkClass:
+#             return str(class_val)+':'+str(section.upper())
+#     return ""
 
 
-@app.route('/addNewTopic',methods=['GET','POST'])
-def addNewTopic():
-    print('inside add new topic')
-    topics=request.get_json()
-    book_id = request.args.get('book_id')
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    chapter = request.args.get('chapter')
-    chapter_num = request.args.get('chapter_num')
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-    subject_id = MessageDetails.query.filter_by(description = subject).first()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
-    bookId = db.session.execute(text(bookId)).first()
-    print(topics)
-    print('Book ID:'+str(bookId.book_id))
-    for topic in topics:
-        print(topic)
-        topic = topic.strip()
-        for x in topic: 
-            if x in punctuations: 
-                topic = topic.replace(x, "") 
-                print(topic)
-            else:
-                break
-        topic = topic.strip()
-        topic = topic.capitalize()
-        if bookId:
-            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id,teacher_id=teacher_id.teacher_id)
-        db.session.add(insertTopic)
-        db.session.commit()
-        if bookId:
-            topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id).first()
-        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-        db.session.add(insertTopicTracker)
-        db.session.commit()
-    return ("Add new Topic")
+# @app.route('/addNewTopic',methods=['GET','POST'])
+# def addNewTopic():
+#     print('inside add new topic')
+#     topics=request.get_json()
+#     book_id = request.args.get('book_id')
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     chapter = request.args.get('chapter')
+#     chapter_num = request.args.get('chapter_num')
+#     punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#     subject_id = MessageDetails.query.filter_by(description = subject).first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
+#     bookId = db.session.execute(text(bookId)).first()
+#     print(topics)
+#     print('Book ID:'+str(bookId.book_id))
+#     for topic in topics:
+#         print(topic)
+#         topic = topic.strip()
+#         for x in topic: 
+#             if x in punctuations: 
+#                 topic = topic.replace(x, "") 
+#                 print(topic)
+#             else:
+#                 break
+#         topic = topic.strip()
+#         topic = topic.capitalize()
+#         if bookId:
+#             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id,teacher_id=teacher_id.teacher_id)
+#         db.session.add(insertTopic)
+#         db.session.commit()
+#         if bookId:
+#             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=bookId.book_id).first()
+#         insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+#         db.session.add(insertTopicTracker)
+#         db.session.commit()
+#     return ("Add new Topic")
   
-@app.route('/addNewChapter',methods=['GET','POST'])
-def addNewChapter():
-    print('inside add new chapter')
-    topics=request.get_json()
-    book_id = request.args.get('book_id')
-    print('book_id'+str(book_id))
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    chapter = request.args.get('chapter')
-    chapter = chapter.strip()
-    punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
-    for x in chapter.lower(): 
-        if x in punctuations: 
-            chapter = chapter.replace(x, "") 
-            print(chapter)
-        else:
-            break
-    chapter = chapter.strip()
-    chapter = chapter.capitalize() 
-    chapter_num = request.args.get('chapter_num')
-    chapter_num = chapter_num.strip()
-    for x in chapter_num: 
-        if x in punctuations: 
-            chapter_num = chapter_num.replace(x, "") 
-            print(chapter_num)
-        else:
-            break
-    chapter_num = chapter_num.strip()
-    subject_id = MessageDetails.query.filter_by(description = subject).first()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    # bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"'"
-    # bookId = db.session.execute(text(bookId)).first()
-    print(topics)
-    # print('Book ID:'+str(bookId))
-    maxChapterNum = "select max(chapter_num) from topic_detail td"
-    maxChapterNum = db.session.execute(text(maxChapterNum)).first()
-    print('Max chapter no')
-    print(maxChapterNum[0])
-    maxChapterNum = int(maxChapterNum[0]) + 1
-    for topic in topics:
-        print(topic)
-        topic = topic.strip()
-        for x in topic: 
-            if x in punctuations: 
-                topic = topic.replace(x, "") 
-                print(topic)
-            else:
-                break
-        topic = topic.strip()
-        topic = topic.capitalize()
-        if chapter_num:
-            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
-        else:
-            insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
-        db.session.add(insertTopic)
-        db.session.commit()
-        if chapter_num:
-            topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id).first()
-        else:
-            topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id).first()
-        insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
-        db.session.add(insertTopicTracker)
-        db.session.commit()
-    return ("Add new Chapter")
+# @app.route('/addNewChapter',methods=['GET','POST'])
+# def addNewChapter():
+#     print('inside add new chapter')
+#     topics=request.get_json()
+#     book_id = request.args.get('book_id')
+#     print('book_id'+str(book_id))
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     chapter = request.args.get('chapter')
+#     chapter = chapter.strip()
+#     punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_|`=+~'''
+#     for x in chapter.lower(): 
+#         if x in punctuations: 
+#             chapter = chapter.replace(x, "") 
+#             print(chapter)
+#         else:
+#             break
+#     chapter = chapter.strip()
+#     chapter = chapter.capitalize() 
+#     chapter_num = request.args.get('chapter_num')
+#     chapter_num = chapter_num.strip()
+#     for x in chapter_num: 
+#         if x in punctuations: 
+#             chapter_num = chapter_num.replace(x, "") 
+#             print(chapter_num)
+#         else:
+#             break
+#     chapter_num = chapter_num.strip()
+#     subject_id = MessageDetails.query.filter_by(description = subject).first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     # bookId = "select distinct bd.book_id from book_details bd inner join topic_detail td on td.book_id = bd.book_id where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val  = '"+str(class_val)+"' and chapter_num = '"+str(chapter_num)+"'"
+#     # bookId = db.session.execute(text(bookId)).first()
+#     print(topics)
+#     # print('Book ID:'+str(bookId))
+#     maxChapterNum = "select max(chapter_num) from topic_detail td"
+#     maxChapterNum = db.session.execute(text(maxChapterNum)).first()
+#     print('Max chapter no')
+#     print(maxChapterNum[0])
+#     maxChapterNum = int(maxChapterNum[0]) + 1
+#     for topic in topics:
+#         print(topic)
+#         topic = topic.strip()
+#         for x in topic: 
+#             if x in punctuations: 
+#                 topic = topic.replace(x, "") 
+#                 print(topic)
+#             else:
+#                 break
+#         topic = topic.strip()
+#         topic = topic.capitalize()
+#         if chapter_num:
+#             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
+#         else:
+#             insertTopic = Topic(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id,teacher_id=teacher_id.teacher_id)
+#         db.session.add(insertTopic)
+#         db.session.commit()
+#         if chapter_num:
+#             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=chapter_num,class_val=class_val,book_id=book_id).first()
+#         else:
+#             topic_id = Topic.query.filter_by(topic_name=topic,chapter_name=chapter,subject_id=subject_id.msg_id,board_id=board_id.board_id,chapter_num=maxChapterNum,class_val=class_val,book_id=book_id).first()
+#         insertTopicTracker = TopicTracker(subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,is_covered='N',topic_id=topic_id.topic_id,school_id=teacher_id.school_id,is_archived='N',last_modified_date=datetime.now())
+#         db.session.add(insertTopicTracker)
+#         db.session.commit()
+#     return ("Add new Chapter")
 
 
-@app.route('/spellCheckBook',methods=['GET','POST'])
-def spellCheckBook():
-    print('inside spellCheckBox')
-    bookText = request.args.get('bookText')
-    return ""
-    #if bookText=='':
-    #    return ""
-    #spell = SpellChecker()
-    #correct = spell.correction(bookText)
-    #print('correct word:'+str(correct))
-    #if bookText==correct:
-    #    return ""
-    #else:
-    #    print('inside if')
-    #    print(bookText)
-    #    print(correct)
-    #    return correct
+# @app.route('/spellCheckBook',methods=['GET','POST'])
+# def spellCheckBook():
+#     print('inside spellCheckBox')
+#     bookText = request.args.get('bookText')
+#     return ""
+#     #if bookText=='':
+#     #    return ""
+#     #spell = SpellChecker()
+#     #correct = spell.correction(bookText)
+#     #print('correct word:'+str(correct))
+#     #if bookText==correct:
+#     #    return ""
+#     #else:
+#     #    print('inside if')
+#     #    print(bookText)
+#     #    print(correct)
+#     #    return correct
 
-@app.route('/deleteSubject',methods=['GET','POST'])
-def deleteSubject():
-    subject_id = request.args.get('subjectId')
-    class_val = request.args.get('class_val')
-    board = request.args.get('board')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    deleteSubject = BoardClassSubject.query.filter_by(class_val=class_val,school_id=teacher_id.school_id,subject_id=subject_id,board_id=board).first()
-    deleteSubject.is_archived = 'Y'
-    db.session.commit()
-    return ("delete subject successfully")
+# @app.route('/deleteSubject',methods=['GET','POST'])
+# def deleteSubject():
+#     subject_id = request.args.get('subjectId')
+#     class_val = request.args.get('class_val')
+#     board = request.args.get('board')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     deleteSubject = BoardClassSubject.query.filter_by(class_val=class_val,school_id=teacher_id.school_id,subject_id=subject_id,board_id=board).first()
+#     deleteSubject.is_archived = 'Y'
+#     db.session.commit()
+#     return ("delete subject successfully")
 
-@app.route('/deleteBook',methods=['GET','POST'])
-def deleteBook():
-    subject = request.args.get('subject')
-    class_val = request.args.get('class_val')
-    bookId = request.args.get('bookId')
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    book = BookDetails.query.filter_by(book_id=bookId,subject_id=subject_id.msg_id,class_val= class_val).first()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
-    print('book name:'+str(book.book_name))
-    for book_id in bookIds:
-        print(book_id.book_id)
-        updateBook = BoardClassSubjectBooks.query.filter_by(book_id=book_id.book_id,school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id).first()
-        print(updateBook)
-        updateBook.is_archived = 'Y'
-        db.session.commit()
-    return ("delete book successfully")
+# @app.route('/deleteBook',methods=['GET','POST'])
+# def deleteBook():
+#     subject = request.args.get('subject')
+#     class_val = request.args.get('class_val')
+#     bookId = request.args.get('bookId')
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     book = BookDetails.query.filter_by(book_id=bookId,subject_id=subject_id.msg_id,class_val= class_val).first()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+#     print('book name:'+str(book.book_name))
+#     for book_id in bookIds:
+#         print(book_id.book_id)
+#         updateBook = BoardClassSubjectBooks.query.filter_by(book_id=book_id.book_id,school_id=teacher_id.school_id,class_val=class_val,subject_id=subject_id.msg_id).first()
+#         print(updateBook)
+#         updateBook.is_archived = 'Y'
+#         db.session.commit()
+#     return ("delete book successfully")
 
-@app.route('/deleteTopics',methods=['GET','POST'])
-def deleteTopics():
-    subject = request.args.get('subject')
-    class_val = request.args.get('class_val')
-    bookId = request.args.get('bookId')
-    chapter_num = request.args.get('chapter_num')
-    topic_id = request.args.get('topic_id')
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id)+"'"
-    print(updateTT)
-    updateTT = db.session.execute(text(updateTT))
-    db.session.commit()
-    return ("delete topic successfully")
+# @app.route('/deleteTopics',methods=['GET','POST'])
+# def deleteTopics():
+#     subject = request.args.get('subject')
+#     class_val = request.args.get('class_val')
+#     bookId = request.args.get('bookId')
+#     chapter_num = request.args.get('chapter_num')
+#     topic_id = request.args.get('topic_id')
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id='"+str(class_sec_id.class_sec_id)+"' and topic_id='"+str(topic_id)+"'"
+#     print(updateTT)
+#     updateTT = db.session.execute(text(updateTT))
+#     db.session.commit()
+#     return ("delete topic successfully")
 
-@app.route('/deleteChapters',methods=['GET','POST'])
-def deleteChapters():
-    subject = request.args.get('subject')
-    bookId = request.args.get('bookId')
-    class_val = request.args.get('class_val')
-    chapter_num = request.args.get('chapter_num')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    book  = BookDetails.query.filter_by(book_id=bookId,class_val=class_val,subject_id=subject_id.msg_id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
-    book_id = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num).first()
-    # for book_id in bookIds:
-    #     print('inside for of deleteChapters')
-    print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookName:'+str(book.book_name))
-    topic_ids = "select topic_id from topic_detail td where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' "
-    topic_ids = topic_ids + "and td.book_id in (select book_id from book_details bd2 where book_name = '"+str(book.book_name)+"' and class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"')"
-    topic_ids = db.session.execute(text(topic_ids)).fetchall()
-    for topic_id in topic_ids:
-        print('Topic id:'+str(topic_id.topic_id))
-        # updateTT = TopicTracker.query.filter_by(school_id=teacher_id.school_id,subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,topic_id=topic_id.topic_id).all()
-        updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id in (select class_sec_id from class_section where class_val='"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"') and topic_id='"+str(topic_id.topic_id)+"'"
-        print(updateTT)
-        updateTT = db.session.execute(text(updateTT))
-        db.session.commit()
-    return ("delete chapter successfully")
+# @app.route('/deleteChapters',methods=['GET','POST'])
+# def deleteChapters():
+#     subject = request.args.get('subject')
+#     bookId = request.args.get('bookId')
+#     class_val = request.args.get('class_val')
+#     chapter_num = request.args.get('chapter_num')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     book  = BookDetails.query.filter_by(book_id=bookId,class_val=class_val,subject_id=subject_id.msg_id).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+#     book_id = Topic.query.filter_by(subject_id=subject_id.msg_id,class_val=class_val,chapter_num=chapter_num).first()
+#     # for book_id in bookIds:
+#     #     print('inside for of deleteChapters')
+#     print('subID:'+str(subject_id.msg_id)+' class_val:'+str(class_val)+' chapter num:'+str(chapter_num)+' bookName:'+str(book.book_name))
+#     topic_ids = "select topic_id from topic_detail td where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' "
+#     topic_ids = topic_ids + "and td.book_id in (select book_id from book_details bd2 where book_name = '"+str(book.book_name)+"' and class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"')"
+#     topic_ids = db.session.execute(text(topic_ids)).fetchall()
+#     for topic_id in topic_ids:
+#         print('Topic id:'+str(topic_id.topic_id))
+#         # updateTT = TopicTracker.query.filter_by(school_id=teacher_id.school_id,subject_id=subject_id.msg_id,class_sec_id=class_sec_id.class_sec_id,topic_id=topic_id.topic_id).all()
+#         updateTT = "update topic_tracker set is_archived='Y' where school_id='"+str(teacher_id.school_id)+"' and subject_id='"+str(subject_id.msg_id)+"' and class_sec_id in (select class_sec_id from class_section where class_val='"+str(class_val)+"' and school_id='"+str(teacher_id.school_id)+"') and topic_id='"+str(topic_id.topic_id)+"'"
+#         print(updateTT)
+#         updateTT = db.session.execute(text(updateTT))
+#         db.session.commit()
+#     return ("delete chapter successfully")
 
-@app.route('/generalSyllabusBooks')
-def generalSyllabusBooks():
-    subject_name=request.args.get('subject_name')
-    class_val=request.args.get('class_val')
-    board_id = request.args.get('board_id')
-    subject_id = MessageDetails.query.filter_by(description=subject_name).first()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctBooks = "select distinct bd.book_name from book_details bd inner join topic_detail td on "
-    distinctBooks = distinctBooks + "bd.book_id = td.book_id where bd.subject_id='"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"' order by bd.book_name"
-    distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
-    bookArray=[]
-    for val in distinctBooks:
-        print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
-        bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
-    if bookArray:
-        return jsonify([bookArray])  
-    else:
-        return ""
+# @app.route('/generalSyllabusBooks')
+# def generalSyllabusBooks():
+#     subject_name=request.args.get('subject_name')
+#     class_val=request.args.get('class_val')
+#     board_id = request.args.get('board_id')
+#     subject_id = MessageDetails.query.filter_by(description=subject_name).first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     distinctBooks = "select distinct bd.book_name from book_details bd inner join topic_detail td on "
+#     distinctBooks = distinctBooks + "bd.book_id = td.book_id where bd.subject_id='"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"' order by bd.book_name"
+#     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
+#     bookArray=[]
+#     for val in distinctBooks:
+#         print(val.book_name)
+#         book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
+#         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
+#     if bookArray:
+#         return jsonify([bookArray])  
+#     else:
+#         return ""
 
-@app.route('/syllabusBooks')
-@login_required
-def syllabusBooks():
-    subject_name=request.args.get('subject_name')
-    class_val=request.args.get('class_val')
-    board_id = request.args.get('board_id')
-    subject_id = MessageDetails.query.filter_by(description=subject_name).first()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
-    distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
-    print(distinctBooks)
-    distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
-    bookArray=[]
-    for val in distinctBooks:
-        book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val).first()
-        print(str(book_id.book_id)+':'+str(val.book_name))
-        bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
-    if bookArray:
-        return jsonify([bookArray])  
-    else:
-        return ""
+# @app.route('/syllabusBooks')
+# @login_required
+# def syllabusBooks():
+#     subject_name=request.args.get('subject_name')
+#     class_val=request.args.get('class_val')
+#     board_id = request.args.get('board_id')
+#     subject_id = MessageDetails.query.filter_by(description=subject_name).first()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
+#     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+#     print(distinctBooks)
+#     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
+#     bookArray=[]
+#     for val in distinctBooks:
+#         book_id = BookDetails.query.filter_by(book_name=val.book_name,class_val=class_val).first()
+#         print(str(book_id.book_id)+':'+str(val.book_name))
+#         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
+#     if bookArray:
+#         return jsonify([bookArray])  
+#     else:
+#         return ""
 
-@app.route('/fetchRemBooks',methods=['GET','POST'])
-def fetchRemBooks():
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+# @app.route('/fetchRemBooks',methods=['GET','POST'])
+# def fetchRemBooks():
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
     
-    distinctBooks = ''
-    distinctBooks = "select distinct book_name from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and "
-    distinctBooks = distinctBooks + "book_name not in (select distinct book_name from book_details bd inner join board_class_subject_books bcsb on bd.book_id = bcsb.book_id "
-    distinctBooks = distinctBooks + "where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id.msg_id)+"' and bcsb.school_id = '"+str(teacher_id.school_id)+"')"
-    distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
-    distinctBooksInBCSB = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
-    distinctBooksInBCSB = distinctBooksInBCSB + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.is_archived = 'Y' order by bd.book_name"
-    distinctBooksInBCSB = db.session.execute(text(distinctBooksInBCSB)).fetchall()
-    bookArray=[]
-    for val in distinctBooks:
-        print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
-        bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
-    for value in distinctBooksInBCSB:
-        book_id = BookDetails.query.filter_by(book_name=value.book_name).first()
-        bookArray.append(str(book_id.book_id)+':'+str(value.book_name))
-    if bookArray:
-        return jsonify([bookArray])
-    else:
-        return "" 
+#     distinctBooks = ''
+#     distinctBooks = "select distinct book_name from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and "
+#     distinctBooks = distinctBooks + "book_name not in (select distinct book_name from book_details bd inner join board_class_subject_books bcsb on bd.book_id = bcsb.book_id "
+#     distinctBooks = distinctBooks + "where bd.class_val = '"+str(class_val)+"' and bd.subject_id = '"+str(subject_id.msg_id)+"' and bcsb.school_id = '"+str(teacher_id.school_id)+"')"
+#     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
+#     distinctBooksInBCSB = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
+#     distinctBooksInBCSB = distinctBooksInBCSB + "bd.book_id = bcsb.book_id where bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.is_archived = 'Y' order by bd.book_name"
+#     distinctBooksInBCSB = db.session.execute(text(distinctBooksInBCSB)).fetchall()
+#     bookArray=[]
+#     for val in distinctBooks:
+#         print(val.book_name)
+#         book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
+#         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
+#     for value in distinctBooksInBCSB:
+#         book_id = BookDetails.query.filter_by(book_name=value.book_name).first()
+#         bookArray.append(str(book_id.book_id)+':'+str(value.book_name))
+#     if bookArray:
+#         return jsonify([bookArray])
+#     else:
+#         return "" 
 
-@app.route('/selectedChapter',methods=['GET','POST'])
-def selectedChapter():
-    chapterNum = request.args.get('chapterNum')
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    book_id = request.args.get('bookId')
-    print('inside selected chapter')
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
-    # chapter = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapterNum,book_id=book_id).first()
-    chapter = "select chapter_num,chapter_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
-    chapter = chapter + "td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapterNum)+"' and book_name  = '"+str(book.book_name)+"'"
-    print(chapter)
-    chapter = db.session.execute(text(chapter)).first()
-    # chapter = "select chapter_name,chapter_num from topic_detail td inner join book_details bd on "
-    # chapter = chapter + "td.book_id = bd.book_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapterNum)+"' and book_name ='"+str(book.book_name)+"'"
-    # chapter = db.session.execute(text(chapter)).fetchall()
-    selectedChapterArray = []
-    # for chapt in chapter:
-    selectedChapterArray.append(str(chapter.chapter_name)+':'+str(chapter.chapter_num))
-    return jsonify([selectedChapterArray])
+# @app.route('/selectedChapter',methods=['GET','POST'])
+# def selectedChapter():
+#     chapterNum = request.args.get('chapterNum')
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     book_id = request.args.get('bookId')
+#     print('inside selected chapter')
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
+#     # chapter = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapterNum,book_id=book_id).first()
+#     chapter = "select chapter_num,chapter_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
+#     chapter = chapter + "td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapterNum)+"' and book_name  = '"+str(book.book_name)+"'"
+#     print(chapter)
+#     chapter = db.session.execute(text(chapter)).first()
+#     # chapter = "select chapter_name,chapter_num from topic_detail td inner join book_details bd on "
+#     # chapter = chapter + "td.book_id = bd.book_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapterNum)+"' and book_name ='"+str(book.book_name)+"'"
+#     # chapter = db.session.execute(text(chapter)).fetchall()
+#     selectedChapterArray = []
+#     # for chapt in chapter:
+#     selectedChapterArray.append(str(chapter.chapter_name)+':'+str(chapter.chapter_num))
+#     return jsonify([selectedChapterArray])
 
 
-@app.route('/fetchRemChapters',methods=['GET','POST'])
-def fetchRemChapters():
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    bookId = request.args.get('bookId')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
-    book = BookDetails.query.filter_by(book_id=bookId).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+# @app.route('/fetchRemChapters',methods=['GET','POST'])
+# def fetchRemChapters():
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     bookId = request.args.get('bookId')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+#     book = BookDetails.query.filter_by(book_id=bookId).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
     
-    chapterArray=[]
-    print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
+#     chapterArray=[]
+#     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
     
-    queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"') "
-    queryChapters = queryChapters + "and td.topic_id not in (select td.topic_id from topic_detail td inner join topic_tracker tt on "
-    queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') order by chapter_num"
-    print('print chapters from general')
-    print(queryChapters)
-    queryChapters = db.session.execute(text(queryChapters)).fetchall()
+#     queryChapters = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"'  and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"') "
+#     queryChapters = queryChapters + "and td.topic_id not in (select td.topic_id from topic_detail td inner join topic_tracker tt on "
+#     queryChapters = queryChapters + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') order by chapter_num"
+#     print('print chapters from general')
+#     print(queryChapters)
+#     queryChapters = db.session.execute(text(queryChapters)).fetchall()
     
-            # chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
-    queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'Y' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
-    print('deleted chapters')
-    print(queryBookDetails)
-    queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
-    j=1
-    for chapter in queryChapters:
-        chapters = chapter.chapter_name
-        chapters = chapters.replace("'","\'")
-        num = chapter.chapter_num
-        if len(queryChapters)>1:
-            if j==1:
-                chapters = chapters + "/"
-                print(chapters)
-            elif j==len(queryChapters):
-                if len(queryBookDetails)>0:
-                    num = "/"+str(num)
-                    chapters = chapters+"/"
-                else:
-                    num = "/"+str(num)
-                    print(chapters)
-            else:
-                num = "/"+str(num)
-                chapters = chapters+"/"
-                print(chapters)
-            j=j+1
-        else:
-            if len(queryBookDetails)>0:
-                chapters = chapters+"/"
-        chapterArray.append(str(num)+":"+str(chapters))
-    i=1
-    for book in queryBookDetails:
-        print('inside for queryBookDetails'+str(len(queryChapters)))
-        chapter = book.chapter_name
-        chapter = chapter.replace("'","\'")
-        num = book.chapter_num
-        if len(queryBookDetails)>1:
-            if i==1:
-                if len(queryChapters)>0:
-                    print('if queryChapters is not null')
-                    num = "/"+str(num)
-                    chapter = chapter + "/"
-                else:
-                    chapter = chapter + "/"
-                    print(chapter)
-            elif i==len(queryBookDetails):
-                num = "/"+str(num)
-                print(chapter)
-            else:
-                num = "/"+str(num)
-                chapter = chapter+"/"
-                print(chapter)
-            i=i+1
-        else:
-            if len(queryChapters)>0:
-                num = "/"+str(num)
-        print(chapter)
-        chapterArray.append(str(num)+":"+str(chapter))
-    for ch in chapterArray:
-        print(ch)
-    if chapterArray:
-        return jsonify([chapterArray]) 
-    else:
-        return ""
+#             # chapterArray.append(str(chapter.chapter_num)+":"+str(chapter.chapter_name))
+#     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+#     queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'Y' and td.book_id in "
+#     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+#     print('deleted chapters')
+#     print(queryBookDetails)
+#     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+#     j=1
+#     for chapter in queryChapters:
+#         chapters = chapter.chapter_name
+#         chapters = chapters.replace("'","\'")
+#         num = chapter.chapter_num
+#         if len(queryChapters)>1:
+#             if j==1:
+#                 chapters = chapters + "/"
+#                 print(chapters)
+#             elif j==len(queryChapters):
+#                 if len(queryBookDetails)>0:
+#                     num = "/"+str(num)
+#                     chapters = chapters+"/"
+#                 else:
+#                     num = "/"+str(num)
+#                     print(chapters)
+#             else:
+#                 num = "/"+str(num)
+#                 chapters = chapters+"/"
+#                 print(chapters)
+#             j=j+1
+#         else:
+#             if len(queryBookDetails)>0:
+#                 chapters = chapters+"/"
+#         chapterArray.append(str(num)+":"+str(chapters))
+#     i=1
+#     for book in queryBookDetails:
+#         print('inside for queryBookDetails'+str(len(queryChapters)))
+#         chapter = book.chapter_name
+#         chapter = chapter.replace("'","\'")
+#         num = book.chapter_num
+#         if len(queryBookDetails)>1:
+#             if i==1:
+#                 if len(queryChapters)>0:
+#                     print('if queryChapters is not null')
+#                     num = "/"+str(num)
+#                     chapter = chapter + "/"
+#                 else:
+#                     chapter = chapter + "/"
+#                     print(chapter)
+#             elif i==len(queryBookDetails):
+#                 num = "/"+str(num)
+#                 print(chapter)
+#             else:
+#                 num = "/"+str(num)
+#                 chapter = chapter+"/"
+#                 print(chapter)
+#             i=i+1
+#         else:
+#             if len(queryChapters)>0:
+#                 num = "/"+str(num)
+#         print(chapter)
+#         chapterArray.append(str(num)+":"+str(chapter))
+#     for ch in chapterArray:
+#         print(ch)
+#     if chapterArray:
+#         return jsonify([chapterArray]) 
+#     else:
+#         return ""
 
 
-@app.route('/fetchBooks',methods=['GET','POST'])
-def fetchBooks():
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
-    distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
-    print(distinctBooks)
-    distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
-    bookArray=[]
-    for val in distinctBooks:
-        print(val.book_name)
-        book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
-        bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
-    if bookArray:
-        return jsonify([bookArray])
-    else:
-        return ""
+# @app.route('/fetchBooks',methods=['GET','POST'])
+# def fetchBooks():
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     distinctBooks = "select distinct bd.book_name from book_details bd inner join board_class_subject_books bcsb on "
+#     distinctBooks = distinctBooks + "bd.book_id = bcsb.book_id where bcsb.school_id='"+str(teacher_id.school_id)+"' and bcsb.subject_id='"+str(subject_id.msg_id)+"' and bcsb.class_val = '"+str(class_val)+"' and bcsb.is_archived = 'N' order by bd.book_name"
+#     print(distinctBooks)
+#     distinctBooks = db.session.execute(text(distinctBooks)).fetchall()
+#     bookArray=[]
+#     for val in distinctBooks:
+#         print(val.book_name)
+#         book_id = BookDetails.query.filter_by(book_name=val.book_name).first()
+#         bookArray.append(str(book_id.book_id)+':'+str(val.book_name))
+#     if bookArray:
+#         return jsonify([bookArray])
+#     else:
+#         return ""
 
-@app.route('/generalSyllabusChapters')
-def generalSyllabusChapters():
-    book_id=request.args.get('book_id')
-    class_val=request.args.get('class_val')
-    board_id=request.args.get('board_id')
-    subject_id=request.args.get('subject_id')
-    print('Book id:'+str(book_id))
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
-    book = BookDetails.query.filter_by(book_id=book_id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    chapterArray=[]
-    # print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
-    queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.board_id='"+str(board_id)+"' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
-    print('inside general syllabus chapter:')
-    print(queryBookDetails)
-    queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
-    i=1
-    for book in queryBookDetails:
-        chapter = book.chapter_name
-        chapter = chapter.replace("'","\'")
-        num = book.chapter_num
-        if len(queryBookDetails)>1:
-            if i==1:
-                chapter = chapter + "/"
-                print(chapter)
-            elif i==len(queryBookDetails):
-                num = "/"+str(num)
-                print(chapter)
-            else:
-                num = "/"+str(num)
-                chapter = chapter+"/"
-                print(chapter)
-            i=i+1
-        chapterArray.append(str(num)+":"+str(chapter))
-    if chapterArray:
-        return jsonify([chapterArray]) 
-    else:
-        return ""
+# @app.route('/generalSyllabusChapters')
+# def generalSyllabusChapters():
+#     book_id=request.args.get('book_id')
+#     class_val=request.args.get('class_val')
+#     board_id=request.args.get('board_id')
+#     subject_id=request.args.get('subject_id')
+#     print('Book id:'+str(book_id))
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+#     book = BookDetails.query.filter_by(book_id=book_id).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     chapterArray=[]
+#     # print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
+#     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td where td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.board_id='"+str(board_id)+"' and td.book_id in "
+#     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+#     print('inside general syllabus chapter:')
+#     print(queryBookDetails)
+#     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+#     i=1
+#     for book in queryBookDetails:
+#         chapter = book.chapter_name
+#         chapter = chapter.replace("'","\'")
+#         num = book.chapter_num
+#         if len(queryBookDetails)>1:
+#             if i==1:
+#                 chapter = chapter + "/"
+#                 print(chapter)
+#             elif i==len(queryBookDetails):
+#                 num = "/"+str(num)
+#                 print(chapter)
+#             else:
+#                 num = "/"+str(num)
+#                 chapter = chapter+"/"
+#                 print(chapter)
+#             i=i+1
+#         chapterArray.append(str(num)+":"+str(chapter))
+#     if chapterArray:
+#         return jsonify([chapterArray]) 
+#     else:
+#         return ""
 
-@app.route('/syllabusChapters') 
-@login_required
-def syllabusChapters():
-    book_id=request.args.get('book_id')
-    class_val=request.args.get('class_val')
-    board_id=request.args.get('board_id')
-    subject_id=request.args.get('subject_id')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    book = BookDetails.query.filter_by(book_id=book_id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    chapterArray=[]
-    print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
-    queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'N' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
-    # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
-    # queryBookDetails = queryBookDetails + "order by chapter_num"
-    print(queryBookDetails)
-    queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
-    i=1
-    for book in queryBookDetails:
-        chapter = book.chapter_name
-        chapter = chapter.replace("'","\'")
-        num = book.chapter_num
-        book = Topic.query.filter_by(chapter_name=book.chapter_name,chapter_num=book.chapter_num).first()
-        bookId = book.book_id
-        if len(queryBookDetails)>1:
-            if i==1:
-                bookId = str(bookId) + "/"
-                print(chapter)
-            elif i==len(queryBookDetails):
-                num = "/"+str(num)
-                print(chapter)
-            else:
-                num = "/"+str(num)
-                bookId = str(bookId) + "/"
-                print(chapter)
-            i=i+1
-        chapterArray.append(str(num)+":"+str(chapter)+';'+str(book.book_id))
-    for chapters in chapterArray:
-        print(chapters)
-    if chapterArray:
-        return jsonify([chapterArray]) 
-    else:
-        return ""
+# @app.route('/syllabusChapters') 
+# @login_required
+# def syllabusChapters():
+#     book_id=request.args.get('book_id')
+#     class_val=request.args.get('class_val')
+#     board_id=request.args.get('board_id')
+#     subject_id=request.args.get('subject_id')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     book = BookDetails.query.filter_by(book_id=book_id).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     chapterArray=[]
+#     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id)+' boardId:'+str(board_id))
+#     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+#     queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and td.class_val = '"+str(class_val)+"' and tt.is_archived = 'N' and td.book_id in "
+#     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+#     # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
+#     # queryBookDetails = queryBookDetails + "order by chapter_num"
+#     print(queryBookDetails)
+#     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+#     i=1
+#     for book in queryBookDetails:
+#         chapter = book.chapter_name
+#         chapter = chapter.replace("'","\'")
+#         num = book.chapter_num
+#         book = Topic.query.filter_by(chapter_name=book.chapter_name,chapter_num=book.chapter_num).first()
+#         bookId = book.book_id
+#         if len(queryBookDetails)>1:
+#             if i==1:
+#                 bookId = str(bookId) + "/"
+#                 print(chapter)
+#             elif i==len(queryBookDetails):
+#                 num = "/"+str(num)
+#                 print(chapter)
+#             else:
+#                 num = "/"+str(num)
+#                 bookId = str(bookId) + "/"
+#                 print(chapter)
+#             i=i+1
+#         chapterArray.append(str(num)+":"+str(chapter)+';'+str(book.book_id))
+#     for chapters in chapterArray:
+#         print(chapters)
+#     if chapterArray:
+#         return jsonify([chapterArray]) 
+#     else:
+#         return ""
 
-@app.route('/chapterTopic',methods=['GET','POST'])
-def chapterTopic():
-    print('inside chapterTopic')
-    class_val = request.args.get('class_val')
-    subject = request.args.get('subject')
-    chapter_num = request.args.get('chapter_num')
-    book_id = request.args.get('book_id')
-    print('Book id:'+str(book_id))
-    print('class value:'+str(class_val))
-    try:
-        subject_id = MessageDetails.query.filter_by(description=subject).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-        book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
-        print('class:'+str(class_val)+' subject_id:'+str(subject_id.msg_id)+' book_id:'+str(book_id))
-        remTopics = "select distinct topic_name ,topic_id from topic_detail td where class_val = '"+str(class_val)+"' and subject_id  = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' and topic_id not in "
-        remTopics = remTopics + "(select distinct td.topic_id from topic_detail td inner join topic_tracker tt on "
-        remTopics = remTopics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and "
-        remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and class_val='"+str(class_val)+"' and subject_id='"+str(subject_id.msg_id)+"') order by topic_id"
-        print('inside Rem topics')
-        print('Rem Topics:'+str(remTopics))
-        remTopics = db.session.execute(text(remTopics)).fetchall()
-        topics = "select distinct td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on "
-        topics = topics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.is_archived = 'Y' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"') order by td.topic_id"
-        topics = db.session.execute(text(topics)).fetchall()
-    except:
-        return ""
-    topicArray = []
-    i=1
-    for topic in topics:
-        print('for topic list')
-        print(topic.topic_name)
-        print(len(remTopics))
-        topic_name = topic.topic_name
-        topic_name = topic_name.replace("'","\'")
-        topic_id = topic.topic_id
-        if len(topics)>1:
-            if i==1:
-                topic_name = topic_name + "/"
-            elif i==len(topics):
-                if len(remTopics)>0:
-                    topic_id = "/"+str(topic_id)
-                    topic_name = topic_name + "/"
-                else:
-                    topic_id = "/"+str(topic_id)
-            else:
-                topic_id = "/"+str(topic_id)
-                topic_name = topic_name+"/"
-            i=i+1
-        else:
-            if len(remTopics)>0:
-                topic_name = topic_name+"/"
-        topicArray.append(str(topic_id)+":"+str(topic_name))
-        # topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
-    j=1
-    for remTopic in remTopics:
-        print('rem list')
-        print(remTopic.topic_name)
-        topic_name = remTopic.topic_name
-        topic_name = remTopic.topic_name.replace("'","\'")
-        topic_id = remTopic.topic_id
-        if len(remTopics)>1:
-            if j==1:
-                if len(topics)>0:
-                    topic_id = "/"+str(topic_id)
-                    topic_name = topic_name + "/"
-                else:
-                    topic_name = topic_name + "/"
-            elif j==len(remTopics):
-                topic_id = "/"+str(topic_id)
-            else:
-                topic_id = "/"+str(topic_id)
-                topic_name = topic_name+"/"
-            j=j+1
-        else:
-            if len(topics)>0:
-                topic_id = "/"+str(topic_id)
-        topicArray.append(str(topic_id)+":"+str(topic_name))
-        # topicArray.append(str(remTopic.topic_id)+':'+str(remTopic.topic_name))
-    for top in topicArray:
-        print(top)
-    if topicArray:
-        return jsonify([topicArray])
-    else:
-        return ""
+# @app.route('/chapterTopic',methods=['GET','POST'])
+# def chapterTopic():
+#     print('inside chapterTopic')
+#     class_val = request.args.get('class_val')
+#     subject = request.args.get('subject')
+#     chapter_num = request.args.get('chapter_num')
+#     book_id = request.args.get('book_id')
+#     print('Book id:'+str(book_id))
+#     print('class value:'+str(class_val))
+#     try:
+#         subject_id = MessageDetails.query.filter_by(description=subject).first()
+#         teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#         book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=book_id).first()
+#         print('class:'+str(class_val)+' subject_id:'+str(subject_id.msg_id)+' book_id:'+str(book_id))
+#         remTopics = "select distinct topic_name ,topic_id from topic_detail td where class_val = '"+str(class_val)+"' and subject_id  = '"+str(subject_id.msg_id)+"' and chapter_num = '"+str(chapter_num)+"' and topic_id not in "
+#         remTopics = remTopics + "(select distinct td.topic_id from topic_detail td inner join topic_tracker tt on "
+#         remTopics = remTopics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and "
+#         remTopics = remTopics + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.school_id = '"+str(teacher_id.school_id)+"') and book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"' and class_val='"+str(class_val)+"' and subject_id='"+str(subject_id.msg_id)+"') order by topic_id"
+#         print('inside Rem topics')
+#         print('Rem Topics:'+str(remTopics))
+#         remTopics = db.session.execute(text(remTopics)).fetchall()
+#         topics = "select distinct td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on "
+#         topics = topics + "td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id.msg_id)+"' and td.chapter_num = '"+str(chapter_num)+"' and tt.is_archived = 'Y' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.book_id in (select book_id from book_details bd where book_name = '"+str(book.book_name)+"') order by td.topic_id"
+#         topics = db.session.execute(text(topics)).fetchall()
+#     except:
+#         return ""
+#     topicArray = []
+#     i=1
+#     for topic in topics:
+#         print('for topic list')
+#         print(topic.topic_name)
+#         print(len(remTopics))
+#         topic_name = topic.topic_name
+#         topic_name = topic_name.replace("'","\'")
+#         topic_id = topic.topic_id
+#         if len(topics)>1:
+#             if i==1:
+#                 topic_name = topic_name + "/"
+#             elif i==len(topics):
+#                 if len(remTopics)>0:
+#                     topic_id = "/"+str(topic_id)
+#                     topic_name = topic_name + "/"
+#                 else:
+#                     topic_id = "/"+str(topic_id)
+#             else:
+#                 topic_id = "/"+str(topic_id)
+#                 topic_name = topic_name+"/"
+#             i=i+1
+#         else:
+#             if len(remTopics)>0:
+#                 topic_name = topic_name+"/"
+#         topicArray.append(str(topic_id)+":"+str(topic_name))
+#         # topicArray.append(str(topic.topic_id)+':'+str(topic.topic_name))
+#     j=1
+#     for remTopic in remTopics:
+#         print('rem list')
+#         print(remTopic.topic_name)
+#         topic_name = remTopic.topic_name
+#         topic_name = remTopic.topic_name.replace("'","\'")
+#         topic_id = remTopic.topic_id
+#         if len(remTopics)>1:
+#             if j==1:
+#                 if len(topics)>0:
+#                     topic_id = "/"+str(topic_id)
+#                     topic_name = topic_name + "/"
+#                 else:
+#                     topic_name = topic_name + "/"
+#             elif j==len(remTopics):
+#                 topic_id = "/"+str(topic_id)
+#             else:
+#                 topic_id = "/"+str(topic_id)
+#                 topic_name = topic_name+"/"
+#             j=j+1
+#         else:
+#             if len(topics)>0:
+#                 topic_id = "/"+str(topic_id)
+#         topicArray.append(str(topic_id)+":"+str(topic_name))
+#         # topicArray.append(str(remTopic.topic_id)+':'+str(remTopic.topic_name))
+#     for top in topicArray:
+#         print(top)
+#     if topicArray:
+#         return jsonify([topicArray])
+#     else:
+#         return ""
 
-@app.route('/fetchChapters',methods=['GET','POST'])
-def fetchChapters():
-    book_id=request.args.get('bookId')
-    print('inside fetchChapters')
-    print('Book Id:'+str(book_id))
-    class_val=request.args.get('class_val')
-    # board_id=request.args.get('board_id')
-    subject=request.args.get('subject')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    book = BookDetails.query.filter_by(book_id=book_id).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
+# @app.route('/fetchChapters',methods=['GET','POST'])
+# def fetchChapters():
+#     book_id=request.args.get('bookId')
+#     print('inside fetchChapters')
+#     print('Book Id:'+str(book_id))
+#     class_val=request.args.get('class_val')
+#     # board_id=request.args.get('board_id')
+#     subject=request.args.get('subject')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     book = BookDetails.query.filter_by(book_id=book_id).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id).all()
     
-    chapterArray=[]
-    print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
-    queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
-    queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
-    queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
-    # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
-    # queryBookDetails = queryBookDetails + "order by chapter_num"
-    print(queryBookDetails)
-    queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
-    i=1
-    for book in queryBookDetails:
-        chapter = book.chapter_name
-        chapter = chapter.replace("'","\'")
-        num = book.chapter_num
-        book = Topic.query.filter_by(chapter_name=book.chapter_name,chapter_num=book.chapter_num).first()
-        bookId = book.book_id
-        if len(queryBookDetails)>1:
-            if i==1:
-                bookId = str(bookId) + "/"
-                print(chapter)
-            elif i==len(queryBookDetails):
-                num = "/"+str(num)
-                print(chapter)
-            else:
-                num = "/"+str(num)
-                bookId = str(bookId) + "/"
-                print(chapter)
-            i=i+1
-        chapterArray.append(str(num)+":"+str(chapter)+';'+str(book.book_id))
-    if chapterArray:
-        return jsonify([chapterArray]) 
-    else:
-        return ""
+#     chapterArray=[]
+#     print('Book:'+str(book.book_name)+' class:'+str(class_val)+' subId:'+str(subject_id.msg_id))
+#     queryBookDetails = "select distinct chapter_name,chapter_num from topic_detail td inner join topic_tracker tt on "
+#     queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and td.book_id in "
+#     queryBookDetails = queryBookDetails + "(select book_id from book_details bd where class_val = '"+str(class_val)+"' and subject_id = '"+str(subject_id.msg_id)+"' and book_name='"+str(book.book_name)+"') order by chapter_num"
+#     # queryBookDetails = queryBookDetails + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.school_id='"+str(teacher_id.school_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' "
+#     # queryBookDetails = queryBookDetails + "order by chapter_num"
+#     print(queryBookDetails)
+#     queryBookDetails = db.session.execute(text(queryBookDetails)).fetchall()
+#     i=1
+#     for book in queryBookDetails:
+#         chapter = book.chapter_name
+#         chapter = chapter.replace("'","\'")
+#         num = book.chapter_num
+#         book = Topic.query.filter_by(chapter_name=book.chapter_name,chapter_num=book.chapter_num).first()
+#         bookId = book.book_id
+#         if len(queryBookDetails)>1:
+#             if i==1:
+#                 bookId = str(bookId) + "/"
+#                 print(chapter)
+#             elif i==len(queryBookDetails):
+#                 num = "/"+str(num)
+#                 print(chapter)
+#             else:
+#                 num = "/"+str(num)
+#                 bookId = str(bookId) + "/"
+#                 print(chapter)
+#             i=i+1
+#         chapterArray.append(str(num)+":"+str(chapter)+';'+str(book.book_id))
+#     if chapterArray:
+#         return jsonify([chapterArray]) 
+#     else:
+#         return ""
 
-@app.route('/fetchTopics',methods=['GET','POST'])
-def fetchTopics():
-    subject=request.args.get('subject')
-    chapter_num=request.args.get('chapter_num')
+# @app.route('/fetchTopics',methods=['GET','POST'])
+# def fetchTopics():
+#     subject=request.args.get('subject')
+#     chapter_num=request.args.get('chapter_num')
     
-    class_val = request.args.get('class_val')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    subject_id = MessageDetails.query.filter_by(description=subject).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    bookId = request.args.get('bookId')
-    # chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
-    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=bookId).first()
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id,board_id=board_id.board_id).all()
-    # topicArray=[]
-    # chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
-    # queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
-    # queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
-    # queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
-    # queryTopics = db.session.execute(text(queryTopics)).fetchall()
-    # for topic in queryTopics:
-    #     topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
-    # if topicArray:
-    #     return jsonify([topicArray]) 
-    # else:
-    #     return ""
-    topicArray=[]
-    chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
-    chapter_name = chapter_name + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
-    chapter_name = db.session.execute(text(chapter_name)).first()
-    chapterName = chapter_name.chapter_name.replace("'","''")
-    queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
-    queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
-    queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
-    print('fetch Topic Query:'+str(queryTopics))
-    queryTopics = db.session.execute(text(queryTopics)).fetchall()
-    i=1
-    for topic in queryTopics:
-        topic_name = topic.topic_name
-        topic_name = topic_name.replace("'","\'")
-        topic_id = topic.topic_id
-        if len(queryTopics)>1:
-            if i==1:
-                topic_name = topic_name + "/"
-                print(topic_name)
-            elif i==len(queryTopics):
-                topic_id = "/"+str(topic_id)
-            else:
-                topic_id = "/"+str(topic_id)
-                topic_name = topic_name+"/"
-                print(topic_name)
-            i=i+1
-        topicArray.append(str(topic_id)+":"+str(topic_name))
-        # topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
-    if topicArray:
-        return jsonify([topicArray]) 
-    else:
-        return ""
+#     class_val = request.args.get('class_val')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     subject_id = MessageDetails.query.filter_by(description=subject).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     bookId = request.args.get('bookId')
+#     # chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+#     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,book_id=bookId).first()
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id.msg_id,board_id=board_id.board_id).all()
+#     # topicArray=[]
+#     # chapter_name = Topic.query.filter_by(class_val=class_val,subject_id=subject_id.msg_id,chapter_num=chapter_num).first()
+#     # queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
+#     # queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
+#     # queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
+#     # queryTopics = db.session.execute(text(queryTopics)).fetchall()
+#     # for topic in queryTopics:
+#     #     topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
+#     # if topicArray:
+#     #     return jsonify([topicArray]) 
+#     # else:
+#     #     return ""
+#     topicArray=[]
+#     chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
+#     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id.msg_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
+#     chapter_name = db.session.execute(text(chapter_name)).first()
+#     chapterName = chapter_name.chapter_name.replace("'","''")
+#     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
+#     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id.msg_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
+#     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id.msg_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
+#     print('fetch Topic Query:'+str(queryTopics))
+#     queryTopics = db.session.execute(text(queryTopics)).fetchall()
+#     i=1
+#     for topic in queryTopics:
+#         topic_name = topic.topic_name
+#         topic_name = topic_name.replace("'","\'")
+#         topic_id = topic.topic_id
+#         if len(queryTopics)>1:
+#             if i==1:
+#                 topic_name = topic_name + "/"
+#                 print(topic_name)
+#             elif i==len(queryTopics):
+#                 topic_id = "/"+str(topic_id)
+#             else:
+#                 topic_id = "/"+str(topic_id)
+#                 topic_name = topic_name+"/"
+#                 print(topic_name)
+#             i=i+1
+#         topicArray.append(str(topic_id)+":"+str(topic_name))
+#         # topicArray.append(str(topic.topic_id)+":"+str(topic.topic_name))
+#     if topicArray:
+#         return jsonify([topicArray]) 
+#     else:
+#         return ""
 
-@app.route('/generalSyllabusTopics',methods=['GET','POST'])
-def generalSyllabusTopics():
-    subject_id=request.args.get('subject_id')
-    board_id=request.args.get('board_id')
-    chapter_num=request.args.get('chapter_num')
-    bookId = request.args.get('selectedBookId')
-    class_val = request.args.get('class_val')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
+# @app.route('/generalSyllabusTopics',methods=['GET','POST'])
+# def generalSyllabusTopics():
+#     subject_id=request.args.get('subject_id')
+#     board_id=request.args.get('board_id')
+#     chapter_num=request.args.get('chapter_num')
+#     bookId = request.args.get('selectedBookId')
+#     class_val = request.args.get('class_val')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val).first()
     
-    print('BookID:'+str(bookId))
-    book = BookDetails.query.filter_by(book_id=bookId).first()
-    print('book name:')
-    print(book.book_name)
-    bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
-    topicArray=[]
-    chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
-    chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
-    chapter_name = db.session.execute(text(chapter_name)).first()
-    # queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
-    # queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and td.topic_id in "
-    # queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
-    chapterName = chapter_name.chapter_name.replace("'","''")
-    queryTopics = "select distinct topic_id, topic_name from topic_detail td where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id)+"' and subject_id = '"+str(subject_id)+"' and chapter_name ='"+str(chapterName)+"' order by topic_id"
-    print('inside generalsyllabustopics')
-    print(queryTopics)
-    queryTopics = db.session.execute(text(queryTopics)).fetchall()
-    i=1
-    for topic in queryTopics:
-        topic_name = topic.topic_name
-        topic_name = topic_name.replace("'","\'")
-        topic_id = topic.topic_id
-        if len(queryTopics)>1:
-            if i==1:
-                topic_name = topic_name + "/"
-                print(topic_name)
-            elif i==len(queryTopics):
-                topic_id = "/"+str(topic_id)
-            else:
-                topic_id = "/"+str(topic_id)
-                topic_name = topic_name+"/"
-                print(topic_name)
-            i=i+1
-        topicArray.append(str(topic_id)+":"+str(topic_name))
-    if topicArray:
-        return jsonify([topicArray]) 
-    else:
-        return ""
+#     print('BookID:'+str(bookId))
+#     book = BookDetails.query.filter_by(book_id=bookId).first()
+#     print('book name:')
+#     print(book.book_name)
+#     bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+#     topicArray=[]
+#     chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
+#     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
+#     chapter_name = db.session.execute(text(chapter_name)).first()
+#     # queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
+#     # queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and td.topic_id in "
+#     # queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapter_name.chapter_name)+"') order by td.topic_id"
+#     chapterName = chapter_name.chapter_name.replace("'","''")
+#     queryTopics = "select distinct topic_id, topic_name from topic_detail td where class_val = '"+str(class_val)+"' and board_id = '"+str(board_id)+"' and subject_id = '"+str(subject_id)+"' and chapter_name ='"+str(chapterName)+"' order by topic_id"
+#     print('inside generalsyllabustopics')
+#     print(queryTopics)
+#     queryTopics = db.session.execute(text(queryTopics)).fetchall()
+#     i=1
+#     for topic in queryTopics:
+#         topic_name = topic.topic_name
+#         topic_name = topic_name.replace("'","\'")
+#         topic_id = topic.topic_id
+#         if len(queryTopics)>1:
+#             if i==1:
+#                 topic_name = topic_name + "/"
+#                 print(topic_name)
+#             elif i==len(queryTopics):
+#                 topic_id = "/"+str(topic_id)
+#             else:
+#                 topic_id = "/"+str(topic_id)
+#                 topic_name = topic_name+"/"
+#                 print(topic_name)
+#             i=i+1
+#         topicArray.append(str(topic_id)+":"+str(topic_name))
+#     if topicArray:
+#         return jsonify([topicArray]) 
+#     else:
+#         return ""
 
-@app.route('/syllabusTopics')
-@login_required
-def syllabusTopics():
-    subject_id=request.args.get('subject_id')
-    board_id=request.args.get('board_id')
-    chapter_num=request.args.get('chapter_num')
-    bookId = request.args.get('selectedBookId')
-    class_val = request.args.get('class_val')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
-    print('BookID:'+str(bookId))
-    book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id,book_id=bookId).first()
-    # bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
-    topicArray=[]
-    chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
-    chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
-    chapter_name = db.session.execute(text(chapter_name)).first()
-    chapterName = chapter_name.chapter_name.replace("'","''")
-    queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
-    queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
-    queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
-    print(queryTopics)
-    queryTopics = db.session.execute(text(queryTopics)).fetchall()
-    i=1
-    print(len(queryTopics))
-    for topic in queryTopics:
-        topic_name = topic.topic_name
-        topic_name = topic_name.replace("'","\'")
-        topic_id = topic.topic_id
-        if len(queryTopics)>1:
-            if i==1:
-                topic_name = topic_name + "/"
-                print(topic_name)
-            elif i==len(queryTopics):
-                topic_id = "/"+str(topic_id)
-            else:
-                topic_id = "/"+str(topic_id)
-                topic_name = topic_name+"/"
-                print(topic_name)
-            i=i+1
-        topicArray.append(str(topic_id)+":"+str(topic_name))
-    if topicArray:
-        return jsonify([topicArray]) 
-    else:
-        return ""
+# @app.route('/syllabusTopics')
+# @login_required
+# def syllabusTopics():
+#     subject_id=request.args.get('subject_id')
+#     board_id=request.args.get('board_id')
+#     chapter_num=request.args.get('chapter_num')
+#     bookId = request.args.get('selectedBookId')
+#     class_val = request.args.get('class_val')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = ClassSection.query.filter_by(class_val=class_val,school_id=teacher_id.school_id).first()
+#     print('BookID:'+str(bookId))
+#     book = BookDetails.query.filter_by(class_val=class_val,subject_id=subject_id,book_id=bookId).first()
+#     # bookIds = BookDetails.query.filter_by(book_name=book.book_name,class_val=class_val,subject_id=subject_id,board_id=board_id).all()
+#     topicArray=[]
+#     chapter_name = "select chapter_name,td.book_id from topic_detail td inner join book_details bd on td.book_id = bd.book_id where "
+#     chapter_name = chapter_name + "td.subject_id = '"+str(subject_id)+"' and td.class_val = '"+str(class_val)+"' and td.chapter_num = '"+str(chapter_num)+"' and bd.book_name = '"+str(book.book_name)+"'"
+#     chapter_name = db.session.execute(text(chapter_name)).first()
+#     chapterName = chapter_name.chapter_name.replace("'","''")
+#     queryTopics = "select distinct td.topic_id ,td.topic_name from topic_detail td inner join topic_tracker tt on "
+#     queryTopics = queryTopics + "td.topic_id = tt.topic_id where tt.subject_id = '"+str(subject_id)+"' and tt.class_sec_id = '"+str(class_sec_id.class_sec_id)+"' and tt.is_archived = 'N' and tt.school_id = '"+str(teacher_id.school_id)+"' and td.topic_id in "
+#     queryTopics = queryTopics + "(select topic_id from topic_detail td where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and chapter_name = '"+str(chapterName)+"') order by td.topic_id"
+#     print(queryTopics)
+#     queryTopics = db.session.execute(text(queryTopics)).fetchall()
+#     i=1
+#     print(len(queryTopics))
+#     for topic in queryTopics:
+#         topic_name = topic.topic_name
+#         topic_name = topic_name.replace("'","\'")
+#         topic_id = topic.topic_id
+#         if len(queryTopics)>1:
+#             if i==1:
+#                 topic_name = topic_name + "/"
+#                 print(topic_name)
+#             elif i==len(queryTopics):
+#                 topic_id = "/"+str(topic_id)
+#             else:
+#                 topic_id = "/"+str(topic_id)
+#                 topic_name = topic_name+"/"
+#                 print(topic_name)
+#             i=i+1
+#         topicArray.append(str(topic_id)+":"+str(topic_name))
+#     if topicArray:
+#         return jsonify([topicArray]) 
+#     else:
+#         return ""
 
-@app.route('/syllabusQuestionsDetails',methods=['GET','POST'])
-def syllabusQuestionsDetails():
-    class_val = request.args.get('class_val')
-    subject_id = request.args.get('subject_id')
-    topic_id = request.args.get('topic_id')
-    chapter_num=request.args.get('chapter_num')
-    print('inside syllabusQuestionsDetails')
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    boardName = MessageDetails.query.filter_by(msg_id=board.board_id).first()
-    # questions = QuestionDetails.query.filter_by(subject_id=subject_id,class_val=class_val,topic_id=topic_id).all()
-    topic_name = Topic.query.filter_by(topic_id=topic_id,subject_id=subject_id,class_val=class_val).first()
-    chapter_name = Topic.query.filter_by(subject_id=subject_id,class_val=class_val,chapter_num=chapter_num).first()
-    subQuestion = "select count(*) from question_details qd where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and topic_id = '"+str(topic_id)+"' and archive_status = 'N' and question_type = 'Subjective'"
-    subQuestion = db.session.execute(text(subQuestion)).first()
-    objQuestion = "select count(*) from question_details qd where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and topic_id = '"+str(topic_id)+"' and archive_status = 'N' and question_type = 'MCQ1'"
-    objQuestion = db.session.execute(text(objQuestion)).first()
-    refContent = "select count(*) from content_detail cd where class_val = '"+str(class_val)+"' and archive_status = 'N' and subject_id = '"+str(subject_id)+"' and topic_id = '"+str(topic_id)+"'"
-    refContent = db.session.execute(text(refContent)).first()
-    questionDetailsArray = []
-    print('subQuestion:'+str(subQuestion[0])+' objQuestion:'+str(objQuestion[0])+' refContent:'+str(refContent[0]))
-    # for question in questions:
-    #     questionArray.append(question.question_description)
-    questionDetailsArray.append(str(topic_name.topic_name)+':'+str(subQuestion[0])+':'+str(objQuestion[0])+':'+str(refContent[0])+':'+str(boardName.description)+':'+str(chapter_name.chapter_name))
-    if questionDetailsArray:
-        return jsonify([questionDetailsArray])
-    else:
-        return ""
+# @app.route('/syllabusQuestionsDetails',methods=['GET','POST'])
+# def syllabusQuestionsDetails():
+#     class_val = request.args.get('class_val')
+#     subject_id = request.args.get('subject_id')
+#     topic_id = request.args.get('topic_id')
+#     chapter_num=request.args.get('chapter_num')
+#     print('inside syllabusQuestionsDetails')
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     boardName = MessageDetails.query.filter_by(msg_id=board.board_id).first()
+#     # questions = QuestionDetails.query.filter_by(subject_id=subject_id,class_val=class_val,topic_id=topic_id).all()
+#     topic_name = Topic.query.filter_by(topic_id=topic_id,subject_id=subject_id,class_val=class_val).first()
+#     chapter_name = Topic.query.filter_by(subject_id=subject_id,class_val=class_val,chapter_num=chapter_num).first()
+#     subQuestion = "select count(*) from question_details qd where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and topic_id = '"+str(topic_id)+"' and archive_status = 'N' and question_type = 'Subjective'"
+#     subQuestion = db.session.execute(text(subQuestion)).first()
+#     objQuestion = "select count(*) from question_details qd where subject_id = '"+str(subject_id)+"' and class_val = '"+str(class_val)+"' and topic_id = '"+str(topic_id)+"' and archive_status = 'N' and question_type = 'MCQ1'"
+#     objQuestion = db.session.execute(text(objQuestion)).first()
+#     refContent = "select count(*) from content_detail cd where class_val = '"+str(class_val)+"' and archive_status = 'N' and subject_id = '"+str(subject_id)+"' and topic_id = '"+str(topic_id)+"'"
+#     refContent = db.session.execute(text(refContent)).first()
+#     questionDetailsArray = []
+#     print('subQuestion:'+str(subQuestion[0])+' objQuestion:'+str(objQuestion[0])+' refContent:'+str(refContent[0]))
+#     # for question in questions:
+#     #     questionArray.append(question.question_description)
+#     questionDetailsArray.append(str(topic_name.topic_name)+':'+str(subQuestion[0])+':'+str(objQuestion[0])+':'+str(refContent[0])+':'+str(boardName.description)+':'+str(chapter_name.chapter_name))
+#     if questionDetailsArray:
+#         return jsonify([questionDetailsArray])
+#     else:
+#         return ""
 
 
 @app.route('/grantSchoolAdminAccess')
@@ -6380,461 +6439,461 @@ def grantUserAccess():
 
 
 
-@app.route('/questionBank',methods=['POST','GET'])
-@login_required
-def questionBank():
-    topic_list=None
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form=QuestionBankQueryForm()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= ''
-    form.chapter_num.choices= ''
-    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
-    if request.method=='POST':
-        topic_list="select td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(form.class_val.data)+"' and td.subject_id = '"+str(form.subject_name.data)+"' and td.chapter_num='"+str(form.chapter_num.data)+"' and tt.is_archived = 'N'"
-        topic_list = db.session.execute(text(topic_list)).fetchall()
-        subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
-        session['class_val']=form.class_val.data
-        session['sub_name']=subject.description
-        session['test_type_val']=form.test_type.data
-        session['chapter_num']=form.chapter_num.data  
-        print('Class value:'+str(form.class_val.data))
-        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
-        print('Class value:'+str(form.class_val.data))
-        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
-        indic='DashBoard'
-        return render_template('questionBank.html',indic=indic,title='Question Bank',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
-    indic='DashBoard'
-    return render_template('questionBank.html',indic=indic,title='Question Bank',form=form,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+# @app.route('/questionBank',methods=['POST','GET'])
+# @login_required
+# def questionBank():
+#     topic_list=None
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     form=QuestionBankQueryForm()
+#     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
+#     form.subject_name.choices= ''
+#     form.chapter_num.choices= ''
+#     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+#     if request.method=='POST':
+#         topic_list="select td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(form.class_val.data)+"' and td.subject_id = '"+str(form.subject_name.data)+"' and td.chapter_num='"+str(form.chapter_num.data)+"' and tt.is_archived = 'N'"
+#         topic_list = db.session.execute(text(topic_list)).fetchall()
+#         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
+#         session['class_val']=form.class_val.data
+#         session['sub_name']=subject.description
+#         session['test_type_val']=form.test_type.data
+#         session['chapter_num']=form.chapter_num.data  
+#         print('Class value:'+str(form.class_val.data))
+#         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
+#         print('Class value:'+str(form.class_val.data))
+#         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
+#         indic='DashBoard'
+#         return render_template('questionBank.html',indic=indic,title='Question Bank',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
+#     indic='DashBoard'
+#     return render_template('questionBank.html',indic=indic,title='Question Bank',form=form,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
 
-@app.route('/visitedQuestions',methods=['GET','POST'])
-def visitedQuestions():
-    retake = request.args.get('retake')
-    questions=[]
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    topicList=request.get_json() 
-    for topic in topicList:
-        print(str(retake)+'Retake')
-        topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
-        topicFromTracker.is_covered='Y'
-        if topicFromTracker.reteach_count:
-            topicFromTracker.reteach_count=topicFromTracker.reteach_count+1
-        db.session.commit()
+# @app.route('/visitedQuestions',methods=['GET','POST'])
+# def visitedQuestions():
+#     retake = request.args.get('retake')
+#     questions=[]
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     topicList=request.get_json() 
+#     for topic in topicList:
+#         print(str(retake)+'Retake')
+#         topicFromTracker = TopicTracker.query.filter_by(school_id = teacher_id.school_id, topic_id=int(topic)).first()
+#         topicFromTracker.is_covered='Y'
+#         if topicFromTracker.reteach_count:
+#             topicFromTracker.reteach_count=topicFromTracker.reteach_count+1
+#         db.session.commit()
 
-    return jsonify(['1'])
+#     return jsonify(['1'])
     
-@app.route('/questionBankQuestions',methods=['GET','POST'])
-def questionBankQuestions():
-    questions=[]
-    topicList=request.get_json()
-    for topic in topicList:
-        # question_Details=QuestionDetails.query.filter_by(QuestionDetails.topic_id == int(topic)).first()
-        # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionDetails.suggested_weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
-        questionList = QuestionDetails.query.filter_by(topic_id=int(topic),archive_status='N').order_by(QuestionDetails.question_id).all()
-        questions.append(questionList)
-        for q in questionList:
-            print("Question List"+str(q))    
-    if len(questionList)==0:
-        print('returning 1')
-        return jsonify(['1'])
-    else:
-        print('returning template'+ str(questionList))
-        return render_template('questionBankQuestions.html',questions=questions)
+# @app.route('/questionBankQuestions',methods=['GET','POST'])
+# def questionBankQuestions():
+#     questions=[]
+#     topicList=request.get_json()
+#     for topic in topicList:
+#         # question_Details=QuestionDetails.query.filter_by(QuestionDetails.topic_id == int(topic)).first()
+#         # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionDetails.suggested_weightage).filter(QuestionDetails.topic_id == int(topic)).filter(QuestionOptions.is_correct=='Y').all()
+#         questionList = QuestionDetails.query.filter_by(topic_id=int(topic),archive_status='N').order_by(QuestionDetails.question_id).all()
+#         questions.append(questionList)
+#         for q in questionList:
+#             print("Question List"+str(q))    
+#     if len(questionList)==0:
+#         print('returning 1')
+#         return jsonify(['1'])
+#     else:
+#         print('returning template'+ str(questionList))
+#         return render_template('questionBankQuestions.html',questions=questions)
 
-@app.route('/questionBankFileUpload',methods=['GET','POST'])
-def questionBankFileUpload():
-    #question_list=request.get_json()
-    data=request.get_json()
-    question_list=data[0]
-    count_marks=data[1]
-    document = Document()
-    document.add_heading(schoolNameVal(), 0)
-    document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
-    document.add_heading("Subject : "+session.get('sub_name',None),2)
-    document.add_heading("Total Marks : "+str(count_marks),3)
-    p = document.add_paragraph()
-    for question in question_list:
-        data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
-        document.add_paragraph(
-            data.question_description, style='List Number'
-        )    
-        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
-        for option in options:
-            if option.option_desc is not None:
-                document.add_paragraph(
-                    option.option+". "+option.option_desc)     
-    #document.add_page_break()
-    file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
-    if not os.path.exists('tempdocx'):
-        os.mkdir('tempdocx')
-    document.save('tempdocx/'+file_name)
-    client = boto3.client('s3', region_name='ap-south-1')
-    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-    os.remove('tempdocx/'+file_name)
+# @app.route('/questionBankFileUpload',methods=['GET','POST'])
+# def questionBankFileUpload():
+#     #question_list=request.get_json()
+#     data=request.get_json()
+#     question_list=data[0]
+#     count_marks=data[1]
+#     document = Document()
+#     document.add_heading(schoolNameVal(), 0)
+#     document.add_heading('Class '+session.get('class_val',None)+" - "+session.get('test_type_val',None)+" - "+str(session.get('date',None)) , 1)
+#     document.add_heading("Subject : "+session.get('sub_name',None),2)
+#     document.add_heading("Total Marks : "+str(count_marks),3)
+#     p = document.add_paragraph()
+#     for question in question_list:
+#         data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
+#         document.add_paragraph(
+#             data.question_description, style='List Number'
+#         )    
+#         options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+#         for option in options:
+#             if option.option_desc is not None:
+#                 document.add_paragraph(
+#                     option.option+". "+option.option_desc)     
+#     #document.add_page_break()
+#     file_name='S'+'1'+'C'+session.get('class_val',"0")+session.get('sub_name',"0")+session.get('test_type_val',"0")+str(datetime.today().strftime("%d%m%Y"))+'.docx'
+#     if not os.path.exists('tempdocx'):
+#         os.mkdir('tempdocx')
+#     document.save('tempdocx/'+file_name)
+#     client = boto3.client('s3', region_name='ap-south-1')
+#     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+#     os.remove('tempdocx/'+file_name)
 
-    return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
+#     return render_template('testPaperDisplay.html',file_name='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name)
 
-@app.route('/testBuilder',methods=['POST','GET'])
-@login_required
-def testBuilder():
-    topic_list=None
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form=TestBuilderQueryForm()
-    print(teacher_id.school_id)
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
-    form.subject_name.choices= ''
-    form.chapter_num.choices= ''
-    # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
-    test_papers = MessageDetails.query.filter_by(category='Test type').all()
-    # print(request.form['class_val'])
-    # print(request.form['subject_id'])
-    available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
-    available_class = db.session.execute(text(available_class)).fetchall()
-    if request.method=='POST':
-        if request.form['test_date']=='':
-            # flash('Select Date')
-            # form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
-            indic='DashBoard'
-            return render_template('testBuilder.html',indic=indic,form=form)
-        topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
-        subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
-        session['class_val']=form.class_val.data
-        session['date']=request.form['test_date']
-        session['sub_name']=subject.description
-        session['sub_id']=form.subject_name.data
-        session['test_type_val']=form.test_type.data
-        session['chapter_num']=form.chapter_num.data 
-        form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
-        form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
-        indic='DashBoard'
-        return render_template('testBuilder.html',indic=indic,title='Test Builder',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
-    indic='DashBoard'
-    return render_template('testBuilder.html',indic=indic,title='Test Builder',form=form,available_class=available_class,test_papers=test_papers,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+# @app.route('/testBuilder',methods=['POST','GET'])
+# @login_required
+# def testBuilder():
+#     topic_list=None
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     form=TestBuilderQueryForm()
+#     print(teacher_id.school_id)
+#     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher_id.school_id).all()]
+#     form.subject_name.choices= ''
+#     form.chapter_num.choices= ''
+#     # [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+#     form.test_type.choices= [(i.description,i.description) for i in MessageDetails.query.filter_by(category='Test type').all()]
+#     test_papers = MessageDetails.query.filter_by(category='Test type').all()
+#     # print(request.form['class_val'])
+#     # print(request.form['subject_id'])
+#     available_class = "select distinct class_val from class_section where school_id='"+str(teacher_id.school_id)+"'"
+#     available_class = db.session.execute(text(available_class)).fetchall()
+#     if request.method=='POST':
+#         if request.form['test_date']=='':
+#             # flash('Select Date')
+#             # form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(int(form.class_val.data))]
+#             indic='DashBoard'
+#             return render_template('testBuilder.html',indic=indic,form=form)
+#         topic_list=Topic.query.filter_by(class_val=str(form.class_val.data),subject_id=int(form.subject_name.data),chapter_num=int(form.chapter_num.data)).all()
+#         subject=MessageDetails.query.filter_by(msg_id=int(form.subject_name.data)).first()
+#         session['class_val']=form.class_val.data
+#         session['date']=request.form['test_date']
+#         session['sub_name']=subject.description
+#         session['sub_id']=form.subject_name.data
+#         session['test_type_val']=form.test_type.data
+#         session['chapter_num']=form.chapter_num.data 
+#         form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(str(form.class_val.data))]
+#         form.chapter_num.choices= [(int(i['chapter_num']), str(i['chapter_num'])+' - '+str(i['chapter_name'])) for i in chapters(str(form.class_val.data),int(form.subject_name.data))]
+#         indic='DashBoard'
+#         return render_template('testBuilder.html',indic=indic,title='Test Builder',form=form,topics=topic_list,user_type_val=str(current_user.user_type))
+#     indic='DashBoard'
+#     return render_template('testBuilder.html',indic=indic,title='Test Builder',form=form,available_class=available_class,test_papers=test_papers,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
 
-@app.route('/filterQuestionsfromTopic',methods=['GET','POST'])
-def filterQuestionsfromTopic():
-    topics = request.get_json()
-    print('topics:'+str(topics))
+# @app.route('/filterQuestionsfromTopic',methods=['GET','POST'])
+# def filterQuestionsfromTopic():
+#     topics = request.get_json()
+#     print('topics:'+str(topics))
     
-    for topic in topics:
-        print('topic:'+str(topic))
-    class_val = request.args.get('class_val')
-    subject_id = request.args.get('subject_id')
-    test_type = request.args.get('test_type')
-    print('Class feedback:'+str(test_type))
-    questions = []
-    questionList = ''
-    if topics:
-        print('if topics available')
-        for topic in topics:
-            # if test_type == 'Class Feedback':
-            if class_val!=None:
-                if subject_id!=None:
-                    if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                    else:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                else:
-                    if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                    else:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()           
-            else:
-                if subject_id!=None:
-                    if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                    else:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                else:
-                    if test_type!=None:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-                    else:
-                        questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-            # else:
-            #     if class_val!=None:
-            #         if subject_id!=None:
-            #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-            #         else:
-            #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
-            #     else:
-            #         if subject_id!=None:
-            #             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).order_by(QuestionDetails.question_id).all()
-            #         else:
-            #             questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all() 
-            if questionList:  
-                questions.append(questionList)
-    else:
-        print('if topics not available')
-        # if test_type == 'Class Feedback':
-        if class_val!=None:
-            print('if class_val available:'+str(class_val))
-            if subject_id!=None:
-                print('if subject_id available:'+str(subject_id))
-                if test_type:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-                else:
-                    print('if test type is empty')
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-            else:
-                if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-                else:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-        else:
-            if subject_id!=None:
-                if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-                else:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-            else:
-                if test_type!=None:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-                else:
-                    questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-        # else:
-        #     if class_val!=None:
-        #         if subject_id!=None:
-        #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
-        #         else:
-        #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').order_by(QuestionDetails.question_id).all()
-        #     else:
-        #         if subject_id!=None:
-        #             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).order_by(QuestionDetails.question_id).all()
-        #         else:
-        #             questionList = QuestionDetails.query.filter_by(archive_status='N').order_by(QuestionDetails.question_id).all() 
-        print('QuestionList:'+str(questionList))
-        for ques in questionList:
-            print('inside for of QuestionList')
-            print(ques.question_id)
-        if len(questionList)==0:
-            print('returning 1')
-            return jsonify(['1']) 
-        else:
-            return render_template('testBuilderQuestions.html',questions=questionList)
-    if len(questions)==0:
-        print('returning 1')
-        return jsonify(['1']) 
-    else:
-        return render_template('testBuilderQuestions.html',questions=questions,flagTopic = 'true')
+#     for topic in topics:
+#         print('topic:'+str(topic))
+#     class_val = request.args.get('class_val')
+#     subject_id = request.args.get('subject_id')
+#     test_type = request.args.get('test_type')
+#     print('Class feedback:'+str(test_type))
+#     questions = []
+#     questionList = ''
+#     if topics:
+#         print('if topics available')
+#         for topic in topics:
+#             # if test_type == 'Class Feedback':
+#             if class_val!=None:
+#                 if subject_id!=None:
+#                     if test_type!=None:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#                     else:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#                 else:
+#                     if test_type!=None:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#                     else:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()           
+#             else:
+#                 if subject_id!=None:
+#                     if test_type!=None:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#                     else:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#                 else:
+#                     if test_type!=None:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#                     else:
+#                         questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#             # else:
+#             #     if class_val!=None:
+#             #         if subject_id!=None:
+#             #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#             #         else:
+#             #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all()
+#             #     else:
+#             #         if subject_id!=None:
+#             #             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id,topic_id=topic).order_by(QuestionDetails.question_id).all()
+#             #         else:
+#             #             questionList = QuestionDetails.query.filter_by(archive_status='N',topic_id=topic).order_by(QuestionDetails.question_id).all() 
+#             if questionList:  
+#                 questions.append(questionList)
+#     else:
+#         print('if topics not available')
+#         # if test_type == 'Class Feedback':
+#         if class_val!=None:
+#             print('if class_val available:'+str(class_val))
+#             if subject_id!=None:
+#                 print('if subject_id available:'+str(subject_id))
+#                 if test_type:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#                 else:
+#                     print('if test type is empty')
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#             else:
+#                 if test_type!=None:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#                 else:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#         else:
+#             if subject_id!=None:
+#                 if test_type!=None:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#                 else:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#             else:
+#                 if test_type!=None:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#                 else:
+#                     questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#         # else:
+#         #     if class_val!=None:
+#         #         if subject_id!=None:
+#         #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').order_by(QuestionDetails.question_id).all()
+#         #         else:
+#         #             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').order_by(QuestionDetails.question_id).all()
+#         #     else:
+#         #         if subject_id!=None:
+#         #             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).order_by(QuestionDetails.question_id).all()
+#         #         else:
+#         #             questionList = QuestionDetails.query.filter_by(archive_status='N').order_by(QuestionDetails.question_id).all() 
+#         print('QuestionList:'+str(questionList))
+#         for ques in questionList:
+#             print('inside for of QuestionList')
+#             print(ques.question_id)
+#         if len(questionList)==0:
+#             print('returning 1')
+#             return jsonify(['1']) 
+#         else:
+#             return render_template('testBuilderQuestions.html',questions=questionList)
+#     if len(questions)==0:
+#         print('returning 1')
+#         return jsonify(['1']) 
+#     else:
+#         return render_template('testBuilderQuestions.html',questions=questions,flagTopic = 'true')
 
 
-@app.route('/fetchRequiredQues',methods=['GET','POST'])
-def fetchRequiredQues():
-    class_val = request.args.get('class_val')
-    subject_id = request.args.get('subject_id')
+# @app.route('/fetchRequiredQues',methods=['GET','POST'])
+# def fetchRequiredQues():
+#     class_val = request.args.get('class_val')
+#     subject_id = request.args.get('subject_id')
     
-    if class_val!=None:
-        if subject_id!=None:
-            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').all()
-        else:
-            questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').all()
-    else:
-        if subject_id!=None:
-            questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).all()
-        else:
-            questionList = QuestionDetails.query.filter_by(archive_status='N').all()
-    if len(questionList)==0:
-        print('returning 1')
-        return jsonify(['1'])
-    else:
-        print('returning template'+ str(questionList))
-        return render_template('testBuilderQuestions.html',questions=questionList)
+#     if class_val!=None:
+#         if subject_id!=None:
+#             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),subject_id=subject_id,archive_status='N').all()
+#         else:
+#             questionList = QuestionDetails.query.filter_by(class_val = str(class_val),archive_status='N').all()
+#     else:
+#         if subject_id!=None:
+#             questionList = QuestionDetails.query.filter_by(archive_status='N',subject_id=subject_id).all()
+#         else:
+#             questionList = QuestionDetails.query.filter_by(archive_status='N').all()
+#     if len(questionList)==0:
+#         print('returning 1')
+#         return jsonify(['1'])
+#     else:
+#         print('returning template'+ str(questionList))
+#         return render_template('testBuilderQuestions.html',questions=questionList)
 
-@app.route('/testBuilderQuestions',methods=['GET','POST'])  
-def testBuilderQuestions():
-    questions=[]
-    topicList=request.get_json()
-    for topic in topicList:
-        # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
-        questionList = QuestionDetails.query.filter_by(topic_id = int(topic),archive_status='N').order_by(QuestionDetails.question_id).all()
-        questions.append(questionList)
-    if len(questionList)==0:
-        print('returning 1')
-        return jsonify(['1'])
-    else:
-        print('returning template'+ str(questionList))
-        return render_template('testBuilderQuestions.html',questions=questions)
+# @app.route('/testBuilderQuestions',methods=['GET','POST'])  
+# def testBuilderQuestions():
+#     questions=[]
+#     topicList=request.get_json()
+#     for topic in topicList:
+#         # questionList = QuestionDetails.query.join(QuestionOptions, QuestionDetails.question_id==QuestionOptions.question_id).add_columns(QuestionDetails.question_id, QuestionDetails.question_description, QuestionDetails.question_type, QuestionOptions.weightage).filter(QuestionDetails.topic_id == int(topic),QuestionDetails.archive_status=='N' ).filter(QuestionOptions.is_correct=='Y').all()
+#         questionList = QuestionDetails.query.filter_by(topic_id = int(topic),archive_status='N').order_by(QuestionDetails.question_id).all()
+#         questions.append(questionList)
+#     if len(questionList)==0:
+#         print('returning 1')
+#         return jsonify(['1'])
+#     else:
+#         print('returning template'+ str(questionList))
+#         return render_template('testBuilderQuestions.html',questions=questions)
 
 
 
-@app.route('/testBuilderFileUpload',methods=['GET','POST'])
-def testBuilderFileUpload():
-    class_val = request.args.get('class_val')
-    test_type = request.args.get('test_type')
-    subject_id = request.args.get('subject_id')
-    subject_name = MessageDetails.query.filter_by(msg_id=subject_id).first()
-    date = request.args.get('date')
-    print('class_val:'+str(class_val))
-    print('test_type:'+str(test_type))
-    print('subject_id:'+str(subject_id))
-    print('Date:'+str(date))
-    print('Inside Test builder file upload Test Type value:'+str(test_type))
-    #question_list=request.get_json()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
-    data=request.get_json()
-    question_list=data[0]
-    count_marks=data[1]
+# @app.route('/testBuilderFileUpload',methods=['GET','POST'])
+# def testBuilderFileUpload():
+#     class_val = request.args.get('class_val')
+#     test_type = request.args.get('test_type')
+#     subject_id = request.args.get('subject_id')
+#     subject_name = MessageDetails.query.filter_by(msg_id=subject_id).first()
+#     date = request.args.get('date')
+#     print('class_val:'+str(class_val))
+#     print('test_type:'+str(test_type))
+#     print('subject_id:'+str(subject_id))
+#     print('Date:'+str(date))
+#     print('Inside Test builder file upload Test Type value:'+str(test_type))
+#     #question_list=request.get_json()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     board_id = SchoolProfile.query.filter_by(school_id = teacher_id.school_id).first()
+#     data=request.get_json()
+#     question_list=data[0]
+#     count_marks=data[1]
     
-    document = Document()
-    print('Date')
-    print(date)
-    document.add_heading(schoolNameVal(), 0)
-    document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(date) , 1)
-    document.add_heading("Subject : "+str(subject_name.description),2)
-    document.add_heading("Total Marks : "+str(count_marks),3)
-    p = document.add_paragraph()
-    #For every selected question add the question description
-    for question in question_list:
-        data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
-        #for every question add it's options
-        options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
-        #add question desc
-        document.add_paragraph(
-            data.question_description, style='List Number'
-        )    
-    #Add the image associated with the question
-        if data.reference_link!='' and data.reference_link!=None:
-            try:
-                response = requests.get(data.reference_link, stream=True)
-                image = BytesIO(response.content)
-                document.add_picture(image, width=Inches(1.25))
-            except:
-                pass
+#     document = Document()
+#     print('Date')
+#     print(date)
+#     document.add_heading(schoolNameVal(), 0)
+#     document.add_heading('Class '+str(class_val)+" - "+str(test_type)+" - "+str(date) , 1)
+#     document.add_heading("Subject : "+str(subject_name.description),2)
+#     document.add_heading("Total Marks : "+str(count_marks),3)
+#     p = document.add_paragraph()
+#     #For every selected question add the question description
+#     for question in question_list:
+#         data=QuestionDetails.query.filter_by(question_id=int(question), archive_status='N').first()
+#         #for every question add it's options
+#         options=QuestionOptions.query.filter_by(question_id=data.question_id).all()
+#         #add question desc
+#         document.add_paragraph(
+#             data.question_description, style='List Number'
+#         )    
+#     #Add the image associated with the question
+#         if data.reference_link!='' and data.reference_link!=None:
+#             try:
+#                 response = requests.get(data.reference_link, stream=True)
+#                 image = BytesIO(response.content)
+#                 document.add_picture(image, width=Inches(1.25))
+#             except:
+#                 pass
 
-        for option in options:
-            if option.option_desc is not None:
-                document.add_paragraph(
-                    option.option+". "+option.option_desc)     
-    #document.add_page_break()
-    #naming file here
-    cl = class_val.replace("/","-")
-    file_name=str(teacher_id.school_id)+str(cl)+str(subject_name.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
-    file_name = file_name.replace(" ", "")
-    if not os.path.exists('tempdocx'):
-        os.mkdir('tempdocx')
-    document.save('tempdocx/'+file_name)
-    #uploading to s3 bucket
-    client = boto3.client('s3', region_name='ap-south-1')
-    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-    #deleting file from temporary location after upload to s3
-    os.remove('tempdocx/'+file_name)
+#         for option in options:
+#             if option.option_desc is not None:
+#                 document.add_paragraph(
+#                     option.option+". "+option.option_desc)     
+#     #document.add_page_break()
+#     #naming file here
+#     cl = class_val.replace("/","-")
+#     file_name=str(teacher_id.school_id)+str(cl)+str(subject_name.description)+str(test_type)+str(datetime.today().strftime("%Y%m%d"))+str(count_marks)+'.docx'
+#     file_name = file_name.replace(" ", "")
+#     if not os.path.exists('tempdocx'):
+#         os.mkdir('tempdocx')
+#     document.save('tempdocx/'+file_name)
+#     #uploading to s3 bucket
+#     client = boto3.client('s3', region_name='ap-south-1')
+#     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'test_papers/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+#     #deleting file from temporary location after upload to s3
+#     os.remove('tempdocx/'+file_name)
 
-    ###### Inserting record in the Test Detail table
-    file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
+#     ###### Inserting record in the Test Detail table
+#     file_name_val='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/test_papers/'+file_name
 
-    # Test create date
-    format = "%Y-%m-%d %H:%M:%S"
-    # Current time in UTC
-    now_utc = datetime.now(timezone('UTC'))
-    print(now_utc.strftime(format))
-    # Convert to local time zone
-    now_local = now_utc.astimezone(get_localzone())
-    print('Date of test creation:'+str(now_local.strftime(format)))
-    # date_utc = date.now(timezone('UTC'))
-    # date_local = date_utc.astimezone(get_localzone())
-    # print('Date of Test:'+str(date_local.strftime(format)))
-    # Test end date
-    testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
-        board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
-        date_of_test=str(date), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
-    db.session.add(testDetailsUpd)
-    db.session.commit()
+#     # Test create date
+#     format = "%Y-%m-%d %H:%M:%S"
+#     # Current time in UTC
+#     now_utc = datetime.now(timezone('UTC'))
+#     print(now_utc.strftime(format))
+#     # Convert to local time zone
+#     now_local = now_utc.astimezone(get_localzone())
+#     print('Date of test creation:'+str(now_local.strftime(format)))
+#     # date_utc = date.now(timezone('UTC'))
+#     # date_local = date_utc.astimezone(get_localzone())
+#     # print('Date of Test:'+str(date_local.strftime(format)))
+#     # Test end date
+#     testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(count_marks),last_modified_date= datetime.now(),
+#         board_id=str(board_id.board_id), subject_id=int(subject_id),class_val=str(class_val),date_of_creation=now_local.strftime(format),
+#         date_of_test=str(date), school_id=teacher_id.school_id,test_paper_link=file_name_val, teacher_id=teacher_id.teacher_id)
+#     db.session.add(testDetailsUpd)
+#     db.session.commit()
 
-    ##### This section to insert values into test questions table #####
-    #try:
-    createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
-    for questionVal in question_list:
-        testQuestionInsert= TestQuestions(test_id=createdTestID.test_id, question_id=questionVal, last_modified_date=datetime.now(),is_archived='N')
-        db.session.add(testQuestionInsert)
-    db.session.commit()
-    #except:
-    #    print('error inserting values into the test questions table')
-    #### End of section ####
-    testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id).order_by(TestDetails.date_of_creation.desc()).first()
-    sections = ClassSection.query.filter_by(school_id=teacher_id.school_id,class_val=testPaperData.class_val).all()
-    return render_template('testPaperDisplay.html',file_name=file_name_val,testPaperData=testPaperData,sections=sections)
+#     ##### This section to insert values into test questions table #####
+#     #try:
+#     createdTestID = TestDetails.query.filter_by(teacher_id=teacher_id.teacher_id).order_by(TestDetails.last_modified_date.desc()).first()
+#     for questionVal in question_list:
+#         testQuestionInsert= TestQuestions(test_id=createdTestID.test_id, question_id=questionVal, last_modified_date=datetime.now(),is_archived='N')
+#         db.session.add(testQuestionInsert)
+#     db.session.commit()
+#     #except:
+#     #    print('error inserting values into the test questions table')
+#     #### End of section ####
+#     testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id,teacher_id=teacher_id.teacher_id).order_by(TestDetails.date_of_creation.desc()).first()
+#     sections = ClassSection.query.filter_by(school_id=teacher_id.school_id,class_val=testPaperData.class_val).all()
+#     return render_template('testPaperDisplay.html',file_name=file_name_val,testPaperData=testPaperData,sections=sections)
 
-@app.route('/testPapers')
-@login_required
-def testPapers():
-    indic='DashBoard'
-    return render_template('testPapers.html',indic=indic,title='Test Papers')
+# @app.route('/testPapers')
+# @login_required
+# def testPapers():
+#     indic='DashBoard'
+#     return render_template('testPapers.html',indic=indic,title='Test Papers')
 
-@app.route('/testPaperTable')
-def testPaperTable():
-    paper_count = request.args.get('paper_count')
-    if paper_count=="all":
-        paper_count=500
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
-    #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
-    testPaperQuery = "select *from test_details where school_id="+ str(teacher_id.school_id)
-    testPaperQuery = testPaperQuery  +" order by date_of_creation desc fetch first "+str(paper_count)+" rows only"
-    print('Query:'+str(testPaperQuery))
-    testPaperData = db.session.execute(testPaperQuery).fetchall()
-    subjectNames=MessageDetails.query.filter_by(category='Subject')
-    return render_template('_testPaperTable.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
+# @app.route('/testPaperTable')
+# def testPaperTable():
+#     paper_count = request.args.get('paper_count')
+#     if paper_count=="all":
+#         paper_count=500
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+#     #testPaperData= TestDetails.query.filter_by(school_id=teacher_id.school_id).order_by(TestDetails.date_of_creation.desc()).all()
+#     testPaperQuery = "select *from test_details where school_id="+ str(teacher_id.school_id)
+#     testPaperQuery = testPaperQuery  +" order by date_of_creation desc fetch first "+str(paper_count)+" rows only"
+#     print('Query:'+str(testPaperQuery))
+#     testPaperData = db.session.execute(testPaperQuery).fetchall()
+#     subjectNames=MessageDetails.query.filter_by(category='Subject')
+#     return render_template('_testPaperTable.html',testPaperData=testPaperData,subjectNames=subjectNames,classSecCheckVal=classSecCheck(),user_type_val=str(current_user.user_type))
 
-@app.route('/findSection',methods=['GET','POST'])
-def findSection():
-    class_val=request.args.get('class_val')
-    school_id = User.query.filter_by(id=current_user.id).first()
-    print('Class:'+str(class_val))
-    print('School Id:'+str(school_id.school_id))
-    sections = ClassSection.query.filter_by(school_id=school_id.school_id,class_val=class_val)
-    sec = []
-    for section in sections:
-        sec.append(section.section)
-    return jsonify(sec)
+# @app.route('/findSection',methods=['GET','POST'])
+# def findSection():
+#     class_val=request.args.get('class_val')
+#     school_id = User.query.filter_by(id=current_user.id).first()
+#     print('Class:'+str(class_val))
+#     print('School Id:'+str(school_id.school_id))
+#     sections = ClassSection.query.filter_by(school_id=school_id.school_id,class_val=class_val)
+#     sec = []
+#     for section in sections:
+#         sec.append(section.section)
+#     return jsonify(sec)
 
-@app.route('/getQuestionDetails')
-def getQuestionDetails():
-    print('inside getQuestionDetails')
-    qtest_id = request.args.get('test_id')
-    print('Test Id:'+str(qtest_id)) 
-    getQuestionQuery = "select tq.question_id,qd.question_type,qd.question_description,td.total_marks as weightage from test_questions tq "
-    getQuestionQuery = getQuestionQuery + "inner join question_details qd on tq.question_id = qd.question_id "
-    getQuestionQuery = getQuestionQuery + "inner join test_details td on td.test_id = tq.test_id where td.test_id = '"+str(qtest_id)+"'"
-    testQuestionsDetails = db.session.execute(text(getQuestionQuery)).fetchall()
-    for questions in testQuestionsDetails:
-        print(questions.question_description)
-    totalQues = len(testQuestionsDetails)
-    return render_template('_getQuestionDetails.html',totalQues=totalQues,testQuestionsDetails=testQuestionsDetails)
+# @app.route('/getQuestionDetails')
+# def getQuestionDetails():
+#     print('inside getQuestionDetails')
+#     qtest_id = request.args.get('test_id')
+#     print('Test Id:'+str(qtest_id)) 
+#     getQuestionQuery = "select tq.question_id,qd.question_type,qd.question_description,td.total_marks as weightage from test_questions tq "
+#     getQuestionQuery = getQuestionQuery + "inner join question_details qd on tq.question_id = qd.question_id "
+#     getQuestionQuery = getQuestionQuery + "inner join test_details td on td.test_id = tq.test_id where td.test_id = '"+str(qtest_id)+"'"
+#     testQuestionsDetails = db.session.execute(text(getQuestionQuery)).fetchall()
+#     for questions in testQuestionsDetails:
+#         print(questions.question_description)
+#     totalQues = len(testQuestionsDetails)
+#     return render_template('_getQuestionDetails.html',totalQues=totalQues,testQuestionsDetails=testQuestionsDetails)
 
-@app.route('/getChapterDetails')
-def getChapterDetails():
-    qtest_id=request.args.get('test_id')
-    getChapterQuery = "select distinct topic_name, chapter_name, chapter_num from test_questions tq "
-    getChapterQuery= getChapterQuery+ "inner join question_details qd  on "
-    getChapterQuery= getChapterQuery+ " qd.question_id=tq.question_id inner join "
-    getChapterQuery= getChapterQuery+ " topic_detail td on td.topic_id=qd.topic_id "
-    getChapterQuery= getChapterQuery+ "where tq.test_id='"+str(qtest_id)+"'"
+# @app.route('/getChapterDetails')
+# def getChapterDetails():
+#     qtest_id=request.args.get('test_id')
+#     getChapterQuery = "select distinct topic_name, chapter_name, chapter_num from test_questions tq "
+#     getChapterQuery= getChapterQuery+ "inner join question_details qd  on "
+#     getChapterQuery= getChapterQuery+ " qd.question_id=tq.question_id inner join "
+#     getChapterQuery= getChapterQuery+ " topic_detail td on td.topic_id=qd.topic_id "
+#     getChapterQuery= getChapterQuery+ "where tq.test_id='"+str(qtest_id)+"'"
 
-    getChapterRows = db.session.execute(text(getChapterQuery)).fetchall()
+#     getChapterRows = db.session.execute(text(getChapterQuery)).fetchall()
 
-    return render_template('_getChapterDetails.html', getChapterRows=getChapterRows)
+#     return render_template('_getChapterDetails.html', getChapterRows=getChapterRows)
 
-@app.route('/calendar')
-@login_required
-def calendar():
-    return render_template('calendar.html')
+# @app.route('/calendar')
+# @login_required
+# def calendar():
+#     return render_template('calendar.html')
 
-@app.route('/schoolPerformanceRanking')
-@login_required
-def schoolPerformanceRanking():
-    return render_template('schoolPerformanceRanking.html')
+# @app.route('/schoolPerformanceRanking')
+# @login_required
+# def schoolPerformanceRanking():
+#     return render_template('schoolPerformanceRanking.html')
 
-@app.route('/recommendations')
-@login_required
-def recommendations():
-    return render_template('recommendations.html')
+# @app.route('/recommendations')
+# @login_required
+# def recommendations():
+#     return render_template('recommendations.html')
 
 
-@app.route('/attendance')
-@login_required
-def attendance():
-    return render_template('attendance.html')
+# @app.route('/attendance')
+# @login_required
+# def attendance():
+#     return render_template('attendance.html')
 
 @app.route('/guardianDashboard')
 @login_required
@@ -7129,7 +7188,7 @@ def classCon():
             qclass_val=qclass_val, qsection=qsection, class_sec_id=selectedClassSection.class_sec_id, distinctClasses=distinctClasses,
             topicRows=topicRows,title='Class', user_type_val=str(current_user.user_type), loginData=loginData)
     else:
-        return redirect(url_for('login'))    
+        return redirect(url_for('accounts.login'))    
 
 @app.route('/topicList')
 def topicList():
@@ -7155,16 +7214,16 @@ def topicList():
 
     return render_template('_topicList.html', topicList=topicList, class_sec_id=class_sec_id,class_val=class_val)
 
-@app.route('/setGoogleLogin',methods=['POST','GET'])
-def setGoogleLogin():
-    isgoogleLogin = request.args.get('isGoogleLogin')
-    school_id = request.args.get('school_id')
-    schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
-    print(isgoogleLogin)
-    schoolData.google_login = isgoogleLogin
-    db.session.commit()
-    session['isGooglelogin'] = isgoogleLogin
-    return jsonify([0])
+# @app.route('/setGoogleLogin',methods=['POST','GET'])
+# def setGoogleLogin():
+#     isgoogleLogin = request.args.get('isGoogleLogin')
+#     school_id = request.args.get('school_id')
+#     schoolData = SchoolProfile.query.filter_by(school_id=school_id).first()
+#     print(isgoogleLogin)
+#     schoolData.google_login = isgoogleLogin
+#     db.session.commit()
+#     session['isGooglelogin'] = isgoogleLogin
+#     return jsonify([0])
 
 @app.route('/setSchoolName',methods=['POST','GET'])
 def setSchoolName():
@@ -7491,187 +7550,187 @@ def feedbackCollectionStudDev():
         #return render_template('qrSessionScannerStudent.html',disconn=1)
 
 
-@app.route('/updateQuestion')
-def updateQuestion():
-    question_id = request.args.get('question_id')
-    updatedCV = request.args.get('updatedCV')
-    topicId = request.args.get('topicName')
-    subId = request.args.get('subName')
-    qType = request.args.get('qType')
-    qDesc = request.args.get('qDesc')
-    corrans = request.args.get('corrans')
-    weightage = request.args.get('weightage')
-    print('Weightage:'+str(weightage))
-    print('Correct option:'+str(str(corrans)))
-    preview = request.args.get('preview')
-    options = request.args.get('options')
-    op1 = request.args.get('op1')
-    op2 = request.args.get('op2')
-    op3 = request.args.get('op3')
-    op4 = request.args.get('op4')
-    print(op1)
-    print(op2)
-    print(op3)
-    print(op4)
-    form = QuestionBuilderQueryForm()
-    print("Updated class Value+:"+updatedCV)
-    print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(preview)+" "+str(corrans)+" "+str(weightage))
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
-    flag = False
-    # updateQuery = "update question_details t1 set topic_id='" + str(topicId) + "' where question_id='" + question_id + "'"
-    updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ str(preview) +"' where question_id='" + str(question_id) + "'"
+# @app.route('/updateQuestion')
+# def updateQuestion():
+#     question_id = request.args.get('question_id')
+#     updatedCV = request.args.get('updatedCV')
+#     topicId = request.args.get('topicName')
+#     subId = request.args.get('subName')
+#     qType = request.args.get('qType')
+#     qDesc = request.args.get('qDesc')
+#     corrans = request.args.get('corrans')
+#     weightage = request.args.get('weightage')
+#     print('Weightage:'+str(weightage))
+#     print('Correct option:'+str(str(corrans)))
+#     preview = request.args.get('preview')
+#     options = request.args.get('options')
+#     op1 = request.args.get('op1')
+#     op2 = request.args.get('op2')
+#     op3 = request.args.get('op3')
+#     op4 = request.args.get('op4')
+#     print(op1)
+#     print(op2)
+#     print(op3)
+#     print(op4)
+#     form = QuestionBuilderQueryForm()
+#     print("Updated class Value+:"+updatedCV)
+#     print(str(updatedCV)+" "+str(topicId)+" "+str(subId)+" "+str(qType)+" "+str(qDesc)+" "+str(preview)+" "+str(corrans)+" "+str(weightage))
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+#     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+#     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+#     flag = False
+#     # updateQuery = "update question_details t1 set topic_id='" + str(topicId) + "' where question_id='" + question_id + "'"
+#     updateQuery = "update question_details set class_val='" + str(updatedCV) +  "',topic_id='"+ str(topicId) + "',subject_id='"+ str(subId) + "',question_type='" + str(qType) + "',question_description='"+ str(qDesc) + "',reference_link='"+ str(preview) +"' where question_id='" + str(question_id) + "'"
 
-    queryOneExe = db.session.execute(text(updateQuery))
-    updateWeightage = "update question_details set suggested_weightage='" + str(weightage) + "' where question_id='" + str(question_id) + "'" 
-    querytwoExe = db.session.execute(text(updateWeightage))
+#     queryOneExe = db.session.execute(text(updateQuery))
+#     updateWeightage = "update question_details set suggested_weightage='" + str(weightage) + "' where question_id='" + str(question_id) + "'" 
+#     querytwoExe = db.session.execute(text(updateWeightage))
     
 
-    option_id_list = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
-    if corrans:
-        print(option_id_list)
-        i=0
-        opId1=''
-        opId2=''
-        opId3=''
-        opId4=''
-        for opt in option_id_list:
-            if i==0:
-                opId1 = opt.option_id
-            elif i==1:
-                opId2 = opt.option_id
-            elif i==2:
-                opId3 = opt.option_id
-            else:
-                opId4 = opt.option_id
-            i=i+1
-        print("Options order of id:"+str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
-        # print(option_id) 
-        # option = "select option_id from question_options where question_id='"+ str(question_id) + "'"
-        # opt = db.session.execute(text(option))
-        # print("Updated options "+str(opt))
-        if opId1 and opId2 and opId3 and opId4:
-            updateOption1 = "update question_options set option_desc='"+str(op1)+"' where option_id='"+ str(opId1) + "'"
-            print(updateOption1)
-            updateOpt1Exe = db.session.execute(text(updateOption1))
-            updateOption2 = "update question_options set option_desc='"+str(op2)+"' where option_id='"+ str(opId2) + "'"
-            print(updateOption2)
-            updateOpt2Exe = db.session.execute(text(updateOption2))
-            updateOption3 = "update question_options set option_desc='"+str(op3)+"' where option_id='"+ str(opId3) + "'"
-            print(updateOption3)
-            updateOpt3Exe = db.session.execute(text(updateOption3))
-            updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
-            print(updateOption4)
-            updateOpt4Exe = db.session.execute(text(updateOption4))
-            if str(corrans)!='':
-                updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
-                print(updatequery1)
-                update1 = db.session.execute(text(updatequery1))
-                updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(corrans)+"' and question_id='"+str(question_id)+"'"
-                print(updateCorrectOption)
-                updateOp = db.session.execute(text(updateCorrectOption))
-        else:
-            optionlist = []
-            optionlist.append(op1)
-            optionlist.append(op2)
-            optionlist.append(op3)
-            optionlist.append(op4)
-            corrAns = 'Y'
-            for optionDesc in optionlist:
-                if optionDesc==corrans:
-                    query = "insert into question_options(option_desc,question_id,weightage,is_correct,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','Y','A')"
-                else:
-                    query = "insert into question_options(option_desc,question_id,weightage,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','A')"
-                    db.session.execute(query)
+#     option_id_list = QuestionOptions.query.filter_by(question_id=question_id).order_by(QuestionOptions.option_id).all()
+#     if corrans:
+#         print(option_id_list)
+#         i=0
+#         opId1=''
+#         opId2=''
+#         opId3=''
+#         opId4=''
+#         for opt in option_id_list:
+#             if i==0:
+#                 opId1 = opt.option_id
+#             elif i==1:
+#                 opId2 = opt.option_id
+#             elif i==2:
+#                 opId3 = opt.option_id
+#             else:
+#                 opId4 = opt.option_id
+#             i=i+1
+#         print("Options order of id:"+str(opId1)+' '+str(opId2)+' '+str(opId3)+' '+str(opId4))
+#         # print(option_id) 
+#         # option = "select option_id from question_options where question_id='"+ str(question_id) + "'"
+#         # opt = db.session.execute(text(option))
+#         # print("Updated options "+str(opt))
+#         if opId1 and opId2 and opId3 and opId4:
+#             updateOption1 = "update question_options set option_desc='"+str(op1)+"' where option_id='"+ str(opId1) + "'"
+#             print(updateOption1)
+#             updateOpt1Exe = db.session.execute(text(updateOption1))
+#             updateOption2 = "update question_options set option_desc='"+str(op2)+"' where option_id='"+ str(opId2) + "'"
+#             print(updateOption2)
+#             updateOpt2Exe = db.session.execute(text(updateOption2))
+#             updateOption3 = "update question_options set option_desc='"+str(op3)+"' where option_id='"+ str(opId3) + "'"
+#             print(updateOption3)
+#             updateOpt3Exe = db.session.execute(text(updateOption3))
+#             updateOption4 = "update question_options set option_desc='"+str(op4)+"' where option_id='"+ str(opId4) + "'"
+#             print(updateOption4)
+#             updateOpt4Exe = db.session.execute(text(updateOption4))
+#             if str(corrans)!='':
+#                 updatequery1 = "update question_options set is_correct='N' where is_correct='Y' and question_id='" +str(question_id)+"'"
+#                 print(updatequery1)
+#                 update1 = db.session.execute(text(updatequery1))
+#                 updateCorrectOption = "update question_options set is_correct='Y' where option_desc='"+str(corrans)+"' and question_id='"+str(question_id)+"'"
+#                 print(updateCorrectOption)
+#                 updateOp = db.session.execute(text(updateCorrectOption))
+#         else:
+#             optionlist = []
+#             optionlist.append(op1)
+#             optionlist.append(op2)
+#             optionlist.append(op3)
+#             optionlist.append(op4)
+#             corrAns = 'Y'
+#             for optionDesc in optionlist:
+#                 if optionDesc==corrans:
+#                     query = "insert into question_options(option_desc,question_id,weightage,is_correct,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','Y','A')"
+#                 else:
+#                     query = "insert into question_options(option_desc,question_id,weightage,option) values('"+optionDesc+"','"+question_id+"','"+weightage+"','A')"
+#                     db.session.execute(query)
 
-    print('Inside Update Questions')
-    db.session.commit()
-    print(updateQuery)
-    # updateSecondQuery = "update question_options set weightage='" + str(weightage) +"' where question_id='" + str(question_id) + "'"
-    # querySecondExe = db.session.execute(text(updateSecondQuery)) 
-    # db.session.commit()
-    print("Question Id in update Question:"+question_id)
-    # print(updatedData)
-    return render_template('questionUpload.html', form=form, flag=flag)
-
-
-@app.route('/questionOptions')
-def questionOptions():
-    question_id_arg=request.args.get('question_id')
-    questionOptionResults = QuestionOptions.query.filter_by(question_id=question_id_arg).all()
-    questionOptionsList=[]
-    for value in questionOptionResults:
-        print("This is the value: "+str(value))        
-        questionOptionsList.append(value.option+". "+value.option_desc)
-
-    print(questionOptionsList)
-
-    return jsonify([questionOptionsList])
+#     print('Inside Update Questions')
+#     db.session.commit()
+#     print(updateQuery)
+#     # updateSecondQuery = "update question_options set weightage='" + str(weightage) +"' where question_id='" + str(question_id) + "'"
+#     # querySecondExe = db.session.execute(text(updateSecondQuery)) 
+#     # db.session.commit()
+#     print("Question Id in update Question:"+question_id)
+#     # print(updatedData)
+#     return render_template('questionUpload.html', form=form, flag=flag)
 
 
-@app.route('/deleteQuestion')
-def deleteQuestion():
-    question_id = request.args.get('question_id')
-    print('Delete Question Id:'+question_id)
-    print("Question Id:-"+question_id)
+# @app.route('/questionOptions')
+# def questionOptions():
+#     question_id_arg=request.args.get('question_id')
+#     questionOptionResults = QuestionOptions.query.filter_by(question_id=question_id_arg).all()
+#     questionOptionsList=[]
+#     for value in questionOptionResults:
+#         print("This is the value: "+str(value))        
+#         questionOptionsList.append(value.option+". "+value.option_desc)
 
-    updateQuery = "update question_details set archive_status='Y' where question_id='"+question_id+"'"
-    print(updateQuery)
-    db.session.execute(updateQuery)
-    db.session.commit()
-    return "text" 
+#     print(questionOptionsList)
+
+#     return jsonify([questionOptionsList])
+
+
+# @app.route('/deleteQuestion')
+# def deleteQuestion():
+#     question_id = request.args.get('question_id')
+#     print('Delete Question Id:'+question_id)
+#     print("Question Id:-"+question_id)
+
+#     updateQuery = "update question_details set archive_status='Y' where question_id='"+question_id+"'"
+#     print(updateQuery)
+#     db.session.execute(updateQuery)
+#     db.session.commit()
+#     return "text" 
 
 
 
 
-@app.route('/questionDetails')
-def questionDetails():
-    flag = True
-    question_id = request.args.get('question_id')
-    print("Question Id-:"+question_id)
-    form = QuestionBuilderQueryForm()
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
-    form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
-    form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
+# @app.route('/questionDetails')
+# def questionDetails():
+#     flag = True
+#     question_id = request.args.get('question_id')
+#     print("Question Id-:"+question_id)
+#     form = QuestionBuilderQueryForm()
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     form.class_val.choices = [(str(i.class_val), "Class "+str(i.class_val)) for i in ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).order_by(ClassSection.class_val).all()]
+#     form.subject_name.choices= [(str(i['subject_id']), str(i['subject_name'])) for i in subjects(1)]
+#     form.topics.choices=[(str(i['topic_id']), str(i['topic_name'])) for i in topics(1,54)]
 
-    questionDetailsQuery = "select t2.class_val, t1.question_id, t2.subject_id, t1.reference_link, t1.suggested_weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
-    questionDetailsQuery = questionDetailsQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
-    questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
-    questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
+#     questionDetailsQuery = "select t2.class_val, t1.question_id, t2.subject_id, t1.reference_link, t1.suggested_weightage, t2.topic_name, t2.topic_id, t1.question_type, t1.question_description, t4.description from question_details t1 "
+#     questionDetailsQuery = questionDetailsQuery + "inner join topic_detail t2 on t1.topic_id=t2.topic_id "
+#     questionDetailsQuery = questionDetailsQuery + "inner join message_detail t4 on t1.subject_id = t4.msg_id"
+#     questionDetailsQuery = questionDetailsQuery + " where t1.question_id ='" + question_id + "' order by t1.question_id"
 
-    questionUpdateUploadSubjective = db.session.execute(text(questionDetailsQuery)).first()   
-    question_desc = questionUpdateUploadSubjective.question_description.replace('\n', ' ').replace('\r', '')
-    print(questionUpdateUploadSubjective)
-    questionUpdateUpload=questionUpdateUploadSubjective
-    if questionUpdateUpload.question_type=='MCQ1':
+#     questionUpdateUploadSubjective = db.session.execute(text(questionDetailsQuery)).first()   
+#     question_desc = questionUpdateUploadSubjective.question_description.replace('\n', ' ').replace('\r', '')
+#     print(questionUpdateUploadSubjective)
+#     questionUpdateUpload=questionUpdateUploadSubjective
+#     if questionUpdateUpload.question_type=='MCQ1':
        
-        query = "select option_desc from question_options where question_id='" + question_id + "' order by option_id"
-        #print(query)
-        avail_options = db.session.execute(text(query)).fetchall()
-        queryCorrectoption = "select option_desc from question_options where is_correct='Y' and question_id='" + question_id + "'"  
-        #print(queryCorrectoption)
-        correctoption = db.session.execute(text(queryCorrectoption)).fetchall()
-        print(correctoption)
-        correctOption = ''
-        for c in correctoption:
-            print(c.option_desc)
-            correctOption = c.option_desc
-        print('Correct Option:'+correctOption)
-        for q in questionUpdateUploadSubjective:
-            print('this is check for MCQ ' + str(q))
-        for a in avail_options:
-            print(a)
-        print('Correct Option Again:'+correctOption)
-        return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag, avail_options=avail_options, correctOption=correctOption,question_desc=question_desc)
-        # return render_template('questionUpload.html',question_id=question_id, questionUpdateUploadSubjective=questionUpdateUploadSubjective,form=form,flag=flag,avail_options=avail_options,correctOption=correctOption)
+#         query = "select option_desc from question_options where question_id='" + question_id + "' order by option_id"
+#         #print(query)
+#         avail_options = db.session.execute(text(query)).fetchall()
+#         queryCorrectoption = "select option_desc from question_options where is_correct='Y' and question_id='" + question_id + "'"  
+#         #print(queryCorrectoption)
+#         correctoption = db.session.execute(text(queryCorrectoption)).fetchall()
+#         print(correctoption)
+#         correctOption = ''
+#         for c in correctoption:
+#             print(c.option_desc)
+#             correctOption = c.option_desc
+#         print('Correct Option:'+correctOption)
+#         for q in questionUpdateUploadSubjective:
+#             print('this is check for MCQ ' + str(q))
+#         for a in avail_options:
+#             print(a)
+#         print('Correct Option Again:'+correctOption)
+#         return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag, avail_options=avail_options, correctOption=correctOption,question_desc=question_desc)
+#         # return render_template('questionUpload.html',question_id=question_id, questionUpdateUploadSubjective=questionUpdateUploadSubjective,form=form,flag=flag,avail_options=avail_options,correctOption=correctOption)
 
-    for q in questionUpdateUpload:
-        print('this is check for Subjective ' + str(q))
+#     for q in questionUpdateUpload:
+#         print('this is check for Subjective ' + str(q))
     
-    return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag,question_desc=question_desc)
+#     return render_template('questionUpload.html', question_id=question_id, questionUpdateUpload=questionUpdateUpload, form=form, flag=flag,question_desc=question_desc)
 
 
 @app.route('/updateStudentProfile')
@@ -9050,7 +9109,7 @@ def getStudentDetails():
                 print(stud)
                 selStudentId = stud.split('-')[2]
         print('getStudentDetails student_id:'+str(selStudentId))
-        studentDetailLink = url_for('studentProfile',student_id=selStudentId, _external=True)
+        studentDetailLink = url_for('student_profile.studentProfile',student_id=selStudentId, _external=True)
         newLink = ''
         if studentDetailLink:
             newLink = str('Student Detail Link:\n')+str(studentDetailLink)
@@ -9246,7 +9305,7 @@ def getStudentPerformance():
             user = User.query.filter_by(email=studentDetails.email).first()
         if user:
             login_user(user,remember='Y')
-        link = url_for('studentProfile',student_id=studentDetails.student_id,_external=True)
+        link = url_for('student_profile.studentProfile',student_id=studentDetails.student_id,_external=True)
         return jsonify({'studentProfile':link})
 
 # @app.route('/getStudentDashboard',methods=['POST','GET'])
@@ -9292,51 +9351,51 @@ def getStudentDet():
             msg = 'you are not a registered student'
             return jsonify({'studentDetails':msg})
 
-@app.route('/checkContact',methods=['POST','GET'])
-def checkContact():
-    if request.method == 'POST':
-        print('inside checkContact')
-        jsonExamData = request.json
-        a = json.dumps(jsonExamData)
-        z = json.loads(a)
-        conList = []
-        for con in z['results'].values():
-            conList.append(con)
-        contactNo = conList[0]
-        print(contactNo)
-        msg = ''
-        checkContact = User.query.filter_by(phone=contactNo).first()
-        print(checkContact)
-        if checkContact:
-            msg = 'Exist'
-            print('Exist')
-            return jsonify({'msg':msg})
-        else:
-            msg = 'New'
-            print('New')
-            return jsonify({'msg':msg})
+# @app.route('/checkContact',methods=['POST','GET'])
+# def checkContact():
+#     if request.method == 'POST':
+#         print('inside checkContact')
+#         jsonExamData = request.json
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         conList = []
+#         for con in z['results'].values():
+#             conList.append(con)
+#         contactNo = conList[0]
+#         print(contactNo)
+#         msg = ''
+#         checkContact = User.query.filter_by(phone=contactNo).first()
+#         print(checkContact)
+#         if checkContact:
+#             msg = 'Exist'
+#             print('Exist')
+#             return jsonify({'msg':msg})
+#         else:
+#             msg = 'New'
+#             print('New')
+#             return jsonify({'msg':msg})
 
 
-@app.route('/checkQuesNo',methods=['GET','POST'])
-def checkQuesNo():
-    if request.method == 'POST':
-        print('inside checkQuesNo')
-        jsonData = request.json
-        print('jsonData:')
-        print(jsonData)
+# @app.route('/checkQuesNo',methods=['GET','POST'])
+# def checkQuesNo():
+#     if request.method == 'POST':
+#         print('inside checkQuesNo')
+#         jsonData = request.json
+#         print('jsonData:')
+#         print(jsonData)
         
-        userData = json.dumps(jsonData)
-        user = json.loads(userData)   
-        paramList = []
-        for con in user['results'].values():
-            paramList.append(con)     
-        quesCount = paramList[0]
-        if int(quesCount) > 15:
-            print('question count greater then 18')
-            return jsonify({'msg':'Greater'})
-        else:
-            print('question count less then 18')
-            return jsonify({'msg':'Less'})    
+#         userData = json.dumps(jsonData)
+#         user = json.loads(userData)   
+#         paramList = []
+#         for con in user['results'].values():
+#             paramList.append(con)     
+#         quesCount = paramList[0]
+#         if int(quesCount) > 15:
+#             print('question count greater then 18')
+#             return jsonify({'msg':'Greater'})
+#         else:
+#             print('question count less then 18')
+#             return jsonify({'msg':'Less'})    
 
 @app.route('/isSpecialCharacter',methods=['POST','GET'])
 def isSpecialCharacter():
@@ -9365,72 +9424,72 @@ def isSpecialCharacter():
             return jsonify({'name':'Char'})    
 
 
-@app.route('/registerUser',methods=['POST','GET'])
-def registerUser():
-    if request.method == 'POST':
-        print('inside register user')
-        jsonData = request.json
-        # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
-        print('jsonData:')
-        print(jsonData)
+# @app.route('/registerUser',methods=['POST','GET'])
+# def registerUser():
+#     if request.method == 'POST':
+#         print('inside register user')
+#         jsonData = request.json
+#         # jsonData = {'contact': {'fields': {'age_group': {'inserted_at': '2021-01-25T06:36:45.002400Z', 'label': 'Age Group', 'type': 'string', 'value': '19 or above'}, 'name': {'inserted_at': '2021-01-25T06:35:49.876654Z', 'label': 'Name', 'type': 'string', 'value': 'hi'}}, 'name': 'Zaheen', 'phone': '918802362259'}, 'results': {}, 'custom_key': 'custom_value'}
+#         print('jsonData:')
+#         print(jsonData)
         
-        userData = json.dumps(jsonData)
-        user = json.loads(userData)
-        conList = []
-        for con in user['contact'].values():
-            conList.append(con)
-        print(conList)
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        userId = User.query.filter_by(phone=contactNo).first()
-        teacher = ''
-        if userId:
-            teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-            student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
-            if userId.user_type == 71:
-                teacher = 'Teacher'
-                print('User is Teacher')
-                if teacher_id.school_id:
-                    schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-                else:
-                    return jsonify({'user':'Unregistered'})
-                if schoolDet.is_verified == 'N':
-                    return jsonify({'user':'Parent'})
-                lastName = ''
-                if userId.last_name:
-                    lastName = userId.last_name
-                return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(lastName)})
+#         userData = json.dumps(jsonData)
+#         user = json.loads(userData)
+#         conList = []
+#         for con in user['contact'].values():
+#             conList.append(con)
+#         print(conList)
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         userId = User.query.filter_by(phone=contactNo).first()
+#         teacher = ''
+#         if userId:
+#             teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+#             student_id = StudentProfile.query.filter_by(user_id=userId.id).first()
+#             if userId.user_type == 71:
+#                 teacher = 'Teacher'
+#                 print('User is Teacher')
+#                 if teacher_id.school_id:
+#                     schoolDet = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#                 else:
+#                     return jsonify({'user':'Unregistered'})
+#                 if schoolDet.is_verified == 'N':
+#                     return jsonify({'user':'Parent'})
+#                 lastName = ''
+#                 if userId.last_name:
+#                     lastName = userId.last_name
+#                 return jsonify({'user':teacher,'firstName':str(userId.first_name)+str(' ')+str(lastName)})
                 
-            elif userId.user_type == 134:
-                student = 'Student'
-                print('user is student')
-                if student_id.school_id:
-                    schoolDet = SchoolProfile.query.filter_by(school_id=student_id.school_id).first()
-                else:
-                    return jsonify({'user':'Unregistered'})
-                if schoolDet.is_verified == 'N':
-                    return jsonify({'user':'Parent'})
-                lastName = ''
-                if userId.last_name:
-                    lastName = userId.last_name
-                return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentId':student_id.student_id})
-            else:
-                parent = 'Parent'
-                print('user is parent outside if')
-                if userId.user_type==72:
-                    print('user is parent inside if')
-                    guardianDet = GuardianProfile.query.filter_by(user_id=userId.id).first()
-                    print('guardianDet:')
-                    print(guardianDet)
-                    studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
-                    print('studentDet:')
-                    print(studentDet)
-                    lastName = ''
-                    if userId.last_name:
-                        lastName = userId.last_name
-                    return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
-        print('not registered user')
-        return jsonify({'user':'null'})
+#             elif userId.user_type == 134:
+#                 student = 'Student'
+#                 print('user is student')
+#                 if student_id.school_id:
+#                     schoolDet = SchoolProfile.query.filter_by(school_id=student_id.school_id).first()
+#                 else:
+#                     return jsonify({'user':'Unregistered'})
+#                 if schoolDet.is_verified == 'N':
+#                     return jsonify({'user':'Parent'})
+#                 lastName = ''
+#                 if userId.last_name:
+#                     lastName = userId.last_name
+#                 return jsonify({'user':student,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentId':student_id.student_id})
+#             else:
+#                 parent = 'Parent'
+#                 print('user is parent outside if')
+#                 if userId.user_type==72:
+#                     print('user is parent inside if')
+#                     guardianDet = GuardianProfile.query.filter_by(user_id=userId.id).first()
+#                     print('guardianDet:')
+#                     print(guardianDet)
+#                     studentDet = StudentProfile.query.filter_by(student_id=guardianDet.student_id).first()
+#                     print('studentDet:')
+#                     print(studentDet)
+#                     lastName = ''
+#                     if userId.last_name:
+#                         lastName = userId.last_name
+#                     return jsonify({'user':parent,'firstName':str(userId.first_name)+str(' ')+str(lastName),'studentName':studentDet.full_name,'studentId':studentDet.student_id})
+#         print('not registered user')
+#         return jsonify({'user':'null'})
 
 @app.route('/checkSchoolAddress',methods=['POST','GET'])
 def checkSchoolAddress():
@@ -9473,6 +9532,8 @@ def getUserDetails():
 
 @app.route('/getStudentProfileById',methods=['GET','POST'])
 def getStudentProfileById():
+    if request.method == 'GET':
+        return url_for('student_profile.studentProfile',student_id=743,_external=True)
     if request.method == 'POST':
         print('inside getStudentProfileById')
         jsonStudentData = request.json
@@ -9490,44 +9551,44 @@ def getStudentProfileById():
         print(contactNo)
         print(paramList[0])
         finalResult = "Here's the link to the student profile:\n"
-        studProfLink = url_for('studentProfile',student_id=paramList[0],_external=True)
+        studProfLink = url_for('student_profile.studentProfile',student_id=paramList[0],_external=True)
         newRes = str(finalResult) + str(studProfLink)
                 
         return jsonify({'studentData':newRes})  
 
-@app.route('/accessSchool',methods=['GET','POST'])
-def accessSchool():
-    if request.method == 'POST':
-        print('inside accessSchool')
-        jsonStudentData = request.json
-        newData = json.dumps(jsonStudentData)
-        data = json.loads(newData)
-        paramList = []
-        conList = []
-        print(data)
-        for values in data['results'].values():
-            paramList.append(values)    
-        for con in data['contact'].values():
-            conList.append(con)
-        contactNo = conList[2][-10:]
-        print(contactNo)      
-        schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
-        if schoolDet:
-            userDet = User.query.filter_by(phone=contactNo).first()
-            userDet.school_id =  schoolDet.school_id
-            db.session.commit()
-            teacherDet = TeacherProfile.query.filter_by(phone=contactNo).first()
-            studentDet = StudentProfile.query.filter_by(phone=contactNo).first()
-            if teacherDet:
-                teacherDet.school_id = schoolDet.school_id
-            if studentDet:
-                studentDet.school_id = schoolDet.school_id
-            db.session.commit()
-            statement = 'Access request sent to the school admin.'
-            return jsonify({'statement':statement})   
-        else:
-            statement = "School id does not exist."
-            return jsonify({'statement':statement})              
+# @app.route('/accessSchool',methods=['GET','POST'])
+# def accessSchool():
+#     if request.method == 'POST':
+#         print('inside accessSchool')
+#         jsonStudentData = request.json
+#         newData = json.dumps(jsonStudentData)
+#         data = json.loads(newData)
+#         paramList = []
+#         conList = []
+#         print(data)
+#         for values in data['results'].values():
+#             paramList.append(values)    
+#         for con in data['contact'].values():
+#             conList.append(con)
+#         contactNo = conList[2][-10:]
+#         print(contactNo)      
+#         schoolDet = SchoolProfile.query.filter_by(school_id=paramList[0]).first()
+#         if schoolDet:
+#             userDet = User.query.filter_by(phone=contactNo).first()
+#             userDet.school_id =  schoolDet.school_id
+#             db.session.commit()
+#             teacherDet = TeacherProfile.query.filter_by(phone=contactNo).first()
+#             studentDet = StudentProfile.query.filter_by(phone=contactNo).first()
+#             if teacherDet:
+#                 teacherDet.school_id = schoolDet.school_id
+#             if studentDet:
+#                 studentDet.school_id = schoolDet.school_id
+#             db.session.commit()
+#             statement = 'Access request sent to the school admin.'
+#             return jsonify({'statement':statement})   
+#         else:
+#             statement = "School id does not exist."
+#             return jsonify({'statement':statement})              
 
 @app.route('/accessRegisteredSchool',methods=['GET','POST'])
 def accessRegisteredSchool():
@@ -9566,25 +9627,25 @@ def accessRegisteredSchool():
         statement = 'Access request sent to the school admin.'
         return jsonify({'statement':statement})  
                 
-@app.route('/checkMailId',methods=['GET','POST'])
-def checkMailId():
-    if request.method == 'POST':
-        print('inside checkMailID')
-        jsonStudentData = request.json
-        newData = json.dumps(jsonStudentData)
-        data = json.loads(newData)
-        paramList = []
-        for values in data['results'].values():
-            paramList.append(values) 
-        email = paramList[0]
-        checkUser = User.query.filter_by(email=email).first()
-        statement = ''
-        if checkUser:
-            statement = 'Exist'
-            return jsonify({'statement':statement})
-        else:
-            statement = 'No'
-        return jsonify({'statement':statement})  
+# @app.route('/checkMailId',methods=['GET','POST'])
+# def checkMailId():
+#     if request.method == 'POST':
+#         print('inside checkMailID')
+#         jsonStudentData = request.json
+#         newData = json.dumps(jsonStudentData)
+#         data = json.loads(newData)
+#         paramList = []
+#         for values in data['results'].values():
+#             paramList.append(values) 
+#         email = paramList[0]
+#         checkUser = User.query.filter_by(email=email).first()
+#         statement = ''
+#         if checkUser:
+#             statement = 'Exist'
+#             return jsonify({'statement':statement})
+#         else:
+#             statement = 'No'
+#         return jsonify({'statement':statement})  
 
 
 @app.route('/insertUserTeacherDetails',methods=['GET','POST'])
@@ -9724,87 +9785,87 @@ def registerTeacher():
         statement = "Success! Teacher has been successfully registered on the platform. The Teacher Id is "+str(createTeacher.teacher_id)+" The account password is the teacher's phone number. Would you like to go back to the main menu?"
         return jsonify({'teacherId':statement}) 
 
-@app.route('/checkClass',methods=['GET','POST'])
-def checkClass():
-    if request.method == 'POST':
-        print('inside checkClass')
-        jsonStudentData = request.json
-        newData = json.dumps(jsonStudentData)
-        data = json.loads(newData)
-        paramList = []  
-        for values in data['results'].values():
-            paramList.append(values) 
-        clas = paramList[0].split('-')[0]
-        section = paramList[0].split('-')[1]
-        print('Class'+str(clas))
-        print('Section'+str(section))
-        classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
-        if classSecId == '' or classSecId == None:
-            statement = 'Class does not exist.'
-            return jsonify({'statement':statement})  
-        statement = "What's your school's name?"    
-        return jsonify({'statement':statement})
+# @app.route('/checkClass',methods=['GET','POST'])
+# def checkClass():
+#     if request.method == 'POST':
+#         print('inside checkClass')
+#         jsonStudentData = request.json
+#         newData = json.dumps(jsonStudentData)
+#         data = json.loads(newData)
+#         paramList = []  
+#         for values in data['results'].values():
+#             paramList.append(values) 
+#         clas = paramList[0].split('-')[0]
+#         section = paramList[0].split('-')[1]
+#         print('Class'+str(clas))
+#         print('Section'+str(section))
+#         classSecId = ClassSection.query.filter_by(class_val=clas,section=section,school_id=userDet.school_id).first()
+#         if classSecId == '' or classSecId == None:
+#             statement = 'Class does not exist.'
+#             return jsonify({'statement':statement})  
+#         statement = "What's your school's name?"    
+#         return jsonify({'statement':statement})
 
-@app.route('/studentSubjectList',methods=['GET','POST'])
-def studentSubjectList():
-    if request.method == 'POST':
-        print('inside studentSubjectList')
-        jsonStudentData = request.json
-        newData = json.dumps(jsonStudentData)
-        data = json.loads(newData)
-        paramList = []
-        conList = []
-        print(data)
-        for values in data['results'].values():
-            paramList.append(values) 
-        for con in data['contact'].values():
-            conList.append(con)
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        studentDet = StudentProfile.query.filter_by(phone=contactNo).first()
-        clasDet = ClassSection.query.filter_by(class_sec_id=studentDet.class_sec_id).first()
-        subQuery = "select md.description as subject from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(studentDet.school_id)+"' and class_val = '"+str(clasDet.class_val)+"'"
-        print(subQuery)
-        subjectData = db.session.execute(text(subQuery)).fetchall()
-        print(subjectData)
-        subjectList = []
-        k=1
-        for subj in subjectData:
-            if k==1:
-                sub = str('Which Subject?\n')+str(k)+str('-')+str(subj.subject)+str("\n")
-            else:
-                sub = str(k)+str('-')+str(subj.subject)+str("\n")
-            subjectList.append(sub)
-            k=k+1      
-        msg = 'no subjects available'
-        if subjectList:
-            return jsonify({'subject_list':subjectList,'class_val':clasDet.class_val}) 
-        else:
-            return jsonify({'subject_list':msg})   
+# @app.route('/studentSubjectList',methods=['GET','POST'])
+# def studentSubjectList():
+#     if request.method == 'POST':
+#         print('inside studentSubjectList')
+#         jsonStudentData = request.json
+#         newData = json.dumps(jsonStudentData)
+#         data = json.loads(newData)
+#         paramList = []
+#         conList = []
+#         print(data)
+#         for values in data['results'].values():
+#             paramList.append(values) 
+#         for con in data['contact'].values():
+#             conList.append(con)
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentDet = StudentProfile.query.filter_by(phone=contactNo).first()
+#         clasDet = ClassSection.query.filter_by(class_sec_id=studentDet.class_sec_id).first()
+#         subQuery = "select md.description as subject from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(studentDet.school_id)+"' and class_val = '"+str(clasDet.class_val)+"'"
+#         print(subQuery)
+#         subjectData = db.session.execute(text(subQuery)).fetchall()
+#         print(subjectData)
+#         subjectList = []
+#         k=1
+#         for subj in subjectData:
+#             if k==1:
+#                 sub = str('Which Subject?\n')+str(k)+str('-')+str(subj.subject)+str("\n")
+#             else:
+#                 sub = str(k)+str('-')+str(subj.subject)+str("\n")
+#             subjectList.append(sub)
+#             k=k+1      
+#         msg = 'no subjects available'
+#         if subjectList:
+#             return jsonify({'subject_list':subjectList,'class_val':clasDet.class_val}) 
+#         else:
+#             return jsonify({'subject_list':msg})   
 
-@app.route('/classSectionCheck',methods=['GET','POST'])
-def classSectionCheck():
-    if request.method == 'POST':
-        print('inside classSectionCheck')
-        jsonStudentData = request.json
-        newData = json.dumps(jsonStudentData)
-        data = json.loads(newData)
-        paramList = []
-        conList = []
-        for values in data['results'].values():
-            paramList.append(values)    
-        for con in data['contact'].values():
-            conList.append(con)
-        contactNo = conList[2][-10:]
-        print(paramList)
-        print(paramList[0])   
-        subString = '-'
-        if subString in paramList[0]:
-            print('Y')
-            return jsonify({'msg':'Y'})
-        else:
-            print('N')
-            return jsonify({'msg':'N'})
+# @app.route('/classSectionCheck',methods=['GET','POST'])
+# def classSectionCheck():
+#     if request.method == 'POST':
+#         print('inside classSectionCheck')
+#         jsonStudentData = request.json
+#         newData = json.dumps(jsonStudentData)
+#         data = json.loads(newData)
+#         paramList = []
+#         conList = []
+#         for values in data['results'].values():
+#             paramList.append(values)    
+#         for con in data['contact'].values():
+#             conList.append(con)
+#         contactNo = conList[2][-10:]
+#         print(paramList)
+#         print(paramList[0])   
+#         subString = '-'
+#         if subString in paramList[0]:
+#             print('Y')
+#             return jsonify({'msg':'Y'})
+#         else:
+#             print('N')
+#             return jsonify({'msg':'N'})
 
 
 @app.route('/registerStudent',methods=['GET','POST'])
@@ -9894,74 +9955,74 @@ def registerNewStudent():
         statement = "Congratulations! You're registered. Your student ID is "+str(createStudent.student_id)+" Your password is your phone number."
         return jsonify({'studentId':statement})
 
-@app.route('/unregisterSchoolRegistered',methods=['GET','POST'])
-def unregisterSchoolRegistered():
-    if request.method == 'POST':
-        print('inside unregisterSchoolRegistered')
-        jsonStudentData = request.json
-        newData = json.dumps(jsonStudentData)
-        data = json.loads(newData)
-        paramList = []
-        conList = []
-        print(data)
-        for values in data['results'].values():
-            paramList.append(values)    
-        for con in data['contact'].values():
-            conList.append(con)
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        latitude = paramList[9]
-        longitude = paramList[10]
-        print('latitude:'+str(latitude))
-        print('longitude:'+str(longitude))
-        substring = '.latitude'
-        if substring in latitude:
-            createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
-            db.session.add(createAddress)
-            db.session.commit()
-        else:
-            createAddress = Address(latitude=latitude,longitude=longitude)
-            db.session.add(createAddress)
-            db.session.commit()
-        boardId = ''
-        schoolType = ''
-        if paramList[7] == '1':
-            boardId = 1001
-        elif paramList[7] == '2':
-            boardId = 1002
-        elif paramList[7] == '3':
-            boardId = 1005
-        else:
-            boardId = 1003
-        if paramList[6] == '1':
-            schoolType = 'Affordable private school'
-        elif paramList[6] == '2':
-            schoolType = 'NGO School'
-        elif paramList[6] == '3':
-            schoolType = 'Elite private school'
-        else: 
-            schoolType = 'Other'
-        createTeacher = TeacherProfile.query.filter_by(phone=contactNo).first()
-        createStudent = StudentProfile.query.filter_by(phone=contactNo).first()
-        createUser = User.query.filter_by(phone=contactNo).first()
-        createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
-        db.session.add(createSchool)
-        db.session.commit()
-        print(createSchool.school_id)
-        createUser.school_id = createSchool.school_id
-        db.session.commit()
-        if createTeacher:
-            print('user is teacher School id: '+str(createSchool.school_id))
-            print('school id in teacher table before update:'+str(createTeacher.school_id))
-            createTeacher.school_id = createSchool.school_id
-            db.session.commit()
-            print('school id in teacher table after update:'+str(createTeacher.school_id))
-        if createStudent:
-            print('user is student')
-            createStudent.school_id = createSchool.school_id
-            db.session.commit()
-        db.session.commit()
-        return jsonify({'success':'success'})        
+# @app.route('/unregisterSchoolRegistered',methods=['GET','POST'])
+# def unregisterSchoolRegistered():
+#     if request.method == 'POST':
+#         print('inside unregisterSchoolRegistered')
+#         jsonStudentData = request.json
+#         newData = json.dumps(jsonStudentData)
+#         data = json.loads(newData)
+#         paramList = []
+#         conList = []
+#         print(data)
+#         for values in data['results'].values():
+#             paramList.append(values)    
+#         for con in data['contact'].values():
+#             conList.append(con)
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         latitude = paramList[9]
+#         longitude = paramList[10]
+#         print('latitude:'+str(latitude))
+#         print('longitude:'+str(longitude))
+#         substring = '.latitude'
+#         if substring in latitude:
+#             createAddress = Address(address_1=paramList[3],city=paramList[4],state=paramList[5],country='india')
+#             db.session.add(createAddress)
+#             db.session.commit()
+#         else:
+#             createAddress = Address(latitude=latitude,longitude=longitude)
+#             db.session.add(createAddress)
+#             db.session.commit()
+#         boardId = ''
+#         schoolType = ''
+#         if paramList[7] == '1':
+#             boardId = 1001
+#         elif paramList[7] == '2':
+#             boardId = 1002
+#         elif paramList[7] == '3':
+#             boardId = 1005
+#         else:
+#             boardId = 1003
+#         if paramList[6] == '1':
+#             schoolType = 'Affordable private school'
+#         elif paramList[6] == '2':
+#             schoolType = 'NGO School'
+#         elif paramList[6] == '3':
+#             schoolType = 'Elite private school'
+#         else: 
+#             schoolType = 'Other'
+#         createTeacher = TeacherProfile.query.filter_by(phone=contactNo).first()
+#         createStudent = StudentProfile.query.filter_by(phone=contactNo).first()
+#         createUser = User.query.filter_by(phone=contactNo).first()
+#         createSchool = SchoolProfile(school_name=paramList[2],registered_date=datetime.now(),last_modified_date=datetime.now(),address_id=createAddress.address_id,board_id=boardId,school_admin=createTeacher.teacher_id,sub_id=2,is_verified='N',school_type=schoolType)
+#         db.session.add(createSchool)
+#         db.session.commit()
+#         print(createSchool.school_id)
+#         createUser.school_id = createSchool.school_id
+#         db.session.commit()
+#         if createTeacher:
+#             print('user is teacher School id: '+str(createSchool.school_id))
+#             print('school id in teacher table before update:'+str(createTeacher.school_id))
+#             createTeacher.school_id = createSchool.school_id
+#             db.session.commit()
+#             print('school id in teacher table after update:'+str(createTeacher.school_id))
+#         if createStudent:
+#             print('user is student')
+#             createStudent.school_id = createSchool.school_id
+#             db.session.commit()
+#         db.session.commit()
+#         return jsonify({'success':'success'})        
 
 
 @app.route('/registerSchool',methods=['GET','POST'])
@@ -10067,7 +10128,7 @@ def checkStudent():
                 print(len(studentData))
                 for student in studentData:
                     finalResult = "Here's the link to the student profile:\n"
-                    studProfLink = url_for('studentProfile',student_id=student.student_id,_external=True)
+                    studProfLink = url_for('student_profile.studentProfile',student_id=student.student_id,_external=True)
                     newRes = str(finalResult) + str(studProfLink)
                     
                 return jsonify({'studentData':newRes,'flag':'1'}) 
@@ -10199,118 +10260,118 @@ def getEnteredTopicOnlineClassLink():
         
 
 
-@app.route('/getStudentEnteredTopicList',methods=['POST','GET'])
-def getStudentEnteredTopicList():
-    if request.method == 'POST':
-        print('inside getStudentEnteredTopicList')
-        jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+# @app.route('/getStudentEnteredTopicList',methods=['POST','GET'])
+# def getStudentEnteredTopicList():
+#     if request.method == 'POST':
+#         print('inside getStudentEnteredTopicList')
+#         jsonExamData = request.json
+#         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
-        a = json.dumps(jsonExamData)
+#         a = json.dumps(jsonExamData)
       
-        z = json.loads(a)
+#         z = json.loads(a)
         
-        paramList = []
-        conList = []
-        print('data:')
-        # print(z['result'].class_val)
-        # print(z['result'])
-        for data in z['results'].values():
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         # print(z['result'].class_val)
+#         # print(z['result'])
+#         for data in z['results'].values():
             
-            paramList.append(data)
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
-        print(conList[2])
+#             paramList.append(data)
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+#         print(conList[2])
         
-        print('Data Contact')
-        # print(conList[2])
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        studentData = StudentProfile.query.filter_by(phone=contactNo).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
-        classesListData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
-        print('class')
-        selClass = paramList[12]
-        selClass = selClass.strip()
-        print(selClass)
+#         print('Data Contact')
+#         # print(conList[2])
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         teacher_id = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
+#         classesListData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
+#         print('class')
+#         selClass = paramList[12]
+#         selClass = selClass.strip()
+#         print(selClass)
 
-        print('Subject:')
-        selSubject = paramList[13]
-        selSubject = selSubject.strip()
-        # Start for topic
-        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-        subId = subQuery.msg_id
-        print(selSubject)
-        print('SubId:'+str(subId))
-        topics = paramList[1].strip()
-        topicList = topics.split(',')
-        print(topicList[0])
-        topic = topicList[0].capitalize()
-        print('Topic:'+str(topic))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        p =1
-        for topic in topicList:
-            fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
-            if p<len(topicList):
-                fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
-            p=p+1
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        Msg = 'no questions available'
-        if len(fetchQuesIds)==0:
-            return jsonify({'onlineTestLink':Msg})
-        listLength = len(fetchQuesIds)
-        count_marks = int(paramList[0]) * int(listLength)
+#         print('Subject:')
+#         selSubject = paramList[13]
+#         selSubject = selSubject.strip()
+#         # Start for topic
+#         subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+#         subId = subQuery.msg_id
+#         print(selSubject)
+#         print('SubId:'+str(subId))
+#         topics = paramList[1].strip()
+#         topicList = topics.split(',')
+#         print(topicList[0])
+#         topic = topicList[0].capitalize()
+#         print('Topic:'+str(topic))
+#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+#         p =1
+#         for topic in topicList:
+#             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
+#             if p<len(topicList):
+#                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+#             p=p+1
+#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+#         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+#         Msg = 'no questions available'
+#         if len(fetchQuesIds)==0:
+#             return jsonify({'onlineTestLink':Msg})
+#         listLength = len(fetchQuesIds)
+#         count_marks = int(paramList[0]) * int(listLength)
         
-        subjId = ''
-        topicID = ''
-        boardID = ''
-        for det in fetchQuesIds:
-            subjId = det.subject_id
-            topicID = det.topic_id
-            boardID = det.board_id
-            break
-        print('subjId:'+str(subjId))
-        print(fetchQuesIds)
-        # currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
-        resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        format = "%Y-%m-%d %H:%M:%S"
-        now_utc = datetime.now(timezone('UTC'))
-        now_local = now_utc.astimezone(get_localzone())
-        print('Date of test creation:'+str(now_local.strftime(format)))
+#         subjId = ''
+#         topicID = ''
+#         boardID = ''
+#         for det in fetchQuesIds:
+#             subjId = det.subject_id
+#             topicID = det.topic_id
+#             boardID = det.board_id
+#             break
+#         print('subjId:'+str(subjId))
+#         print(fetchQuesIds)
+#         # currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
+#         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+#         format = "%Y-%m-%d %H:%M:%S"
+#         now_utc = datetime.now(timezone('UTC'))
+#         now_local = now_utc.astimezone(get_localzone())
+#         print('Date of test creation:'+str(now_local.strftime(format)))
 
-        # clasVal = selClass.replace('_','@')
-        # testType = paramList[11].replace('_','@')
-        # linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
-        # key = '265e29e3968fc62f68da76a373e5af775fa60'
-        # url = urllib.parse.quote(linkForTeacher)
-        # name  = ''
-        # r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
-        # print('New Link')
-        # print(r.text)
-        # print(type(r.text))
-        # linkList = []
-        # jsonLink = json.dumps(r.text)
-        # newData = json.loads(r.text)
-        # print(type(newData))
-        # for linkData in newData['url'].values():
-        #     linkList.append(linkData)
-        # finalLink = linkList[3]
-        # newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
-        # print('newLink'+str(newLink))
-        test_type=paramList[11]
-        count = paramList[3]
-        weightage = paramList[0]
-        total_marks = int(count) * int(weightage)
-        class_sec_id = classesListData.class_sec_id
-        print('selected chapter')
-        print(paramList[1])
-        # file_name_val = url_for('question_paper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
-        file_name_val = url_for('downloadPaper',test_id='123')
-        return jsonify({'fileName':file_name_val,'selChapter':paramList[1],'boardID':boardID,'resp_session_id':resp_session_id})      
+#         # clasVal = selClass.replace('_','@')
+#         # testType = paramList[11].replace('_','@')
+#         # linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
+#         # key = '265e29e3968fc62f68da76a373e5af775fa60'
+#         # url = urllib.parse.quote(linkForTeacher)
+#         # name  = ''
+#         # r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+#         # print('New Link')
+#         # print(r.text)
+#         # print(type(r.text))
+#         # linkList = []
+#         # jsonLink = json.dumps(r.text)
+#         # newData = json.loads(r.text)
+#         # print(type(newData))
+#         # for linkData in newData['url'].values():
+#         #     linkList.append(linkData)
+#         # finalLink = linkList[3]
+#         # newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
+#         # print('newLink'+str(newLink))
+#         test_type=paramList[11]
+#         count = paramList[3]
+#         weightage = paramList[0]
+#         total_marks = int(count) * int(weightage)
+#         class_sec_id = classesListData.class_sec_id
+#         print('selected chapter')
+#         print(paramList[1])
+#         # file_name_val = url_for('question_paper',limit=paramList[3],chapter=paramList[1],schoolName=paramList[18],class_val=selClass,test_type=paramList[11],subject=selSubject,total_marks=count_marks,today=datetime.today().strftime("%d%m%Y%H%M%S"),_external=True)
+#         file_name_val = url_for('downloadPaper',test_id='123')
+#         return jsonify({'fileName':file_name_val,'selChapter':paramList[1],'boardID':boardID,'resp_session_id':resp_session_id})      
 
 
 
@@ -10493,189 +10554,189 @@ def enteredTopicTestDet():
 
         return jsonify({'success':'success'})  
 
-@app.route('/addStudentEnteredTopicTestDet',methods=['GET','POST'])
-def addStudentEnteredTopicTestDet():
-    if request.method == 'POST':
-        print('inside addStudentEnteredTopicTestDet')
-        print('insert addEnteredTopicTestDet')
-        jsonExamData = request.json
-        a = json.dumps(jsonExamData)
-        z = json.loads(a)
-        paramList = []
-        conList = []
-        print('data:')
-        print(z)
-        for data in z['results'].values():
+# @app.route('/addStudentEnteredTopicTestDet',methods=['GET','POST'])
+# def addStudentEnteredTopicTestDet():
+#     if request.method == 'POST':
+#         print('inside addStudentEnteredTopicTestDet')
+#         print('insert addEnteredTopicTestDet')
+#         jsonExamData = request.json
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         print(z)
+#         for data in z['results'].values():
                 
-            paramList.append(data)
-            print('data:'+str(data))
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
+#             paramList.append(data)
+#             print('data:'+str(data))
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
 
-        print(conList[2])
-        print('Testing for topic')
-        # print(type(paramList[1]))
-        # print(int(paramList[1]))
-            # 
-        print('Data Contact')
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        studentData = StudentProfile.query.filter_by(phone=contactNo).first()
-        userId = paramList[14]
-        teacher_id = paramList[15]
+#         print(conList[2])
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#             # 
+#         print('Data Contact')
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         userId = paramList[14]
+#         teacher_id = paramList[15]
             
-        selClass = paramList[12]
+#         selClass = paramList[12]
+            
+#         selSubject = paramList[13]
+#         subId = paramList[16]
+#         print(selSubject)
+#         print('SubId:'+str(subId))
+#         topics = paramList[1].strip()
+#         topicList = topics.split(',')
+#         print(topicList[0])
+#         topic = topicList[0].capitalize()
+#         print('Topic:'+str(topic))
+#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+#         p =1
+#         for topic in topicList:
+#             fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+#             fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
+#             if p<len(topicList):
+#                 fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+#             p=p+1
+#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+#         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+#         msg = 'No questions available'
+#         if len(fetchQuesIds)==0 or fetchQuesIds=='':
+#             return jsonify({'testId':msg})
+#         listLength = len(fetchQuesIds)
+#         total_marks = int(paramList[0]) * int(listLength)
+#         boardID = paramList[20]
+#         test_type = paramList[11]
+#         subjId = paramList[16]
+#         class_val = paramList[4]
+#         file_name_val = paramList[21]
+#         school_id = paramList[17]
+#         teacher_id = paramList[15]
+#         resp_session_id = paramList[22]
+#         format = "%Y-%m-%d %H:%M:%S"
+#         now_utc = datetime.now(timezone('UTC'))
+#         now_local = now_utc.astimezone(get_localzone())
+#         print('Date of test creation:'+str(now_local.strftime(format)))
+#         classDet = ClassSection.query.filter_by(class_val=selClass,school_id=studentData.school_id).first()
+#         class_sec_id = classDet.class_sec_id
+#         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+#             board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+#             date_of_test=datetime.now(), school_id=studentData.school_id, teacher_id=teacher_id)
+#         db.session.add(testDetailsUpd)
+#         db.session.commit()
+#         file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+#         testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+#         testDet.test_paper_link = file_name_val
+#         db.session.commit()
+#         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+#             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+#         db.session.add(sessionDetailRowInsert)
+#         for questionVal in fetchQuesIds:
+#             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+#             db.session.add(testQuestionInsert)
+#         db.session.commit()
+#         testId = testDetailsUpd.test_id 
+#         return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
+
+
+# @app.route('/addEnteredTopicTestDet',methods=['GET','POST'])
+# def addEnteredTopicTestDet():
+#     if request.method == 'POST':
+#         print('insert addEnteredTopicTestDet')
+#         jsonExamData = request.json
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         print(z)
+#         for data in z['results'].values():
+                
+#             paramList.append(data)
+#             print('data:'+str(data))
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+
+#         print(conList[2])
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#             # 
+#         print('Data Contact')
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         # studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         userId = paramList[14]
+#         teacher_id = paramList[15]
+            
+#         selClass = paramList[12]
             
         selSubject = paramList[13]
-        subId = paramList[16]
-        print(selSubject)
-        print('SubId:'+str(subId))
-        topics = paramList[1].strip()
-        topicList = topics.split(',')
-        print(topicList[0])
-        topic = topicList[0].capitalize()
-        print('Topic:'+str(topic))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        p =1
-        for topic in topicList:
-            fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
-            if p<len(topicList):
-                fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
-            p=p+1
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'No questions available'
-        if len(fetchQuesIds)==0 or fetchQuesIds=='':
-            return jsonify({'testId':msg})
-        listLength = len(fetchQuesIds)
-        total_marks = int(paramList[0]) * int(listLength)
-        boardID = paramList[20]
-        test_type = paramList[11]
-        subjId = paramList[16]
-        class_val = paramList[4]
-        file_name_val = paramList[21]
-        school_id = paramList[17]
-        teacher_id = paramList[15]
-        resp_session_id = paramList[22]
-        format = "%Y-%m-%d %H:%M:%S"
-        now_utc = datetime.now(timezone('UTC'))
-        now_local = now_utc.astimezone(get_localzone())
-        print('Date of test creation:'+str(now_local.strftime(format)))
-        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=studentData.school_id).first()
-        class_sec_id = classDet.class_sec_id
-        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
-            board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(), school_id=studentData.school_id, teacher_id=teacher_id)
-        db.session.add(testDetailsUpd)
-        db.session.commit()
-        file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
-        testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
-        testDet.test_paper_link = file_name_val
-        db.session.commit()
-        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
-            test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
-        db.session.add(sessionDetailRowInsert)
-        for questionVal in fetchQuesIds:
-            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-            db.session.add(testQuestionInsert)
-        db.session.commit()
-        testId = testDetailsUpd.test_id 
-        return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
-
-
-@app.route('/addEnteredTopicTestDet',methods=['GET','POST'])
-def addEnteredTopicTestDet():
-    if request.method == 'POST':
-        print('insert addEnteredTopicTestDet')
-        jsonExamData = request.json
-        a = json.dumps(jsonExamData)
-        z = json.loads(a)
-        paramList = []
-        conList = []
-        print('data:')
-        print(z)
-        for data in z['results'].values():
-                
-            paramList.append(data)
-            print('data:'+str(data))
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
-
-        print(conList[2])
-        print('Testing for topic')
-        # print(type(paramList[1]))
-        # print(int(paramList[1]))
-            # 
-        print('Data Contact')
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        # studentData = StudentProfile.query.filter_by(phone=contactNo).first()
-        userId = paramList[14]
-        teacher_id = paramList[15]
-            
-        selClass = paramList[12]
-            
-        selSubject = paramList[13]
-        subId = paramList[16]
-        print(selSubject)
-        print('SubId:'+str(subId))
-        topics = paramList[1].strip()
-        topicList = topics.split(',')
-        print(topicList[0])
-        topic = topicList[0].capitalize()
-        print('Topic:'+str(topic))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        p =1
-        for topic in topicList:
-            fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
-            fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
-            if p<len(topicList):
-                fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
-            p=p+1
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'No questions available'
-        if len(fetchQuesIds)==0 or fetchQuesIds=='':
-            return jsonify({'testId':msg})
-        listLength = len(fetchQuesIds)
-        total_marks = int(paramList[0]) * int(listLength)
-        boardID = paramList[20]
-        test_type = paramList[11]
-        subjId = paramList[16]
-        class_val = paramList[4]
-        file_name_val = paramList[21]
-        school_id = paramList[17]
-        teacher_id = paramList[15]
-        resp_session_id = paramList[22]
-        format = "%Y-%m-%d %H:%M:%S"
-        now_utc = datetime.now(timezone('UTC'))
-        now_local = now_utc.astimezone(get_localzone())
-        print('Date of test creation:'+str(now_local.strftime(format)))
-        classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
-        class_sec_id = classDet.class_sec_id
-        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
-            board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
-        db.session.add(testDetailsUpd)
-        db.session.commit()
-        file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
-        testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
-        testDet.test_paper_link = file_name_val
-        db.session.commit()
-        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
-            test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
-        db.session.add(sessionDetailRowInsert)
-        for questionVal in fetchQuesIds:
-            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-            db.session.add(testQuestionInsert)
-        db.session.commit()
-        testId = testDetailsUpd.test_id 
-        return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
+        # subId = paramList[16]
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # topics = paramList[1].strip()
+        # topicList = topics.split(',')
+        # print(topicList[0])
+        # topic = topicList[0].capitalize()
+        # print('Topic:'+str(topic))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # p =1
+        # for topic in topicList:
+        #     fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
+        #     if p<len(topicList):
+        #         fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+        #     p=p+1
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'No questions available'
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'testId':msg})
+        # listLength = len(fetchQuesIds)
+        # total_marks = int(paramList[0]) * int(listLength)
+        # boardID = paramList[20]
+        # test_type = paramList[11]
+        # subjId = paramList[16]
+        # class_val = paramList[4]
+        # file_name_val = paramList[21]
+        # school_id = paramList[17]
+        # teacher_id = paramList[15]
+        # resp_session_id = paramList[22]
+        # format = "%Y-%m-%d %H:%M:%S"
+        # now_utc = datetime.now(timezone('UTC'))
+        # now_local = now_utc.astimezone(get_localzone())
+        # print('Date of test creation:'+str(now_local.strftime(format)))
+        # classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
+        # class_sec_id = classDet.class_sec_id
+        # testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+        #     board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+        #     date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
+        # db.session.add(testDetailsUpd)
+        # db.session.commit()
+        # file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        # testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+        # testDet.test_paper_link = file_name_val
+        # db.session.commit()
+        # sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+        #     test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+        # db.session.add(sessionDetailRowInsert)
+        # for questionVal in fetchQuesIds:
+        #     testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+        #     db.session.add(testQuestionInsert)
+        # db.session.commit()
+        # testId = testDetailsUpd.test_id 
+        # return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
 
 @app.route('/checkQuestions',methods=['GET','POST'])
 def checkQuestions():
@@ -10741,87 +10802,194 @@ def checkQuestions():
             return jsonify({'msg':msg})
         return jsonify({'msg':msg})
 
-@app.route('/addStudentTestDet',methods=['GET','POST'])
-def addStudentTestDet():
-    if request.method == 'POST':
-        print('inside addStudentTestDet')        
-        jsonExamData = request.json
-            # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
-        a = json.dumps(jsonExamData)
-        z = json.loads(a)
-        paramList = []
-        conList = []
-        print('data:')
-        print(z)
-        for data in z['results'].values():
+# @app.route('/addStudentTestDet',methods=['GET','POST'])
+# def addStudentTestDet():
+#     if request.method == 'POST':
+#         print('inside addStudentTestDet')        
+#         jsonExamData = request.json
+#             # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         print(z)
+#         for data in z['results'].values():
                 
-            paramList.append(data)
-            print('data:'+str(data))
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
+#             paramList.append(data)
+#             print('data:'+str(data))
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
 
-        print(conList[2])
-        print('Testing for topic')
-        # print(type(paramList[1]))
-        # print(int(paramList[1]))
-            # 
-        print('Data Contact')
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        studentData = StudentProfile.query.filter_by(phone=contactNo).first()
-        teacherData = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
-        schoolData = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
-        teacher_id = teacherData.teacher_id
-        classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
-        selClass = classData.class_val
-        selSubject = paramList[13]
-        subId = paramList[16]
-        selChapter = paramList[19]
-        print('Chapter'+str(selChapter))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'No questions available'
-        if len(fetchQuesIds)==0 or fetchQuesIds=='':
-            return jsonify({'testId':msg})
-        listLength = len(fetchQuesIds)
-        total_marks = int(paramList[0]) * int(listLength)
-        boardID = schoolData.board_id
-        test_type = paramList[11]
-        subjId = paramList[16]                
-        file_name_val = paramList[21]
-        school_id = paramList[17]
-        teacher_id = paramList[15]
-        resp_session_id = paramList[22]        
-        format = "%Y-%m-%d %H:%M:%S"
-        now_utc = datetime.now(timezone('UTC'))
-        now_local = now_utc.astimezone(get_localzone())
-        print('Date of test creation:'+str(now_local.strftime(format)))
-        # classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
+#         print(conList[2])
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#             # 
+#         print('Data Contact')
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         teacherData = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
+#         schoolData = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#         teacher_id = teacherData.teacher_id
+#         classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
+#         selClass = classData.class_val
+#         selSubject = paramList[13]
+#         subId = paramList[16]
+#         selChapter = paramList[19]
+#         print('Chapter'+str(selChapter))
+#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+#         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
+#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+#         fetchQuesIds = db.session.execute(fet # subId = paramList[16]
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # topics = paramList[1].strip()
+        # topicList = topics.split(',')
+        # print(topicList[0])
+        # topic = topicList[0].capitalize()
+        # print('Topic:'+str(topic))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # p =1
+        # for topic in topicList:
+        #     fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "from question_details qd inner join topic_detail td on qd.topic_id = td.topic_id inner join message_detail md on md.msg_id = td.subject_id "
+        #     fetchQuesIdsQuery = fetchQuesIdsQuery + "where initcap(td.topic_name) like initcap('%"+str(topic.capitalize())+"%') and qd.archive_status='N' and qd.question_type='MCQ1' and td.class_val='"+str(selClass)+"' and md.description ='"+str(selSubject)+"' limit 5"
+        #     if p<len(topicList):
+        #         fetchQuesIdsQuery = fetchQuesIdsQuery + "union "
+        #     p=p+1
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'No questions available'
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'testId':msg})
+        # listLength = len(fetchQuesIds)
+        # total_marks = int(paramList[0]) * int(listLength)
+        # boardID = paramList[20]
+        # test_type = paramList[11]
+        # subjId = paramList[16]
+        # class_val = paramList[4]
+        # file_name_val = paramList[21]
+        # school_id = paramList[17]
+        # teacher_id = paramList[15]
+        # resp_session_id = paramList[22]
+        # format = "%Y-%m-%d %H:%M:%S"
+        # now_utc = datetime.now(timezone('UTC'))
+        # now_local = now_utc.astimezone(get_localzone())
+        # print('Date of test creation:'+str(now_local.strftime(format)))
+        # classDet = ClassSection.query.filter_by(class_val=selClass,school_id=school_id).first()
         # class_sec_id = classDet.class_sec_id
-        testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
-            board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
-            date_of_test=datetime.now(), school_id=teacherData.school_id, teacher_id=teacher_id)
-        db.session.add(testDetailsUpd)
-        db.session.commit()
-        file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
-        testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
-        testDet.test_paper_link = file_name_val
-        db.session.commit()
-        sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
-            test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=classData.class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
-        db.session.add(sessionDetailRowInsert)
-        for questionVal in fetchQuesIds:
-            testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
-            db.session.add(testQuestionInsert)
-        db.session.commit()
-        testId = testDetailsUpd.test_id 
-        return jsonify({'testId':testId,'section':classData.section,'total_marks':total_marks})   
+        # testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+        #     board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+        #     date_of_test=datetime.now(), school_id=school_id, teacher_id=teacher_id)
+        # db.session.add(testDetailsUpd)
+        # db.session.commit()
+        # file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+        # testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+        # testDet.test_paper_link = file_name_val
+        # db.session.commit()
+        # sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+        #     test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+        # db.session.add(sessionDetailRowInsert)
+        # for questionVal in fetchQuesIds:
+        #     testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+        #     db.session.add(testQuestionInsert)
+        # db.session.commit()
+        # testId = testDetailsUpd.test_id 
+        # return jsonify({'testId':testId,'section':classDet.section,'total_marks':total_marks})   
+# chQuesIdsQuery).fetchall()
+#         msg = 'Finally, how many questions?'
+#         if len(fetchQuesIds)==0 or fetchQuesIds=='':
+#             msg = 'No questions available'
+#             return jsonify({'msg':msg})
+#         return jsonify({'msg':msg})
+
+# @app.route('/addStudentTestDet',methods=['GET','POST'])
+# def addStudentTestDet():
+#     if request.method == 'POST':
+#         print('inside addStudentTestDet')        
+#         jsonExamData = request.json
+#             # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+#         a = json.dumps(jsonExamData)
+#         z = json.loads(a)
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         print(z)
+#         for data in z['results'].values():
+                
+#             paramList.append(data)
+#             print('data:'+str(data))
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+
+#         print(conList[2])
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#             # 
+#         print('Data Contact')
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         studentData = StudentProfile.query.filter_by(phone=contactNo).first()
+#         teacherData = TeacherProfile.query.filter_by(user_id=studentData.user_id).first()
+#         schoolData = SchoolProfile.query.filter_by(school_id=teacherData.school_id).first()
+#         teacher_id = teacherData.teacher_id
+#         classData = ClassSection.query.filter_by(class_sec_id=studentData.class_sec_id).first()
+#         selClass = classData.class_val
+#         selSubject = paramList[13]
+#         subId = paramList[16]
+#         selChapter = paramList[19]
+#         print('Chapter'+str(selChapter))
+#         dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+#         fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+#         fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name like '%"+str(selChapter)+"%' and qd.archive_status='N' and qd.question_type='MCQ1' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit '"+str(paramList[3])+"'"
+#         print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+#         fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+#         msg = 'No questions available'
+#         if len(fetchQuesIds)==0 or fetchQuesIds=='':
+#             return jsonify({'testId':msg})
+#         listLength = len(fetchQuesIds)
+#         total_marks = int(paramList[0]) * int(listLength)
+#         boardID = schoolData.board_id
+#         test_type = paramList[11]
+#         subjId = paramList[16]                
+#         file_name_val = paramList[21]
+#         school_id = paramList[17]
+#         teacher_id = paramList[15]
+#         resp_session_id = paramList[22]        
+#         format = "%Y-%m-%d %H:%M:%S"
+#         now_utc = datetime.now(timezone('UTC'))
+#         now_local = now_utc.astimezone(get_localzone())
+#         print('Date of test creation:'+str(now_local.strftime(format)))
+#         # classDet = ClassSection.query.filter_by(class_val=class_val,school_id=school_id).first()
+#         # class_sec_id = classDet.class_sec_id
+#         testDetailsUpd = TestDetails(test_type=str(test_type), total_marks=str(total_marks),last_modified_date= datetime.now(),
+#             board_id=str(boardID), subject_id=int(subjId),class_val=str(selClass),date_of_creation=now_local.strftime(format),
+#             date_of_test=datetime.now(), school_id=teacherData.school_id, teacher_id=teacher_id)
+#         db.session.add(testDetailsUpd)
+#         db.session.commit()
+#         file_name_val = url_for('downloadPaper',test_id=testDetailsUpd.test_id,_external=True)
+#         testDet = TestDetails.query.filter_by(test_id=testDetailsUpd.test_id).first()
+#         testDet.test_paper_link = file_name_val
+#         db.session.commit()
+#         sessionDetailRowInsert=SessionDetail(resp_session_id=resp_session_id,session_status='80',teacher_id= teacher_id,
+#             test_id=str(testDetailsUpd.test_id).strip(),class_sec_id=classData.class_sec_id,correct_marks=10,incorrect_marks=0, test_time=0,total_marks=total_marks, last_modified_date = str(now_local.strftime(format)))
+#         db.session.add(sessionDetailRowInsert)
+#         for questionVal in fetchQuesIds:
+#             testQuestionInsert= TestQuestions(test_id=testDetailsUpd.test_id, question_id=questionVal.question_id, last_modified_date=datetime.now(),is_archived='N')
+#             db.session.add(testQuestionInsert)
+#         db.session.commit()
+#         testId = testDetailsUpd.test_id 
+#         return jsonify({'testId':testId,'section':classData.section,'total_marks':total_marks})   
 
 
 @app.route('/addTestDet',methods=['GET','POST'])
@@ -11285,161 +11453,161 @@ def downloadPaper(test_id):
     print(myDict)
     return render_template('questionPaper.html',myDict=myDict,school_name=school_name,class_val=class_val,test_type=test_type,today=today,total_marks=total_marks,subject=subject,fetchQuesIds=fetchQuesIds)
 
-@app.route('/newTestLinkGenerate',methods=['POST','GET'])
-def newTestLinkGenerate():
-    if request.method == 'POST':
-        print('newTestLinkGenerate')
-        jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+# @app.route('/newTestLinkGenerate',methods=['POST','GET'])
+# def newTestLinkGenerate():
+#     if request.method == 'POST':
+#         print('newTestLinkGenerate')
+#         jsonExamData = request.json
+#         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
-        a = json.dumps(jsonExamData)
+#         a = json.dumps(jsonExamData)
       
-        z = json.loads(a)
+#         z = json.loads(a)
         
         
-        paramList = []
-        conList = []
-        print('data:')
-        # print(z['result'].class_val)
-        # print(z['result'])
-        for data in z['results'].values():
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         # print(z['result'].class_val)
+#         # print(z['result'])
+#         for data in z['results'].values():
             
-            paramList.append(data)
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
-        print(conList[2])
-        # Test for topic
-        print('Testing for topic')
-        # print(type(paramList[1]))
-        # print(int(paramList[1]))
-        # 
-        print('Data Contact')
-        # print(conList[2])
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        userId = User.query.filter_by(phone=contactNo).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
-        classList = [] 
-        j=1
-        for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)
-            classList.append(classVal)
-            j=j+1
+#             paramList.append(data)
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+#         print(conList[2])
+#         # Test for topic
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#         # 
+#         print('Data Contact')
+#         # print(conList[2])
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         userId = User.query.filter_by(phone=contactNo).first()
+#         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+#         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+#         classList = [] 
+#         j=1
+#         for classlist in classesListData:
+#             classVal = str(j)+str(' - ')+str(classlist.class_val)
+#             classList.append(classVal)
+#             j=j+1
         
-        selClass = ''
-        print('Selected Class option:')
-        print(paramList[4])
-        for className in classList:
-            num = className.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[4]))
-            if int(num) == int(paramList[4]):
-                print(className)
-                selClass = className.split('-')[1]
-                print('selClass:'+str(selClass))
-        print('class')
-        selClass = selClass.strip()
-        print(selClass)
-        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
-        print(subQuery)
-        subjectData = db.session.execute(text(subQuery)).fetchall()
-        print(subjectData)
-        subjectList = []
-        k=1
-        subId = ''
-        for subj in subjectData:
-            sub = str(k)+str('-')+str(subj.subject)
-            subjectList.append(sub)
-            k=k+1
-        for subjectName in subjectList:
-            num = subjectName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[2]))
-            if int(num) == int(paramList[2]):
-                print(subjectName)
-                selSubject = subjectName.split('-')[1]
-                print('selSubject:'+str(selSubject))
+#         selClass = ''
+#         print('Selected Class option:')
+#         print(paramList[4])
+#         for className in classList:
+#             num = className.split('-')[0]
+#             print('num:'+str(num))
+#             print('class:'+str(paramList[4]))
+#             if int(num) == int(paramList[4]):
+#                 print(className)
+#                 selClass = className.split('-')[1]
+#                 print('selClass:'+str(selClass))
+#         print('class')
+#         selClass = selClass.strip()
+#         print(selClass)
+#         subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+#         print(subQuery)
+#         subjectData = db.session.execute(text(subQuery)).fetchall()
+#         print(subjectData)
+#         subjectList = []
+#         k=1
+#         subId = ''
+#         for subj in subjectData:
+#             sub = str(k)+str('-')+str(subj.subject)
+#             subjectList.append(sub)
+#             k=k+1
+#         for subjectName in subjectList:
+#             num = subjectName.split('-')[0]
+#             print('num:'+str(num))
+#             print('class:'+str(paramList[2]))
+#             if int(num) == int(paramList[2]):
+#                 print(subjectName)
+#                 selSubject = subjectName.split('-')[1]
+#                 print('selSubject:'+str(selSubject))
                 
-        print('Subject:')
-        selSubject = selSubject.strip()
-        # Start for topic
-        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-        subId = subQuery.msg_id
-        print(selSubject)
-        print('SubId:'+str(subId))
-        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
-        print('Query:'+str(extractChapterQuery))
-        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
-        print(extractChapterData)
-        c=1
-        chapterDetList = []
-        for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
-            chapterDetList.append(chap)
-            c=c+1
-        selChapter = ''
-        for chapterName in chapterDetList:
-            num = chapterName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[1]))
-            if int(num) == int(paramList[1]):
-                print(chapterName)
-                selChapter = chapterName.split('-')[1]
-                print('selChapter:'+str(selChapter))
-        #End topic
-        selChapter = selChapter.strip()
-        print('Chapter'+str(selChapter))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        msg = 'no questions available'
-        print('fetchQuesIds:'+str(fetchQuesIds))
-        if len(fetchQuesIds)==0 or fetchQuesIds=='':
-            return jsonify({'onlineTestLink':msg})
-        listLength = len(fetchQuesIds)
-        count_marks = int(paramList[0]) * int(listLength)
+        # print('Subject:')
+        # selSubject = selSubject.strip()
+        # # Start for topic
+        # subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+        # subId = subQuery.msg_id
+        # print(selSubject)
+        # print('SubId:'+str(subId))
+        # extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+        # print('Query:'+str(extractChapterQuery))
+        # extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+        # print(extractChapterData)
+        # c=1
+        # chapterDetList = []
+        # for chapterDet in extractChapterData:
+        #     chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+        #     chapterDetList.append(chap)
+        #     c=c+1
+        # selChapter = ''
+        # for chapterName in chapterDetList:
+        #     num = chapterName.split('-')[0]
+        #     print('num:'+str(num))
+        #     print('class:'+str(paramList[1]))
+        #     if int(num) == int(paramList[1]):
+        #         print(chapterName)
+        #         selChapter = chapterName.split('-')[1]
+        #         print('selChapter:'+str(selChapter))
+        # #End topic
+        # selChapter = selChapter.strip()
+        # print('Chapter'+str(selChapter))
+        # dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+        # fetchQuesIdsQuery = "select td.board_id,qd.suggested_weightage,qd.question_type,qd.question_id,qd.question_description,td.subject_id,td.topic_id from question_details qd "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+        # fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
+        # print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))
+        # fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+        # msg = 'no questions available'
+        # print('fetchQuesIds:'+str(fetchQuesIds))
+        # if len(fetchQuesIds)==0 or fetchQuesIds=='':
+        #     return jsonify({'onlineTestLink':msg})
+        # listLength = len(fetchQuesIds)
+        # count_marks = int(paramList[0]) * int(listLength)
         
-        subjId = ''
-        topicID = ''
-        boardID = ''
-        for det in fetchQuesIds:
-            subjId = det.subject_id
-            topicID = det.topic_id
-            boardID = det.board_id
-            break
-        print('subjId:'+str(subjId))
-        print(fetchQuesIds)
-        currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
-        resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
-        # threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
-        # task = exampleData.delay(10,20)
-        task = insertData.delay(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
-        clasVal = selClass.replace('_','@')
-        testType = paramList[11].replace('_','@')
-        linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
-        key = '265e29e3968fc62f68da76a373e5af775fa60'
-        url = urllib.parse.quote(linkForTeacher)
-        name  = ''
-        r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
-        print('New Link')
-        print(r.text)
-        print(type(r.text))
-        linkList = []
-        jsonLink = json.dumps(r.text)
-        newData = json.loads(r.text)
-        print(type(newData))
-        for linkData in newData['url'].values():
-            linkList.append(linkData)
-        finalLink = linkList[3]
-        newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
-        print('newLink'+str(newLink))
-        return jsonify({'onlineTestLink':newLink})
+#         subjId = ''
+#         topicID = ''
+#         boardID = ''
+#         for det in fetchQuesIds:
+#             subjId = det.subject_id
+#             topicID = det.topic_id
+#             boardID = det.board_id
+#             break
+#         print('subjId:'+str(subjId))
+#         print(fetchQuesIds)
+#         currClassSecRow=ClassSection.query.filter_by(school_id=str(teacher_id.school_id),class_val=str(selClass).strip()).first()
+#         resp_session_id = str(subId).strip()+ str(dateVal).strip() + str(randint(10,99)).strip()
+#         # threadUse(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+#         # task = exampleData.delay(10,20)
+#         task = insertData.delay(currClassSecRow.class_sec_id,resp_session_id,fetchQuesIds,paramList[11],count_marks,selClass,teacher_id.teacher_id,teacher_id.school_id)
+#         clasVal = selClass.replace('_','@')
+#         testType = paramList[11].replace('_','@')
+#         linkForTeacher=url_for('testLinkWhatsappBot',testType=paramList[11],totalMarks=count_marks,respsessionid=resp_session_id,fetchQuesIds=fetchQuesIds,weightage=10,negativeMarking=paramList[10],uploadStatus=paramList[5],resultStatus=paramList[7],advance=paramList[9],instructions=paramList[8],duration=paramList[6],classVal=clasVal,section=currClassSecRow.section,subjectId=subjId,phone=contactNo, _external=True)
+#         key = '265e29e3968fc62f68da76a373e5af775fa60'
+#         url = urllib.parse.quote(linkForTeacher)
+#         name  = ''
+#         r = rq.get('http://cutt.ly/api/api.php?key={}&short={}&name={}'.format(key, url, name))
+#         print('New Link')
+#         print(r.text)
+#         print(type(r.text))
+#         linkList = []
+#         jsonLink = json.dumps(r.text)
+#         newData = json.loads(r.text)
+#         print(type(newData))
+#         for linkData in newData['url'].values():
+#             linkList.append(linkData)
+#         finalLink = linkList[3]
+#         newLink = str('Here is the link to the online test:\n')+finalLink+str('\nDo you want to download the question paper?\n1 - Yes\n2 - No')
+#         print('newLink'+str(newLink))
+#         return jsonify({'onlineTestLink':newLink})
 
 @app.route('/getNewUrl',methods=['POST','GET'])
 def getNewUrl():
@@ -11451,202 +11619,202 @@ def getNewUrl():
     for linkData in newData['url'].values():
         linkList.append(linkData)
     finalLink = linkList[3]
-    return jsonify({'data':finalLink})
-@app.route('/getTestPaperLink',methods=['POST','GET'])
-def getTestPaperLink():
-    if request.method == 'POST':
-        print('inside getTestPaperLink')
-        jsonExamData = request.json
-        # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
+#     return jsonify({'data':finalLink})
+# @app.route('/getTestPaperLink',methods=['POST','GET'])
+# def getTestPaperLink():
+#     if request.method == 'POST':
+#         print('inside getTestPaperLink')
+#         jsonExamData = request.json
+#         # jsonExamData = {"results": {"weightage": "10","topics": "1","subject": "1","question_count": "10","class_val": "3","uploadStatus":"Y","duration":"0","resultStatus":"Y","instructions":"","advance":"Y","negativeMarking":"0","test_type":"Class Feedback"},"custom_key": "custom_value","contact": {"phone": "9008262739"}}
         
-        a = json.dumps(jsonExamData)
+#         a = json.dumps(jsonExamData)
       
-        z = json.loads(a)
+#         z = json.loads(a)
         
         
-        paramList = []
-        conList = []
-        print('data:')
-        # print(z['result'].class_val)
-        # print(z['result'])
-        for data in z['results'].values():
+#         paramList = []
+#         conList = []
+#         print('data:')
+#         # print(z['result'].class_val)
+#         # print(z['result'])
+#         for data in z['results'].values():
             
-            paramList.append(data)
-        for con in z['contact'].values():
-            conList.append(con)
-        print(paramList)
-        print(conList[2])
-        # Test for topic
-        print('Testing for topic')
-        # print(type(paramList[1]))
-        # print(int(paramList[1]))
-        # 
-        print('Data Contact')
-        # print(conList[2])
-        contactNo = conList[2][-10:]
-        print(contactNo)
-        userId = User.query.filter_by(phone=contactNo).first()
-        teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
-        classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
-        classList = [] 
-        j=1
-        for classlist in classesListData:
-            classVal = str(j)+str(' - ')+str(classlist.class_val)
-            classList.append(classVal)
-            j=j+1
+#             paramList.append(data)
+#         for con in z['contact'].values():
+#             conList.append(con)
+#         print(paramList)
+#         print(conList[2])
+#         # Test for topic
+#         print('Testing for topic')
+#         # print(type(paramList[1]))
+#         # print(int(paramList[1]))
+#         # 
+#         print('Data Contact')
+#         # print(conList[2])
+#         contactNo = conList[2][-10:]
+#         print(contactNo)
+#         userId = User.query.filter_by(phone=contactNo).first()
+#         teacher_id = TeacherProfile.query.filter_by(user_id=userId.id).first()
+#         classesListData = ClassSection.query.with_entities(ClassSection.class_val).distinct().filter_by(school_id=teacher_id.school_id).all()
+#         classList = [] 
+#         j=1
+#         for classlist in classesListData:
+#             classVal = str(j)+str(' - ')+str(classlist.class_val)
+#             classList.append(classVal)
+#             j=j+1
         
-        selClass = ''
-        print('Selected Class option:')
-        print(paramList[4])
-        for className in classList:
-            num = className.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[4]))
-            if int(num) == int(paramList[4]):
-                print(className)
-                selClass = className.split('-')[1]
-                print('selClass:'+str(selClass))
-        print('class')
-        selClass = selClass.strip()
-        print(selClass)
-        subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
-        print(subQuery)
-        subjectData = db.session.execute(text(subQuery)).fetchall()
-        print(subjectData)
-        subjectList = []
-        k=1
-        subId = ''
-        for subj in subjectData:
-            sub = str(k)+str('-')+str(subj.subject)
-            subjectList.append(sub)
-            k=k+1
-        for subjectName in subjectList:
-            num = subjectName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[2]))
-            if int(num) == int(paramList[2]):
-                print(subjectName)
-                selSubject = subjectName.split('-')[1]
-                print('selSubject:'+str(selSubject))
+#         selClass = ''
+#         print('Selected Class option:')
+#         print(paramList[4])
+#         for className in classList:
+#             num = className.split('-')[0]
+#             print('num:'+str(num))
+#             print('class:'+str(paramList[4]))
+#             if int(num) == int(paramList[4]):
+#                 print(className)
+#                 selClass = className.split('-')[1]
+#                 print('selClass:'+str(selClass))
+#         print('class')
+#         selClass = selClass.strip()
+#         print(selClass)
+#         subQuery = "select md.description as subject,md.msg_id from board_class_subject bcs inner join message_detail md on bcs.subject_id = md.msg_id where school_id='"+str(teacher_id.school_id)+"' and class_val = '"+str(selClass)+"'"
+#         print(subQuery)
+#         subjectData = db.session.execute(text(subQuery)).fetchall()
+#         print(subjectData)
+#         subjectList = []
+#         k=1
+#         subId = ''
+#         for subj in subjectData:
+#             sub = str(k)+str('-')+str(subj.subject)
+#             subjectList.append(sub)
+#             k=k+1
+#         for subjectName in subjectList:
+#             num = subjectName.split('-')[0]
+#             print('num:'+str(num))
+#             print('class:'+str(paramList[2]))
+#             if int(num) == int(paramList[2]):
+#                 print(subjectName)
+#                 selSubject = subjectName.split('-')[1]
+#                 print('selSubject:'+str(selSubject))
                 
-        print('Subject:')
-        selSubject = selSubject.strip()
-        # Start for topic
-        subQuery = MessageDetails.query.filter_by(description=selSubject).first()
-        subId = subQuery.msg_id
-        print(selSubject)
-        print('SubId:'+str(subId))
-        extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
-        print('Query:'+str(extractChapterQuery))
-        extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
-        print(extractChapterData)
-        c=1
-        chapterDetList = []
-        for chapterDet in extractChapterData:
-            chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
-            chapterDetList.append(chap)
-            c=c+1
-        selChapter = ''
-        for chapterName in chapterDetList:
-            num = chapterName.split('-')[0]
-            print('num:'+str(num))
-            print('class:'+str(paramList[1]))
-            if int(num) == int(paramList[1]):
-                print(chapterName)
-                selChapter = chapterName.split('-')[1]
-                print('selChapter:'+str(selChapter))
-        #End topic
-        selChapter = selChapter.strip()
-        print('Chapter'+str(selChapter))
-        dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
-        fetchQuesIdsQuery = "select qd.question_id from question_details qd "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
-        fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
-        print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))        
-        fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
-        oldQuesIds = []
-        for ques in fetchQuesIds:
-            if ques:
-                oldQuesIds.append(ques.question_id)
-        testPaperQuery = "select test_id,test_paper_link from test_details order by test_id desc limit 1"
-        print(testPaperQuery)
-        testPaperData = db.session.execute(text(testPaperQuery)).first()
-        fetchLastPaperQuestionIds = TestQuestions.query.filter_by(test_id=testPaperData.test_id).all()
-        newQuesIds = []
-        for ques in fetchLastPaperQuestionIds:
-            if ques:
-                newQuesIds.append(ques.question_id) 
-        testPaperLink = ''
-        if  oldQuesIds ==  newQuesIds:   
-            testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
-            print('testPaperLink:'+str(testPaperLink))
-        else:
-            testPaperLink = 'No testpaper available'
-        return jsonify({'TestPaperLink':testPaperLink})
+    print('Subject:')
+    selSubject = selSubject.strip()
+    # Start for topic
+    subQuery = MessageDetails.query.filter_by(description=selSubject).first()
+    subId = subQuery.msg_id
+    print(selSubject)
+    print('SubId:'+str(subId))
+    extractChapterQuery = "select td.chapter_name ,td.chapter_num ,bd.book_name from topic_detail td inner join book_details bd on td.book_id = bd.book_id where td.class_val = '"+str(selClass)+"' and td.subject_id = '"+str(subId)+"'"
+    print('Query:'+str(extractChapterQuery))
+    extractChapterData = db.session.execute(text(extractChapterQuery)).fetchall()
+    print(extractChapterData)
+    c=1
+    chapterDetList = []
+    for chapterDet in extractChapterData:
+        chap = str(c)+str('-')+str(chapterDet.chapter_name)+str('-')+str(chapterDet.book_name)+str("\n")
+        chapterDetList.append(chap)
+        c=c+1
+    selChapter = ''
+    for chapterName in chapterDetList:
+        num = chapterName.split('-')[0]
+        print('num:'+str(num))
+        print('class:'+str(paramList[1]))
+        if int(num) == int(paramList[1]):
+            print(chapterName)
+            selChapter = chapterName.split('-')[1]
+            print('selChapter:'+str(selChapter))
+    #End topic
+    selChapter = selChapter.strip()
+    print('Chapter'+str(selChapter))
+    dateVal= datetime.today().strftime("%d%m%Y%H%M%S")
+    fetchQuesIdsQuery = "select qd.question_id from question_details qd "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join topic_detail td on qd.topic_id = td.topic_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "inner join message_detail md on md.msg_id = td.subject_id "
+    fetchQuesIdsQuery = fetchQuesIdsQuery + "where td.chapter_name = '"+str(selChapter)+"' and md.description = '"+str(selSubject)+"' and td.class_val = '"+str(selClass)+"' limit 5"
+    print('fetchQuesIds Query:'+str(fetchQuesIdsQuery))        
+    fetchQuesIds = db.session.execute(fetchQuesIdsQuery).fetchall()
+    oldQuesIds = []
+    for ques in fetchQuesIds:
+        if ques:
+            oldQuesIds.append(ques.question_id)
+    testPaperQuery = "select test_id,test_paper_link from test_details order by test_id desc limit 1"
+    print(testPaperQuery)
+    testPaperData = db.session.execute(text(testPaperQuery)).first()
+    fetchLastPaperQuestionIds = TestQuestions.query.filter_by(test_id=testPaperData.test_id).all()
+    newQuesIds = []
+    for ques in fetchLastPaperQuestionIds:
+        if ques:
+            newQuesIds.append(ques.question_id) 
+    testPaperLink = ''
+    if  oldQuesIds ==  newQuesIds:   
+        testPaperLink = str("Here's the test paper link:\n")+str(testPaperData.test_paper_link)
+        print('testPaperLink:'+str(testPaperLink))
+    else:
+        testPaperLink = 'No testpaper available'
+    return jsonify({'TestPaperLink':testPaperLink})
 
     
-@app.route('/testLinkWhatsappBot', methods=['POST','GET'])
-def testLinkWhatsappBot(): 
-    phone = request.args.get('phone') 
-    user = User.query.filter_by(phone=phone).first()
-    teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
-    student = StudentProfile.query.filter_by(user_id=user.id).first()
-    subject_id = request.args.get('subjectId')
-    print('inside testlinkwhatsappbot')
-    print(subject_id)
-    subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
-    subjectName = subjectQuery.description
-    classVal = request.args.get('classVal')
-    emailDet = ''
-    if student:
-      emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
-    user = ''
+# @app.route('/testLinkWhatsappBot', methods=['POST','GET'])
+# def testLinkWhatsappBot(): 
+#     phone = request.args.get('phone') 
+#     user = User.query.filter_by(phone=phone).first()
+#     teacher= TeacherProfile.query.filter_by(user_id=user.id).first() 
+#     student = StudentProfile.query.filter_by(user_id=user.id).first()
+#     subject_id = request.args.get('subjectId')
+#     print('inside testlinkwhatsappbot')
+#     print(subject_id)
+#     subjectQuery = MessageDetails.query.filter_by(msg_id=subject_id).first()
+#     subjectName = subjectQuery.description
+#     classVal = request.args.get('classVal')
+#     emailDet = ''
+#     if student:
+#       emailDet = StudentProfile.query.filter_by(student_id=student.student_id).first()
+#     user = ''
     
-    if emailDet:
-        user = User.query.filter_by(email=teacher.email).first()
-    if user:
-        login_user(user,remember='Y')
-    clasVal = classVal.replace('@','_')
-    respsessionid = request.args.get('respsessionid')
-    testQuery = SessionDetail.query.filter_by(resp_session_id=respsessionid).first()
-    testId = testQuery.test_id
-    section = request.args.get('section')
-    fetchQuesQuery = "select question_id from test_questions where test_id='"+str(testId)+"'"
-    fetchQuesIds = db.session.execute(fetchQuesQuery).fetchall()
-    quesIds = []
-    for fetchIds in fetchQuesIds:
-        quesIds.append(fetchIds.question_id)
-    questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(quesIds)).all()  
-    for ques in questions:
-        print('question description:')
-        print(ques.question_id)
-        print(ques.question_description)
-    # questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(fetchQuesIds)).all()
-    questionListSize = len(fetchQuesIds)
-    respsessionid = request.args.get('respsessionid')
-    total_marks = request.args.get('totalMarks')
-    weightage = request.args.get('weightage')
-    test_type = request.args.get('testType')
-    test_type = test_type.replace('@','_')
-    uploadStatus = request.args.get('uploadStatus')
-    resultStatus = request.args.get('resultStatus')
-    advance = request.args.get('advance')
-    print('inside testLinkWhatsappBot')
-    print('Subject Id:'+str(subject_id))
-    studId = None
-    if current_user.is_anonymous:
-        print('user id student')
-        return redirect(url_for('feedbackCollectionStudDev',student_id=studId,resp_session_id=respsessionid,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
-        # return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
-    else:
-        print('user is teacher') 
-        url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(respsessionid)+"&school_id="+str(teacher.school_id)
-        responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
-        return render_template('feedbackCollectionTeachDev.html',classSecCheckVal='Y', subject_id=subject_id, 
-            class_val = clasVal, section = section,questions=questions, questionListSize = questionListSize, resp_session_id = respsessionid,responseSessionIDQRCode=responseSessionIDQRCode,
-            subjectName = subjectName, totalMarks=total_marks,weightage=weightage, 
-            batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+#     if emailDet:
+#         user = User.query.filter_by(email=teacher.email).first()
+#     if user:
+#         login_user(user,remember='Y')
+#     clasVal = classVal.replace('@','_')
+#     respsessionid = request.args.get('respsessionid')
+#     testQuery = SessionDetail.query.filter_by(resp_session_id=respsessionid).first()
+#     testId = testQuery.test_id
+#     section = request.args.get('section')
+#     fetchQuesQuery = "select question_id from test_questions where test_id='"+str(testId)+"'"
+#     fetchQuesIds = db.session.execute(fetchQuesQuery).fetchall()
+#     quesIds = []
+#     for fetchIds in fetchQuesIds:
+#         quesIds.append(fetchIds.question_id)
+#     questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(quesIds)).all()  
+#     for ques in questions:
+#         print('question description:')
+#         print(ques.question_id)
+#         print(ques.question_description)
+#     # questions = QuestionDetails.query.filter(QuestionDetails.question_id.in_(fetchQuesIds)).all()
+#     questionListSize = len(fetchQuesIds)
+#     respsessionid = request.args.get('respsessionid')
+#     total_marks = request.args.get('totalMarks')
+#     weightage = request.args.get('weightage')
+#     test_type = request.args.get('testType')
+#     test_type = test_type.replace('@','_')
+#     uploadStatus = request.args.get('uploadStatus')
+#     resultStatus = request.args.get('resultStatus')
+#     advance = request.args.get('advance')
+#     print('inside testLinkWhatsappBot')
+#     print('Subject Id:'+str(subject_id))
+#     studId = None
+#     if current_user.is_anonymous:
+#         print('user id student')
+#         return redirect(url_for('feedbackCollectionStudDev',student_id=studId,resp_session_id=respsessionid,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance,_external=True))
+#         # return render_template('feedbackCollectionStudDev.html',resp_session_id=str(respsessionid),studId=studId,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
+#     else:
+#         print('user is teacher') 
+#         url = "http://www.school.alllearn.in/feedbackCollectionStudDev?resp_session_id="+str(respsessionid)+"&school_id="+str(teacher.school_id)
+#         responseSessionIDQRCode = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+url
+#         return render_template('feedbackCollectionTeachDev.html',classSecCheckVal='Y', subject_id=subject_id, 
+#             class_val = clasVal, section = section,questions=questions, questionListSize = questionListSize, resp_session_id = respsessionid,responseSessionIDQRCode=responseSessionIDQRCode,
+#             subjectName = subjectName, totalMarks=total_marks,weightage=weightage, 
+#             batch_test=0,testType=test_type,school_id=teacher.school_id,uploadStatus=uploadStatus,resultStatus=resultStatus,advance=advance)
 
 @app.route('/feedbackCollection', methods=['GET', 'POST'])
 @login_required
@@ -11719,7 +11887,7 @@ def feedbackCollection():
 
         if currClassSecRow is None and batch_test!="1":
             flash('Class and section value not valid')
-            return redirect(url_for('testPapers'))
+            return redirect(url_for('test_builder.testPapers'))
         elif batch_test=="1" and  currClassSecRow is None:
             class_sec_id = 1
             qsubject_id=54
@@ -13889,324 +14057,324 @@ def subject_list(class_val):
         return "return"
 
 # topic list generation dynamically
-@app.route('/questionBuilder/<class_val>/<subject_id>')
-def topic_list(class_val,subject_id):
-    cl = class_val.replace("-","/")
-    topic_list="select td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(cl)+"' and td.subject_id = '"+str(subject_id)+"' and tt.is_archived = 'N'"
-    topic_list = db.session.execute(text(topic_list))
-    topicArray=[]
+# @app.route('/questionBuilder/<class_val>/<subject_id>')
+# def topic_list(class_val,subject_id):
+#     cl = class_val.replace("-","/")
+#     topic_list="select td.topic_id,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(cl)+"' and td.subject_id = '"+str(subject_id)+"' and tt.is_archived = 'N'"
+#     topic_list = db.session.execute(text(topic_list))
+#     topicArray=[]
 
-    for topic in topic_list:
-        topicObj={}
-        topicObj['topic_id']=topic.topic_id
-        topicObj['topic_name']=topic.topic_name
-        topicArray.append(topicObj)
+#     for topic in topic_list:
+#         topicObj={}
+#         topicObj['topic_id']=topic.topic_id
+#         topicObj['topic_name']=topic.topic_name
+#         topicArray.append(topicObj)
     
-    return jsonify({'topics':topicArray})
+#     return jsonify({'topics':topicArray})
 
-@app.route('/questionTopicPicker')
-def questionTopicPicker():
-    print('Inside topic picker')
-    class_val = request.args.get('class_val')
-    subject_id = request.args.get('subject_id')
-    topic_list="select td.topic_id,td.chapter_num,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.is_archived = 'N'"
-    topic_list = db.session.execute(text(topic_list)).fetchall()
-    for topic in topic_list:
-        print(topic.topic_id)
-        print(topic.topic_name)
-        print(topic.chapter_num)
+# @app.route('/questionTopicPicker')
+# def questionTopicPicker():
+#     print('Inside topic picker')
+#     class_val = request.args.get('class_val')
+#     subject_id = request.args.get('subject_id')
+#     topic_list="select td.topic_id,td.chapter_num,td.topic_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val = '"+str(class_val)+"' and td.subject_id = '"+str(subject_id)+"' and tt.is_archived = 'N'"
+#     topic_list = db.session.execute(text(topic_list)).fetchall()
+#     for topic in topic_list:
+#         print(topic.topic_id)
+#         print(topic.topic_name)
+#         print(topic.chapter_num)
     
-    return render_template('_topics.html',topic_list=topic_list)
+#     return render_template('_topics.html',topic_list=topic_list)
 
-# @app.route('/coveredTopic',methods=['GET','POST'])
-# def coveredTopic():
-#     print('covered Topics')
-#     class_v = request.args.get('class_val')
-#     section = request.args.get('section')
-#     query = "select *from topic_details where "
-#     return render_template('_topicCovered.html')
+# # @app.route('/coveredTopic',methods=['GET','POST'])
+# # def coveredTopic():
+# #     print('covered Topics')
+# #     class_v = request.args.get('class_val')
+# #     section = request.args.get('section')
+# #     query = "select *from topic_details where "
+# #     return render_template('_topicCovered.html')
 
-@app.route('/questionChapterpicker/<class_val>/<subject_id>')
-def chapter_list(class_val,subject_id):
-    cl = class_val.replace('-','/')
-    chapter_num = "select distinct td.chapter_num,td.chapter_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+cl+"' and td.subject_id='"+subject_id+"' and tt.is_archived='N' order by td.chapter_num,td.chapter_name"
-    print(chapter_num)
-    print('Inside chapterPicker')
+# @app.route('/questionChapterpicker/<class_val>/<subject_id>')
+# def chapter_list(class_val,subject_id):
+#     cl = class_val.replace('-','/')
+#     chapter_num = "select distinct td.chapter_num,td.chapter_name from topic_detail td inner join topic_tracker tt on td.topic_id = tt.topic_id where td.class_val='"+cl+"' and td.subject_id='"+subject_id+"' and tt.is_archived='N' order by td.chapter_num,td.chapter_name"
+#     print(chapter_num)
+#     print('Inside chapterPicker')
     
-    chapter_num_list = db.session.execute(text(chapter_num))
-    chapter_num_array=[]
-    for chapterno in chapter_num_list:
-        chapterNo = {}
-        chapterNo['chapter_num']=chapterno.chapter_num
-        chapterNo['chapter_name']=chapterno.chapter_name
-        chapter_num_array.append(chapterNo)
-    return jsonify({'chapterNum':chapter_num_array})
+#     chapter_num_list = db.session.execute(text(chapter_num))
+#     chapter_num_array=[]
+#     for chapterno in chapter_num_list:
+#         chapterNo = {}
+#         chapterNo['chapter_num']=chapterno.chapter_num
+#         chapterNo['chapter_name']=chapterno.chapter_name
+#         chapter_num_array.append(chapterNo)
+#     return jsonify({'chapterNum':chapter_num_array})
 
-@app.route('/addEvent', methods = ["GET","POST"])
-@login_required
-def addEvent():        
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    form = addEventForm()
-    if form.validate_on_submit():
-        dataForEntry = EventDetail(event_name=form.eventName.data, event_duration=form.duration.data,event_date=form.eventDate.data,event_start=form.startDate.data,event_end=form.endDate.data,event_category=form.category.data,school_id=teacher_id.school_id, last_modified_date=datetime.today())                
-        db.session.add(dataForEntry)
-        db.session.commit()
-        flash('Event Added!')
-    indic='DashBoard'
-    return render_template('addEvent.html',indic=indic, form=form,title='Add Event')
+# @app.route('/addEvent', methods = ["GET","POST"])
+# @login_required
+# def addEvent():        
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     form = addEventForm()
+#     if form.validate_on_submit():
+#         dataForEntry = EventDetail(event_name=form.eventName.data, event_duration=form.duration.data,event_date=form.eventDate.data,event_start=form.startDate.data,event_end=form.endDate.data,event_category=form.category.data,school_id=teacher_id.school_id, last_modified_date=datetime.today())                
+#         db.session.add(dataForEntry)
+#         db.session.commit()
+#         flash('Event Added!')
+#     indic='DashBoard'
+#     return render_template('addEvent.html',indic=indic, form=form,title='Add Event')
 
-@app.route('/studentProfileOld')
-@login_required
-def studentProfileOld():
-    return render_template('studentProfile.html')
+# @app.route('/studentProfileOld')
+# @login_required
+# def studentProfileOld():
+#     return render_template('studentProfile.html')
 
 
-@app.route('/allocateStudentToSponsor')
-def allocateStudentToSponsor():
-    student_id = request.args.get('student_id')
-    sponsor_id = request.args.get('sponsor_id')
-    sponsor_name = request.args.get('sponsor_name')
-    amount = request.args.get('amount')
+# @app.route('/allocateStudentToSponsor')
+# def allocateStudentToSponsor():
+#     student_id = request.args.get('student_id')
+#     sponsor_id = request.args.get('sponsor_id')
+#     sponsor_name = request.args.get('sponsor_name')
+#     amount = request.args.get('amount')
 
-    studentData = StudentProfile.query.filter_by(student_id=student_id).first()
-    studentData.sponsor_id = sponsor_id
-    studentData.sponsor_name = sponsor_name
-    studentData.sponsored_amount = amount
-    studentData.sponsored_on = datetime.today()
-    studentData.sponsored_status='Y'
-    studentData.last_modified_date = datetime.today()
-    db.session.commit()
+#     studentData = StudentProfile.query.filter_by(student_id=student_id).first()
+#     studentData.sponsor_id = sponsor_id
+#     studentData.sponsor_name = sponsor_name
+#     studentData.sponsored_amount = amount
+#     studentData.sponsored_on = datetime.today()
+#     studentData.sponsored_status='Y'
+#     studentData.last_modified_date = datetime.today()
+#     db.session.commit()
     
-    return jsonify(['0'])
+#     return jsonify(['0'])
 
-@app.route('/indivStudentProfile')
-@login_required
-def indivStudentProfile():    
-    student_id=request.args.get('student_id')
-    flag = request.args.get('flag')
-    #spnsor data check
-    sponsor_id = request.args.get('sponsor_id')
-    sponsor_name = request.args.get('sponsor_name')
-    amount = request.args.get('amount')
+# @app.route('/indivStudentProfile')
+# @login_required
+# def indivStudentProfile():    
+#     student_id=request.args.get('student_id')
+#     flag = request.args.get('flag')
+#     #spnsor data check
+#     sponsor_id = request.args.get('sponsor_id')
+#     sponsor_name = request.args.get('sponsor_name')
+#     amount = request.args.get('amount')
     
-    #New updated query
-    studentProfileQuery = "select full_name, email, sponsored_status,sponsored_on,sponsor_name,phone,sp.school_id as school_id, dob, md.description as gender,class_val, section, "
-    studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
-    studentProfileQuery = studentProfileQuery + "class_section cs on sp.class_sec_id= cs.class_sec_id and sp.student_id='"+str(student_id)+"'" 
-    studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
-    studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
+#     #New updated query
+#     studentProfileQuery = "select full_name, email, sponsored_status,sponsored_on,sponsor_name,phone,sp.school_id as school_id, dob, md.description as gender,class_val, section, "
+#     studentProfileQuery = studentProfileQuery + "roll_number,school_adm_number,profile_picture,student_id from student_profile sp inner join "
+#     studentProfileQuery = studentProfileQuery + "class_section cs on sp.class_sec_id= cs.class_sec_id and sp.student_id='"+str(student_id)+"'" 
+#     studentProfileQuery = studentProfileQuery + "inner join message_detail md on md.msg_id =sp.gender "
+#     studentProfileQuery = studentProfileQuery + "left join address_detail ad on ad.address_id=sp.address_id"
 
-    studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
+#     studentProfileRow = db.session.execute(text(studentProfileQuery)).first()  
     
-    #performanceData
-    performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
+#     #performanceData
+#     performanceQuery = "SELECT * from vw_leaderboard WHERE student_id = '"+str(student_id)+ "'"    
 
-    perfRows = db.session.execute(text(performanceQuery)).fetchall()
+#     perfRows = db.session.execute(text(performanceQuery)).fetchall()
     
-    testCountQuery = "select count(distinct resp_session_id) as testcountval from response_capture where student_id='"+str(student_id)+ "'"
+    # testCountQuery = "select count(distinct resp_session_id) as testcountval from response_capture where student_id='"+str(student_id)+ "'"
 
-    testCount = db.session.execute(text(testCountQuery)).first() 
+#     testCount = db.session.execute(text(testCountQuery)).first() 
 
-    totalofflineTestQuery = "select  count(*) as count from result_upload ru where student_id  = '"+str(student_id)+ "'"
+#     totalofflineTestQuery = "select  count(*) as count from result_upload ru where student_id  = '"+str(student_id)+ "'"
 
-    totalofflineTestCount = db.session.execute(text(totalofflineTestQuery)).first()
+#     totalofflineTestCount = db.session.execute(text(totalofflineTestQuery)).first()
 
-    totalTestCount = int(testCount.testcountval) + int(totalofflineTestCount.count)
-    print('totalTestCount:'+str(totalTestCount))
+#     totalTestCount = int(testCount.testcountval) + int(totalofflineTestCount.count)
+#     print('totalTestCount:'+str(totalTestCount))
 
-    testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
-    testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
-    testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
-    testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
-    print(testResultQuery)
-    testResultRows = db.session.execute(text(testResultQuery)).fetchall()
+#     testResultQuery = "select exam_date, t2.description as test_type, test_id, t3.description as subject, marks_scored, total_marks "
+#     testResultQuery = testResultQuery+ "from result_upload t1 inner join message_detail t2 on t1.test_type=t2.msg_id "
+#     testResultQuery = testResultQuery + "inner join message_detail t3 on t3.msg_id=t1.subject_id "
+#     testResultQuery = testResultQuery + " where student_id=%s order by exam_date desc" % student_id
+#     print(testResultQuery)
+#     testResultRows = db.session.execute(text(testResultQuery)).fetchall()
     
-    onlineTestResultQuery = "select sd.last_modified_date,rc.resp_session_id,td.test_type,md.description , sum(marks_scored) as marks_scored,sd.total_marks from response_capture rc "
-    onlineTestResultQuery = onlineTestResultQuery + "inner join session_detail sd on rc.resp_session_id=sd.resp_session_id "
-    onlineTestResultQuery = onlineTestResultQuery + "inner join test_details td on sd.test_id = td.test_id "
-    onlineTestResultQuery = onlineTestResultQuery + "inner join message_detail md on md.msg_id = rc.subject_id where rc.student_id='"+str(student_id)+"' "
-    onlineTestResultQuery = onlineTestResultQuery + "group by rc.resp_session_id,sd.last_modified_date,sd.total_marks,td.test_type,md.description order by sd.last_modified_date desc "
-    onlineTestResultRows = db.session.execute(text(onlineTestResultQuery)).fetchall()
-    #Remarks info
-    studentRemarksQuery = "select student_id, tp.teacher_id, teacher_name, profile_picture, remark_desc, sr.last_modified_date as last_modified_date"
-    studentRemarksQuery= studentRemarksQuery+ " from student_remarks sr inner join teacher_profile tp on sr.teacher_id=tp.teacher_id and student_id="+str(student_id) + " "
-    studentRemarkRows = db.session.execute(text(studentRemarksQuery)).fetchall()
-    #studentRemarkRows = StudentRemarks.query.filter_by(student_id=student_id).order_by(StudentRemarks.last_modified_date.desc()).limit(5).all()
+#     onlineTestResultQuery = "select sd.last_modified_date,rc.resp_session_id,td.test_type,md.description , sum(marks_scored) as marks_scored,sd.total_marks from response_capture rc "
+#     onlineTestResultQuery = onlineTestResultQuery + "inner join session_detail sd on rc.resp_session_id=sd.resp_session_id "
+#     onlineTestResultQuery = onlineTestResultQuery + "inner join test_details td on sd.test_id = td.test_id "
+#     onlineTestResultQuery = onlineTestResultQuery + "inner join message_detail md on md.msg_id = rc.subject_id where rc.student_id='"+str(student_id)+"' "
+#     onlineTestResultQuery = onlineTestResultQuery + "group by rc.resp_session_id,sd.last_modified_date,sd.total_marks,td.test_type,md.description order by sd.last_modified_date desc "
+#     onlineTestResultRows = db.session.execute(text(onlineTestResultQuery)).fetchall()
+#     #Remarks info
+#     studentRemarksQuery = "select student_id, tp.teacher_id, teacher_name, profile_picture, remark_desc, sr.last_modified_date as last_modified_date"
+#     studentRemarksQuery= studentRemarksQuery+ " from student_remarks sr inner join teacher_profile tp on sr.teacher_id=tp.teacher_id and student_id="+str(student_id) + " "
+#     studentRemarkRows = db.session.execute(text(studentRemarksQuery)).fetchall()
+#     #studentRemarkRows = StudentRemarks.query.filter_by(student_id=student_id).order_by(StudentRemarks.last_modified_date.desc()).limit(5).all()
 
-    #Sponsor allocation
-    urlForAllocationComplete = str(app.config['IMPACT_HOST']) + '/responseStudentAllocate'
-    overallSum = 0
-    overallPerfValue = 0
-    sumMarks = 0
-    sum1 = 0
-    sum2 = 0
-    totalOfflineTestMarks = "select sum(marks_scored) as sum1 from result_upload ru where student_id = '"+str(student_id)+"'"
-    print(totalOfflineTestMarks)
-    totalOfflineTestMarks = db.session.execute(text(totalOfflineTestMarks)).first()
-    if totalOfflineTestMarks.sum1:
-        print(totalOfflineTestMarks.sum1)
-        sum1 = totalOfflineTestMarks.sum1
-    totalOnlineTestMarks = "select sum(rc2.marks_scored) as sum2,rc2.resp_session_id from response_capture rc2 where student_id = '"+str(student_id)+"' group by rc2.resp_session_id "
-    totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).fetchall()
+#     #Sponsor allocation
+#     urlForAllocationComplete = str(app.config['IMPACT_HOST']) + '/responseStudentAllocate'
+#     overallSum = 0
+#     overallPerfValue = 0
+#     sumMarks = 0
+#     sum1 = 0
+#     sum2 = 0
+#     totalOfflineTestMarks = "select sum(marks_scored) as sum1 from result_upload ru where student_id = '"+str(student_id)+"'"
+#     print(totalOfflineTestMarks)
+#     totalOfflineTestMarks = db.session.execute(text(totalOfflineTestMarks)).first()
+#     if totalOfflineTestMarks.sum1:
+#         print(totalOfflineTestMarks.sum1)
+#         sum1 = totalOfflineTestMarks.sum1
+#     totalOnlineTestMarks = "select sum(rc2.marks_scored) as sum2,rc2.resp_session_id from response_capture rc2 where student_id = '"+str(student_id)+"' group by rc2.resp_session_id "
+#     totalOnlineTestMarks = db.session.execute(text(totalOnlineTestMarks)).fetchall()
     
-    for row in totalOnlineTestMarks:
-        print(row.sum2)
-        sum2 = sum2 + row.sum2
-    sumMarks = int(sum1) + int(sum2)
-    print('Total Marks:'+str(sumMarks))
-    total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
-    print(total1)
-    total1 = db.session.execute(text(total1)).first()
-    tot1 = 0
-    if total1:
-        print(total1.offlinetotal)
-        tot1 = total1.offlinetotal
-    total2 = "select sd.total_marks,sd.resp_session_id from session_detail sd inner join response_capture rc on sd.resp_session_id = rc.resp_session_id where rc.student_id = '"+str(student_id)+"' group by sd.total_marks,sd.resp_session_id"
-    total2 = db.session.execute(text(total2)).fetchall()
-    total3 = 0
-    grandTotal = 0
-    for row in total2:
-        print(row.total_marks)
-        total3 = total3 + row.total_marks
-    grandTotal = int(tot1) + int(total3)
-    print(tot1)
-    print(total3)
-    print('Grand Total:'+str(grandTotal))
-    print('Sum Marks:'+str(sumMarks))
-    for rows in perfRows:
-        overallSum = overallSum + int(rows.student_score)
-        #print(overallSum)
-    try:
-        overallPerfValue = round(sumMarks/(grandTotal)*100,2)    
-    except:
-        overallPerfValue=0    
-    guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
-    qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
-    qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="    
-    qrArray=[]
-    x = range(4)    
+#     for row in totalOnlineTestMarks:
+#         print(row.sum2)
+#         sum2 = sum2 + row.sum2
+#     sumMarks = int(sum1) + int(sum2)
+#     print('Total Marks:'+str(sumMarks))
+#     total1 = "select total_marks as offlineTotal from result_upload ru where student_id = '"+str(student_id)+"'"
+#     print(total1)
+#     total1 = db.session.execute(text(total1)).first()
+#     tot1 = 0
+#     if total1:
+#         print(total1.offlinetotal)
+#         tot1 = total1.offlinetotal
+#     total2 = "select sd.total_marks,sd.resp_session_id from session_detail sd inner join response_capture rc on sd.resp_session_id = rc.resp_session_id where rc.student_id = '"+str(student_id)+"' group by sd.total_marks,sd.resp_session_id"
+#     total2 = db.session.execute(text(total2)).fetchall()
+#     total3 = 0
+#     grandTotal = 0
+#     for row in total2:
+#         print(row.total_marks)
+#         total3 = total3 + row.total_marks
+#     grandTotal = int(tot1) + int(total3)
+#     print(tot1)
+#     print(total3)
+#     print('Grand Total:'+str(grandTotal))
+#     print('Sum Marks:'+str(sumMarks))
+#     for rows in perfRows:
+#         overallSum = overallSum + int(rows.student_score)
+#         #print(overallSum)
+#     try:
+#         overallPerfValue = round(sumMarks/(grandTotal)*100,2)    
+#     except:
+#         overallPerfValue=0    
+#     guardianRows = GuardianProfile.query.filter_by(student_id=student_id).all()
+#     qrRows = studentQROptions.query.filter_by(student_id=student_id).all()
+#     qrAPIURL = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="    
+#     qrArray=[]
+#     x = range(4)    
 
-    #section for fetching surveys
-    try:
-        surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
-    except:
-        surveyRows=[]
-        print('survey error')
+#     #section for fetching surveys
+#     try:
+#         surveyRows = SurveyDetail.query.filter_by(school_id=studentProfileRow.school_id,is_archived='N').all()
+#     except:
+#         surveyRows=[]
+#         print('survey error')
 
-    for n in x:               
-        if studentProfileRow!=None and studentProfileRow!="":
-            optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
-        else:
-            optionURL=""
-        qrArray.append(optionURL) 
-        #print(optionURL)
-    return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
-        qrArray=qrArray,totalTestCount=totalTestCount,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
-        testResultRows = testResultRows,onlineTestResultRows=onlineTestResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
+#     for n in x:               
+#         if studentProfileRow!=None and studentProfileRow!="":
+#             optionURL = qrAPIURL+str(student_id)+ '-'+str(studentProfileRow.roll_number)+'-'+ studentProfileRow.full_name.replace(" ", "%20")+'@'+string.ascii_uppercase[n]
+#         else:
+#             optionURL=""
+#         qrArray.append(optionURL) 
+#         #print(optionURL)
+#     return render_template('_indivStudentProfile.html',surveyRows=surveyRows, studentRemarkRows=studentRemarkRows, urlForAllocationComplete=urlForAllocationComplete, studentProfileRow=studentProfileRow,guardianRows=guardianRows, 
+#         qrArray=qrArray,totalTestCount=totalTestCount,perfRows=perfRows,overallPerfValue=overallPerfValue,student_id=student_id,testCount=testCount,
+#         testResultRows = testResultRows,onlineTestResultRows=onlineTestResultRows,disconn=1, sponsor_name=sponsor_name, sponsor_id=sponsor_id,amount=amount,flag=flag)
 
 
-@app.route('/attendanceReport',methods=["GET","POST"])
-def attendanceReport():
-    class_sec_id = request.args.get('class_sec_id')
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
-    attendanceData = "select full_name, is_present from attendance a inner join student_profile sp on a.class_sec_id = sp.class_sec_id where "
-    attendanceData = attendanceData + "sp.school_id = '"+str(teacherDataRow.school_id)+"' and sp.class_sec_id = '"+str(class_sec_id)+"'"
-    attendanceData = db.session.execute(text(attendanceData)).fetchall()
-    file_name='Attendance'+str(class_sec_id)+str(teacherDataRow.school_id)+'.csv'
-    file_name = file_name.replace(" ", "")
-    if not os.path.exists('tempdocx'):
-        os.mkdir('tempdocx')
-    # document.save('tempdocx/'+file_name)
-    with open('tempdocx/'+file_name, 'w', newline='') as file:
-    #uploading to s3 bucket
+# @app.route('/attendanceReport',methods=["GET","POST"])
+# def attendanceReport():
+#     class_sec_id = request.args.get('class_sec_id')
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+#     attendanceData = "select full_name, is_present from attendance a inner join student_profile sp on a.class_sec_id = sp.class_sec_id where "
+#     attendanceData = attendanceData + "sp.school_id = '"+str(teacherDataRow.school_id)+"' and sp.class_sec_id = '"+str(class_sec_id)+"'"
+#     attendanceData = db.session.execute(text(attendanceData)).fetchall()
+#     file_name='Attendance'+str(class_sec_id)+str(teacherDataRow.school_id)+'.csv'
+#     file_name = file_name.replace(" ", "")
+#     if not os.path.exists('tempdocx'):
+#         os.mkdir('tempdocx')
+#     # document.save('tempdocx/'+file_name)
+#     with open('tempdocx/'+file_name, 'w', newline='') as file:
+#     #uploading to s3 bucket
         
-        # with open(filePath, 'w', newline='') as file:
+#         # with open(filePath, 'w', newline='') as file:
             
-        print('file')
+#         print('file')
             
-        file.write('Introduction \n')
-        writer = csv.writer(file)
-        writer.writerow(["Student Name ", "Present"])
-        for data in attendanceData:
-            writer.writerow([data.full_name,data.is_present])
-    client = boto3.client('s3', region_name='ap-south-1')
-    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'attendance_report/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-        #deleting file from temporary location after upload to s3
-    os.remove('tempdocx/'+file_name)
-    filePath = 'https://'+str(os.environ.get('S3_BUCKET_NAME'))+'.s3.ap-south-1.amazonaws.com/attendance_report/'+str(file_name)
-    print(filePath)
-    return jsonify([filePath])
+#         file.write('Introduction \n')
+#         writer = csv.writer(file)
+#         writer.writerow(["Student Name ", "Present"])
+#         for data in attendanceData:
+#             writer.writerow([data.full_name,data.is_present])
+#     client = boto3.client('s3', region_name='ap-south-1')
+#     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'attendance_report/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+#         #deleting file from temporary location after upload to s3
+#     os.remove('tempdocx/'+file_name)
+#     filePath = 'https://'+str(os.environ.get('S3_BUCKET_NAME'))+'.s3.ap-south-1.amazonaws.com/attendance_report/'+str(file_name)
+#     print(filePath)
+#     return jsonify([filePath])
 
 
-@app.route('/addAttendence',methods=["GET","POST"])
-def addAttendence():
-    class_sec_id = request.args.get('class_sec_id')
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
-    students = StudentProfile.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id).all()
-    print('class_Sec_id:'+str(class_sec_id))
-    print('school_id'+str(teacherDataRow.school_id))
-    student_ids = request.get_json()
-    print(students)
-    print(student_ids)
-    data = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id).first()
-    if data:
-        for student_id in students:
-            sel = 0
+# @app.route('/addAttendence',methods=["GET","POST"])
+# def addAttendence():
+#     class_sec_id = request.args.get('class_sec_id')
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+#     students = StudentProfile.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id).all()
+#     print('class_Sec_id:'+str(class_sec_id))
+#     print('school_id'+str(teacherDataRow.school_id))
+#     student_ids = request.get_json()
+#     print(students)
+#     print(student_ids)
+#     data = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id).first()
+#     if data:
+#         for student_id in students:
+#             sel = 0
             
-            for selected in student_ids:
-                if str(student_id.student_id) == str(selected):
-                    print('if student id is selected:'+str(student_id.student_id))
-                    sel =1
-                    break
-            if sel==1:
-                print('set Y for selected ')
-                update = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id,student_id=student_id.student_id).first()
-                update.is_present = 'Y'
-            else:
-                update = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id,student_id=student_id.student_id).first()
-                update.is_present = 'N'
-            db.session.commit()    
-    else:
-        for student_id in students:
-            sel = 0
+#             for selected in student_ids:
+#                 if str(student_id.student_id) == str(selected):
+#                     print('if student id is selected:'+str(student_id.student_id))
+#                     sel =1
+#                     break
+#             if sel==1:
+#                 print('set Y for selected ')
+#                 update = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id,student_id=student_id.student_id).first()
+#                 update.is_present = 'Y'
+#             else:
+#                 update = Attendance.query.filter_by(class_sec_id=class_sec_id,school_id=teacherDataRow.school_id,student_id=student_id.student_id).first()
+#                 update.is_present = 'N'
+#             db.session.commit()    
+#     else:
+#         for student_id in students:
+#             sel = 0
             
-            for selected in student_ids:
-                if str(student_id.student_id) == str(selected):
-                    print('if student id is selected:'+str(student_id.student_id))
-                    sel =1
-                    break
-            if sel==1:
-                print('set Y for selected ')
-                addData = Attendance(school_id=teacherDataRow.school_id,teacher_id=teacherDataRow.teacher_id,attendance_date=datetime.today(),last_modified_date=datetime.today(),
-                is_present='Y',class_sec_id=class_sec_id,student_id=student_id.student_id)
-            else:
-                addData = Attendance(school_id=teacherDataRow.school_id,teacher_id=teacherDataRow.teacher_id,attendance_date=datetime.today(),last_modified_date=datetime.today(),
-                is_present='N',class_sec_id=class_sec_id,student_id=student_id.student_id)
-            db.session.add(addData)
-            db.session.commit()
-    return jsonify(['1'])
+#             for selected in student_ids:
+#                 if str(student_id.student_id) == str(selected):
+#                     print('if student id is selected:'+str(student_id.student_id))
+#                     sel =1
+#                     break
+#             if sel==1:
+#                 print('set Y for selected ')
+#                 addData = Attendance(school_id=teacherDataRow.school_id,teacher_id=teacherDataRow.teacher_id,attendance_date=datetime.today(),last_modified_date=datetime.today(),
+#                 is_present='Y',class_sec_id=class_sec_id,student_id=student_id.student_id)
+#             else:
+#                 addData = Attendance(school_id=teacherDataRow.school_id,teacher_id=teacherDataRow.teacher_id,attendance_date=datetime.today(),last_modified_date=datetime.today(),
+#                 is_present='N',class_sec_id=class_sec_id,student_id=student_id.student_id)
+#             db.session.add(addData)
+#             db.session.commit()
+#     return jsonify(['1'])
 
 
-@app.route('/fetchAttendenceList',methods=["GET","POST"])
-def fetchAttendenceList():
-    class_sec_id = request.args.get('class_sec_id')
-    date = request.args.get('date')
-    print('Date:'+str(date))
-    teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
-    if date:
-        fetchData = "select sd.student_id,full_name,sd.profile_picture,a.is_present "
-        fetchData = fetchData + "from attendance a right join student_profile sd on a.student_id=sd.student_id "
-        fetchData = fetchData + "where sd.class_sec_id="+str(class_sec_id)+" and sd.school_id='"+str(teacherDataRow.school_id)+"' and date(attendance_date)='"+str(date)+"' order by full_name "
-    else:
-        fetchData = "select sd.student_id,full_name,sd.profile_picture,a.is_present "
-        fetchData = fetchData + "from attendance a right join student_profile sd on a.student_id=sd.student_id "
-        fetchData = fetchData + "where sd.class_sec_id="+str(class_sec_id)+" and sd.school_id='"+str(teacherDataRow.school_id)+"' order by full_name "
-    print('Query:'+str(fetchData))
-    studAttendeceList = db.session.execute(fetchData).fetchall()
-    print('class_sec_id:'+str(class_sec_id))
-    for row in studAttendeceList:
-        print('Fetch Data:'+str(row.is_present))
-    return render_template('_attendanceTable.html',studAttendeceList=studAttendeceList)
+# @app.route('/fetchAttendenceList',methods=["GET","POST"])
+# def fetchAttendenceList():
+#     class_sec_id = request.args.get('class_sec_id')
+#     date = request.args.get('date')
+#     print('Date:'+str(date))
+#     teacherDataRow=TeacherProfile.query.filter_by(user_id=current_user.id).first() 
+#     if date:
+#         fetchData = "select sd.student_id,full_name,sd.profile_picture,a.is_present "
+#         fetchData = fetchData + "from attendance a right join student_profile sd on a.student_id=sd.student_id "
+#         fetchData = fetchData + "where sd.class_sec_id="+str(class_sec_id)+" and sd.school_id='"+str(teacherDataRow.school_id)+"' and date(attendance_date)='"+str(date)+"' order by full_name "
+#     else:
+#         fetchData = "select sd.student_id,full_name,sd.profile_picture,a.is_present "
+#         fetchData = fetchData + "from attendance a right join student_profile sd on a.student_id=sd.student_id "
+#         fetchData = fetchData + "where sd.class_sec_id="+str(class_sec_id)+" and sd.school_id='"+str(teacherDataRow.school_id)+"' order by full_name "
+#     print('Query:'+str(fetchData))
+#     studAttendeceList = db.session.execute(fetchData).fetchall()
+#     print('class_sec_id:'+str(class_sec_id))
+#     for row in studAttendeceList:
+#         print('Fetch Data:'+str(row.is_present))
+#     return render_template('_attendanceTable.html',studAttendeceList=studAttendeceList)
 
 @app.route('/addStudentRemarks',methods = ["GET","POST"])
 def addStudentRemarks():
@@ -14234,180 +14402,180 @@ def classChecker(available_class):
             class_list.append((str(k.class_val)+"-"+str(k.section),str(k.class_val)+"-"+str(k.section)))
     return class_list
 
-@app.route('/studentProfile') 
-@login_required
-def studentProfile():    
-    qstudent_id=request.args.get('student_id')
-    #####Section for sponsor data fetch
-    qsponsor_name = request.args.get('sponsor_name')
-    qsponsor_id = request.args.get('sponsor_id')
-    qamount = request.args.get('amount')
-    studentDetails = StudentProfile.query.filter_by(user_id = current_user.id).first()
+# @app.route('/studentProfile') 
+# @login_required
+# def studentProfile():    
+#     qstudent_id=request.args.get('student_id')
+#     #####Section for sponsor data fetch
+#     qsponsor_name = request.args.get('sponsor_name')
+#     qsponsor_id = request.args.get('sponsor_id')
+#     qamount = request.args.get('amount')
+#     studentDetails = StudentProfile.query.filter_by(user_id = current_user.id).first()
 
-    if qstudent_id==None or qstudent_id=='':
-        form=studentDirectoryForm()
-        user = User.query.filter_by(username=current_user.username).first_or_404()        
-        teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
+#     if qstudent_id==None or qstudent_id=='':
+#         form=studentDirectoryForm()
+#         user = User.query.filter_by(username=current_user.username).first_or_404()        
+#         teacher= TeacherProfile.query.filter_by(user_id=user.id).first()    
 
-        available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
-        available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
-        available_test_type=MessageDetails.query.filter_by(category='Test type').all()
-        # available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
-        available_student_list = "select student_id,full_name,profile_picture,class_val, section from student_profile sp inner join class_section cs on sp.class_sec_id = cs.class_sec_id where cs.school_id ='"+str(teacher.school_id)+"'"
-        available_student_list = db.session.execute(available_student_list).fetchall()
+#         available_class=ClassSection.query.with_entities(ClassSection.class_val,ClassSection.section).distinct().order_by(ClassSection.class_val).filter_by(school_id=teacher.school_id).all()
+#         available_section=ClassSection.query.with_entities(ClassSection.section).distinct().filter_by(school_id=teacher.school_id).all()    
+#         available_test_type=MessageDetails.query.filter_by(category='Test type').all()
+#         # available_student_list=StudentProfile.query.filter_by(school_id=teacher.school_id).all()
+#         available_student_list = "select student_id,full_name,profile_picture,class_val, section from student_profile sp inner join class_section cs on sp.class_sec_id = cs.class_sec_id where cs.school_id ='"+str(teacher.school_id)+"'"
+#         available_student_list = db.session.execute(available_student_list).fetchall()
         
-        class_list = classChecker(available_class)
+#         class_list = classChecker(available_class)
         
-        section_list=[(i.section,i.section) for i in available_section]    
-        test_type_list=[(i.msg_id,i.description) for i in available_test_type]
-        # student_list=[(i.student_id,i.full_name) for i in available_student_list]
+#         section_list=[(i.section,i.section) for i in available_section]    
+#         test_type_list=[(i.msg_id,i.description) for i in available_test_type]
+#         # student_list=[(i.student_id,i.full_name) for i in available_student_list]
 
-        #selectfield choices
-        print(class_list)
-        form.class_section.choices = class_list
-        # form.section1.choices= ''
-        # section_list    
-        # form.test_type1.choices=test_type_list
-        form.student_name.choices = ''
-        flag = 1
-        indic='DashBoard'
-        return render_template('studentProfileNew.html',indic=indic,title='Student Profile',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-    else:
-        value=0
-        flag = 0
-        if current_user.user_type==72:
-            value=1
-        #print(qstudent_id)
-        indic='DashBoard'
-        return render_template('studentProfileNew.html',indic=indic,title='Student Profile',qstudent_id=qstudent_id,disconn=value, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
-        flag = 0       
-        #print(qstudent_id)
-        indic='DashBoard'
-        return render_template('studentProfileNew.html',indic=indic,title='Student Profile',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+#         #selectfield choices
+#         print(class_list)
+#         form.class_section.choices = class_list
+#         # form.section1.choices= ''
+#         # section_list    
+#         # form.test_type1.choices=test_type_list
+#         form.student_name.choices = ''
+#         flag = 1
+#         indic='DashBoard'
+#         return render_template('studentProfileNew.html',indic=indic,title='Student Profile',form=form, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,available_student_list=available_student_list,flag=flag,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+#     else:
+#         value=0
+#         flag = 0
+#         if current_user.user_type==72:
+#             value=1
+#         #print(qstudent_id)
+#         indic='DashBoard'
+#         return render_template('studentProfileNew.html',indic=indic,title='Student Profile',qstudent_id=qstudent_id,disconn=value, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag,user_type_val=str(current_user.user_type),studentDetails=studentDetails)
+#         flag = 0       
+#         #print(qstudent_id)
+#         indic='DashBoard'
+#         return render_template('studentProfileNew.html',indic=indic,title='Student Profile',qstudent_id=qstudent_id,disconn=disconn, sponsor_name=qsponsor_name, sponsor_id = qsponsor_id, amount = qamount,flag=flag, user_type_val=str(current_user.user_type),studentDetails=studentDetails)
 
 #Addition of new section to conduct student surveys
-@app.route('/studentSurveys')
-def studentSurveys():
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    surveyDetailQuery = "select sd.survey_id, survey_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
-    surveyDetailQuery = surveyDetailQuery+ "from survey_detail sd left join student_survey_response ssr on ssr.survey_id =sd.survey_id "
-    surveyDetailQuery = surveyDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' group by sd.survey_id,survey_name, question_count,question_count, sd.last_modified_date"
-    surveyDetailRow = db.session.execute(surveyDetailQuery).fetchall()
-    #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
-    indic='DashBoard'
-    return render_template('studentSurveys.html',indic=indic,title='Student Surveys', surveyDetailRow=surveyDetailRow,user_type_val=str(current_user.user_type))
+# @app.route('/studentSurveys')
+# def studentSurveys():
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     surveyDetailQuery = "select sd.survey_id, survey_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
+#     surveyDetailQuery = surveyDetailQuery+ "from survey_detail sd left join student_survey_response ssr on ssr.survey_id =sd.survey_id "
+#     surveyDetailQuery = surveyDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' group by sd.survey_id,survey_name, question_count,question_count, sd.last_modified_date"
+#     surveyDetailRow = db.session.execute(surveyDetailQuery).fetchall()
+#     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
+#     indic='DashBoard'
+#     return render_template('studentSurveys.html',indic=indic,title='Student Surveys', surveyDetailRow=surveyDetailRow,user_type_val=str(current_user.user_type))
 
-@app.route('/indivSurveyDetail/')
-def indivSurveyDetail():
-    survey_id = request.args.get('survey_id')
-    survey_id = survey_id.split('_')[1]
-    student_id = request.args.get('student_id')    
-    studSurveyData = " select sq.sq_id as sq_id, question,sq.survey_id,survey_response_id , sp.student_id, answer from student_survey_response ssr "
-    studSurveyData = studSurveyData  + " right join survey_questions sq on "
-    studSurveyData = studSurveyData  +  " sq.survey_id =ssr.survey_id and "
-    studSurveyData = studSurveyData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
-    studSurveyData = studSurveyData  +  " left join student_profile sp "
-    studSurveyData = studSurveyData  +  " on sp.student_id =ssr.student_id "
-    studSurveyData = studSurveyData  +  " where sq.survey_id =" + str(survey_id)
-    surveyQuestions = db.session.execute(text(studSurveyData)).fetchall()
-    return render_template('_indivSurveyDetail.html',surveyQuestions=surveyQuestions,student_id=student_id,survey_id=survey_id)
+# @app.route('/indivSurveyDetail/')
+# def indivSurveyDetail():
+#     survey_id = request.args.get('survey_id')
+#     survey_id = survey_id.split('_')[1]
+#     student_id = request.args.get('student_id')    
+#     studSurveyData = " select sq.sq_id as sq_id, question,sq.survey_id,survey_response_id , sp.student_id, answer from student_survey_response ssr "
+#     studSurveyData = studSurveyData  + " right join survey_questions sq on "
+#     studSurveyData = studSurveyData  +  " sq.survey_id =ssr.survey_id and "
+#     studSurveyData = studSurveyData  +  " sq.sq_id =ssr.sq_id and ssr.student_id ="+ str(student_id)
+#     studSurveyData = studSurveyData  +  " left join student_profile sp "
+#     studSurveyData = studSurveyData  +  " on sp.student_id =ssr.student_id "
+#     studSurveyData = studSurveyData  +  " where sq.survey_id =" + str(survey_id)
+#     surveyQuestions = db.session.execute(text(studSurveyData)).fetchall()
+#     return render_template('_indivSurveyDetail.html',surveyQuestions=surveyQuestions,student_id=student_id,survey_id=survey_id)
 
-@app.route('/updateSurveyAnswer',methods=["GET","POST"])
-def updateSurveyAnswer():
-    sq_id_list = request.form.getlist('sq_id')
-    survey_response_id_list = request.form.getlist('survey_response_id')
-    answer_list = request.form.getlist('answer')
-    survey_id = request.form.get('survey_id')
-    student_id = request.form.get('student_id')
-    for i in range(len(sq_id_list)):
-        if survey_response_id_list[i]!='None':
-            studentSurveyAnsUpdate = StudentSurveyResponse.query.filter_by(sq_id=sq_id_list[i], survey_response_id=survey_response_id_list[i]).first()
-            studentSurveyAnsUpdate.answer = answer_list[i]
-            surveyDetailRow = SurveyDetail.query.filter_by(survey_id=survey_id).first()            
-        else:
-            addNewSurveyResponse = StudentSurveyResponse(survey_id=survey_id, sq_id=sq_id_list[i], 
-                student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
-            db.session.add(addNewSurveyResponse)
-    db.session.commit()
-    return jsonify(['0'])
+# @app.route('/updateSurveyAnswer',methods=["GET","POST"])
+# def updateSurveyAnswer():
+#     sq_id_list = request.form.getlist('sq_id')
+#     survey_response_id_list = request.form.getlist('survey_response_id')
+#     answer_list = request.form.getlist('answer')
+#     survey_id = request.form.get('survey_id')
+#     student_id = request.form.get('student_id')
+#     for i in range(len(sq_id_list)):
+#         if survey_response_id_list[i]!='None':
+#             studentSurveyAnsUpdate = StudentSurveyResponse.query.filter_by(sq_id=sq_id_list[i], survey_response_id=survey_response_id_list[i]).first()
+#             studentSurveyAnsUpdate.answer = answer_list[i]
+#             surveyDetailRow = SurveyDetail.query.filter_by(survey_id=survey_id).first()            
+#         else:
+#             addNewSurveyResponse = StudentSurveyResponse(survey_id=survey_id, sq_id=sq_id_list[i], 
+#                 student_id=student_id, answer=answer_list[i], last_modified_date=datetime.today())
+#             db.session.add(addNewSurveyResponse)
+#     db.session.commit()
+#     return jsonify(['0'])
 
-@app.route('/addNewSurvey',methods=["GET","POST"])
-def addNewSurvey():    
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    questions = request.form.getlist('questionInput')
-    questionCount = len(questions)
-    newSurveyRow = SurveyDetail(survey_name=request.form.get('surveyName'),teacher_id= teacherRow.teacher_id, 
-        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',last_modified_date=datetime.today())
-    db.session.add(newSurveyRow)
-    db.session.commit()
-    currentSurvey = SurveyDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(SurveyDetail.last_modified_date.desc()).first()
-    for i in range(questionCount):
-        newSurveyQuestion= SurveyQuestions(survey_id=currentSurvey.survey_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
-        db.session.add(newSurveyQuestion)
-    db.session.commit()
-    return jsonify(['0'])
+# @app.route('/addNewSurvey',methods=["GET","POST"])
+# def addNewSurvey():    
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     questions = request.form.getlist('questionInput')
+#     questionCount = len(questions)
+#     newSurveyRow = SurveyDetail(survey_name=request.form.get('surveyName'),teacher_id= teacherRow.teacher_id, 
+#         school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',last_modified_date=datetime.today())
+#     db.session.add(newSurveyRow)
+#     db.session.commit()
+#     currentSurvey = SurveyDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(SurveyDetail.last_modified_date.desc()).first()
+#     for i in range(questionCount):
+#         newSurveyQuestion= SurveyQuestions(survey_id=currentSurvey.survey_id, question=questions[i], is_archived='N',last_modified_date=datetime.today())
+#         db.session.add(newSurveyQuestion)
+#     db.session.commit()
+#     return jsonify(['0'])
 
 
-@app.route('/archiveSurvey')
-def archiveSurvey():
-    survey_id = request.args.get('survey_id')
-    surveyData = SurveyDetail.query.filter_by(survey_id=survey_id).first()
-    surveyData.is_archived='Y'
-    db.session.commit()
-    return jsonify(['0'])
-#End of student survey section
+# @app.route('/archiveSurvey')
+# def archiveSurvey():
+#     survey_id = request.args.get('survey_id')
+#     surveyData = SurveyDetail.query.filter_by(survey_id=survey_id).first()
+#     surveyData.is_archived='Y'
+#     db.session.commit()
+#     return jsonify(['0'])
+# #End of student survey section
 
 
 #Start of inventory pages
-@app.route('/inventoryManagement')
-def inventoryManagement():
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print('#####################'+str(teacherRow))
-    inventoryDetailRow = InventoryDetail.query.filter_by(school_id = teacherRow.school_id, is_archived='N').all()
+# @app.route('/inventoryManagement')
+# def inventoryManagement():
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     print('#####################'+str(teacherRow))
+#     inventoryDetailRow = InventoryDetail.query.filter_by(school_id = teacherRow.school_id, is_archived='N').all()
     
-    class_list=ClassSection.query.distinct().order_by(ClassSection.class_val).filter_by(school_id=teacherRow.school_id).all()    
-    return render_template('inventoryManagement.html',inventoryDetailRow=inventoryDetailRow,class_list=class_list)
+#     class_list=ClassSection.query.distinct().order_by(ClassSection.class_val).filter_by(school_id=teacherRow.school_id).all()    
+#     return render_template('inventoryManagement.html',inventoryDetailRow=inventoryDetailRow,class_list=class_list)
 
-@app.route('/addInventoryItem', methods=["GET","POST"])
-def addInventoryItem():
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    inventoryName = request.form.get('inventoryName')    
-    newInventoryRow = InventoryDetail(inv_name=request.form.get('invName'),teacher_id= teacherRow.teacher_id, 
-        inv_description = request.form.get('invDescription'), inv_category = 225, total_stock = request.form.get('totalStock'),
-        item_rate = request.form.get('itemRate'), total_cost = request.form.get('totalCost'), stock_out=0, 
-        school_id=teacherRow.school_id, is_archived='N',last_modified_date=datetime.today())
-    db.session.add(newInventoryRow)
-    db.session.commit()        
-    addedInventory = InventoryDetail.query.filter_by(teacher_id = teacherRow.teacher_id, is_archived='N').order_by(InventoryDetail.last_modified_date.desc()).first()
-    return jsonify([addedInventory.inv_id])
-
-
-@app.route('/archiveInventory')
-def archiveInventory():
-    inv_id = request.args.get('inv_id')
-    InventoryData = InventoryDetail.query.filter_by(inv_id=inv_id).first()
-    InventoryData.is_archived='Y'
-    db.session.commit()
-    return jsonify(['0'])
+# @app.route('/addInventoryItem', methods=["GET","POST"])
+# def addInventoryItem():
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     inventoryName = request.form.get('inventoryName')    
+#     newInventoryRow = InventoryDetail(inv_name=request.form.get('invName'),teacher_id= teacherRow.teacher_id, 
+#         inv_description = request.form.get('invDescription'), inv_category = 225, total_stock = request.form.get('totalStock'),
+#         item_rate = request.form.get('itemRate'), total_cost = request.form.get('totalCost'), stock_out=0, 
+#         school_id=teacherRow.school_id, is_archived='N',last_modified_date=datetime.today())
+#     db.session.add(newInventoryRow)
+#     db.session.commit()        
+#     addedInventory = InventoryDetail.query.filter_by(teacher_id = teacherRow.teacher_id, is_archived='N').order_by(InventoryDetail.last_modified_date.desc()).first()
+#     return jsonify([addedInventory.inv_id])
 
 
-
-@app.route('/studentInventoryAlloc')
-def studentInventoryAlloc():
-    class_sec_id = request.args.get('class_sec_id')
-    inv_id = request.args.get('inv_id')
-    inv_id = inv_id.split('_')[1]
-    #studentInventoryQuery = "select sp.student_id , sp.full_name from student_profile sp  where sp.class_Sec_id="+ str(class_sec_id)    
-    #studentInventoryData = db.session.execute(studentInventoryQuery).fetchall()    
-    studentInventoryData = StudentProfile.query.filter_by(class_sec_id = str(class_sec_id)).all()
-    return render_template('_studentInventoryAlloc.html',studentInventoryData=studentInventoryData)
+# @app.route('/archiveInventory')
+# def archiveInventory():
+#     inv_id = request.args.get('inv_id')
+#     InventoryData = InventoryDetail.query.filter_by(inv_id=inv_id).first()
+#     InventoryData.is_archived='Y'
+#     db.session.commit()
+#     return jsonify(['0'])
 
 
-@app.route('/updateInventoryAllocation')
-def updateInventoryAllocation():
-    ##last bit of changes required here to save inventory allocation
-    return jsonify(['0'])
-#End of inventory pages
+
+# @app.route('/studentInventoryAlloc')
+# def studentInventoryAlloc():
+#     class_sec_id = request.args.get('class_sec_id')
+#     inv_id = request.args.get('inv_id')
+#     inv_id = inv_id.split('_')[1]
+#     #studentInventoryQuery = "select sp.student_id , sp.full_name from student_profile sp  where sp.class_Sec_id="+ str(class_sec_id)    
+#     #studentInventoryData = db.session.execute(studentInventoryQuery).fetchall()    
+#     studentInventoryData = StudentProfile.query.filter_by(class_sec_id = str(class_sec_id)).all()
+#     return render_template('_studentInventoryAlloc.html',studentInventoryData=studentInventoryData)
+
+
+# @app.route('/updateInventoryAllocation')
+# def updateInventoryAllocation():
+#     ##last bit of changes required here to save inventory allocation
+#     return jsonify(['0'])
+# #End of inventory pages
 
 
 
@@ -14496,262 +14664,262 @@ def createSubscription():
 
 # Routes for New Task
 
-@app.route('/studentHomeWork')
-@login_required
-def studentHomeWork():
-    user_type = current_user.user_type
-    if user_type==134:
-        user_id = User.query.filter_by(id=current_user.id).first()
-        student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
-        print('class_sec_id:'+str(student_id.class_sec_id))
-        homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
-        homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
-        homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(student_id.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(student_id.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
-        homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
-        print(homeworkDetailQuery)
-        homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
-        print('student_id:'+str(student_id.student_id))
-        studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()  
-        indic='homework'
-    return render_template('studentHomeWork.html',indic=indic,student_id=student_id.student_id,homeworkData=homeworkData,user_type_val=str(current_user.user_type), studentDetails=studentDetails)
+# @app.route('/studentHomeWork')
+# @login_required
+# def studentHomeWork():
+#     user_type = current_user.user_type
+#     if user_type==134:
+#         user_id = User.query.filter_by(id=current_user.id).first()
+#         student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+#         print('class_sec_id:'+str(student_id.class_sec_id))
+#         homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, sd.last_modified_date,count(ssr.answer) as ans_count "
+#         homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+#         homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(student_id.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(student_id.class_sec_id)+"' group by sd.homework_id,homework_name,question_count, sd.last_modified_date"
+#         homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
+#         print(homeworkDetailQuery)
+#         homeworkData = db.session.execute(homeworkDetailQuery).fetchall()
+#         print('student_id:'+str(student_id.student_id))
+#         studentDetails = StudentProfile.query.filter_by(user_id=current_user.id).first()  
+#         indic='homework'
+#     return render_template('studentHomeWork.html',indic=indic,student_id=student_id.student_id,homeworkData=homeworkData,user_type_val=str(current_user.user_type), studentDetails=studentDetails)
 
-@app.route('/HomeWork')
-@login_required
-def HomeWork():
-    qclass_val = request.args.get('class_val')
-    qsection=request.args.get('section')
-    teacherRow = ''
-    if current_user.user_type==134:
-        teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()        
-    else:
-        teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    count = 0
-    for section in classSections:
-        print("Class Section:"+section.section)
-            #this section is to load the page for the first class section if no query value has been provided
-        if count==0:
-            getClassVal = section.class_val
-            getSection = section.section
-            count+=1
-    if qclass_val is None:
-        qclass_val = getClassVal
-        qsection = getSection
+# @app.route('/HomeWork')
+# @login_required
+# def HomeWork():
+#     qclass_val = request.args.get('class_val')
+#     qsection=request.args.get('section')
+#     teacherRow = ''
+#     if current_user.user_type==134:
+#         teacherRow = StudentProfile.query.filter_by(user_id=current_user.id).first()        
+#     else:
+#         teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+#     count = 0
+#     for section in classSections:
+#         print("Class Section:"+section.section)
+#             #this section is to load the page for the first class section if no query value has been provided
+#         if count==0:
+#             getClassVal = section.class_val
+#             getSection = section.section
+#             count+=1
+#     if qclass_val is None:
+#         qclass_val = getClassVal
+#         qsection = getSection
     
-    class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=qclass_val,section=qsection).first()
-    homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
-    homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
-    homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
-    homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
-    print(homeworkDetailQuery)
-    homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
-    #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
-    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
-    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
-    indic='DashBoard'
-    return render_template('HomeWork.html',indic=indic,title='Homework', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
+#     class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=qclass_val,section=qsection).first()
+#     homeworkDetailQuery = "select sd.homework_id, homework_name, question_count, count(ssr.student_id ) as student_responses, question_count, sd.last_modified_date "
+#     homeworkDetailQuery = homeworkDetailQuery+ "from homework_detail sd left join student_homework_response ssr on ssr.homework_id =sd.homework_id "
+#     homeworkDetailQuery = homeworkDetailQuery+" where sd.school_id ="+str(teacherRow.school_id)+ " and sd.is_archived='N' and sd.class_sec_id='"+str(class_sec_id.class_sec_id)+"' group by sd.homework_id,homework_name, question_count,question_count, sd.last_modified_date"
+#     homeworkDetailQuery = homeworkDetailQuery+" order by sd.last_modified_date desc"
+#     print(homeworkDetailQuery)
+#     homeworkDetailRow = db.session.execute(homeworkDetailQuery).fetchall()
+#     #surveyDetailRow = SurveyDetail.query.filter_by(school_id=teacherRow.school_id).all()
+#     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacherRow.school_id)+" GROUP BY class_val order by s")).fetchall() 
+#     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id).all()
+#     indic='DashBoard'
+#     return render_template('HomeWork.html',indic=indic,title='Homework', homeworkDetailRow=homeworkDetailRow,distinctClasses=distinctClasses,classSections=classSections,qclass_val=qclass_val,qsection=qsection,user_type_val=str(current_user.user_type))
 
-@app.route('/homeworkReview')
-@login_required
-def homeworkReview():
-    homework_id = request.args.get('homework_id')
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #homeworkRevData = "select *from fn_student_homework_status("+str(teacherRow.school_id)+","+str(homework_id)+")"
-    homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
-    homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
-    homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
-    homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()    
-    homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id,class_sec_id=homework_name.class_sec_id ).first()
-    return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name,homework_id=homework_id)
+# @app.route('/homeworkReview')
+# @login_required
+# def homeworkReview():
+#     homework_id = request.args.get('homework_id')
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     #homeworkRevData = "select *from fn_student_homework_status("+str(teacherRow.school_id)+","+str(homework_id)+")"
+#     homeworkRevData = "select sp.full_name as student_name, sp.student_id ,count(answer) as ans_count,hd.question_count as qcount,hd.homework_id from student_homework_response shr inner join student_profile sp "
+#     homeworkRevData = homeworkRevData + "on sp.student_id = shr.student_id inner join homework_detail hd on hd.homework_id = shr.homework_id "
+#     homeworkRevData = homeworkRevData + "where sp.school_id = '"+str(teacherRow.school_id)+"' and shr.homework_id='"+str(homework_id)+"' group by student_name , qcount, sp.student_id, hd.homework_id"
+#     homeworkRevData = db.session.execute(text(homeworkRevData)).fetchall()    
+#     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+#     classSections=ClassSection.query.filter_by(school_id=teacherRow.school_id,class_sec_id=homework_name.class_sec_id ).first()
+#     return render_template('homeworkReview.html',homeworkRevData=homeworkRevData,class_val=classSections.class_val,section=classSections.section,homework_name=homework_name.homework_name,homework_id=homework_id)
 
-@app.route('/indivHomeworkReview',methods=['GET','POST'])
-@login_required
-def indivHomeworkReview():
-    homework_id = request.args.get('homework_id') 
-    student_id = request.args.get('student_id')
-    #homework_id = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    #reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
-    #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
-    reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark "
-    #from homework_questions hq left join student_homework_response shr "
-    #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
-    reviewData = reviewData + " from homework_detail hd inner join homework_questions hq on "
-    reviewData = reviewData + " hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
-    reviewData = reviewData + " left join student_homework_response shr on "
-    reviewData = reviewData + " hq.sq_id =shr.sq_id and shr.student_id = " + str(student_id)
-    reviewData = reviewData + " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
-    reviewData = reviewData + " where student_id ="+ str(student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id ) "
-    #print(reviewData)
-    reviewData = db.session.execute(text(reviewData)).fetchall()    
-    return render_template('_indivHomeWorkReview.html',reviewData=reviewData,student_id=student_id)
+# @app.route('/indivHomeworkReview',methods=['GET','POST'])
+# @login_required
+# def indivHomeworkReview():
+#     homework_id = request.args.get('homework_id') 
+#     student_id = request.args.get('student_id')
+#     #homework_id = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+#     #reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark from homework_questions hq left join student_homework_response shr "
+#     #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+#     reviewData = "select  hq.sq_id as sq_id, hq.question,hq.ref_type,hq.ref_url,shr.answer,shr.teacher_remark as teacher_remark "
+#     #from homework_questions hq left join student_homework_response shr "
+#     #reviewData = reviewData + "on hq.homework_id = shr.homework_id and hq.sq_id =shr.sq_id where hq.homework_id = '"+str(homework_id.homework_id)+"'"
+#     reviewData = reviewData + " from homework_detail hd inner join homework_questions hq on "
+#     reviewData = reviewData + " hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
+#     reviewData = reviewData + " left join student_homework_response shr on "
+#     reviewData = reviewData + " hq.sq_id =shr.sq_id and shr.student_id = " + str(student_id)
+#     reviewData = reviewData + " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
+#     reviewData = reviewData + " where student_id ="+ str(student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id ) "
+#     #print(reviewData)
+#     reviewData = db.session.execute(text(reviewData)).fetchall()    
+#     return render_template('_indivHomeWorkReview.html',reviewData=reviewData,student_id=student_id)
 
-@app.route('/indivHomeworkDetail',methods=['GET','POST'])
-@login_required
-def indivHomeWorkDetail():
-    homework_id = request.args.get('homework_id') 
-    user_id = User.query.filter_by(id=current_user.id).first()
-    student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
-    homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    #homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
+# @app.route('/indivHomeworkDetail',methods=['GET','POST'])
+# @login_required
+# def indivHomeWorkDetail():
+#     homework_id = request.args.get('homework_id') 
+#     user_id = User.query.filter_by(id=current_user.id).first()
+#     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+#     homework_name = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+#     #homeworkQuestions = HomeWorkQuestions.query.filter_by(homework_id=homework_id).all()
 
-    #homeworkDataQQuery = " select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
-    #homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
-    #homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
-    #homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
-    #homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
-    #homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
-    #homeworkDataQQuery = homeworkDataQQuery +  " and homework_response_id in "
-    #homeworkDataQQuery = homeworkDataQQuery +  " (select min(homework_response_id )from student_homework_response shr "
-    #homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) + " and homework_id ="+ str(homework_id) +" group by sq_id ) "
-    homeworkDataQQuery = "select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , shr.student_id, answer,teacher_remark "
-    homeworkDataQQuery = homeworkDataQQuery +  " from homework_detail hd inner join homework_questions hq "
-    homeworkDataQQuery = homeworkDataQQuery +  " on hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
-    homeworkDataQQuery = homeworkDataQQuery +  " left join student_homework_response shr on "
-    homeworkDataQQuery = homeworkDataQQuery +  " hq.sq_id =shr.sq_id and shr.student_id =" + str(student_id.student_id)
-    homeworkDataQQuery = homeworkDataQQuery +  " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
-    homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id )"
+#     #homeworkDataQQuery = " select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , sp.student_id, answer,teacher_remark from student_homework_response shr "
+#     #homeworkDataQQuery = homeworkDataQQuery + "right join homework_questions hq on "
+#     #homeworkDataQQuery = homeworkDataQQuery +  "hq.homework_id =shr.homework_id and "
+#     #homeworkDataQQuery = homeworkDataQQuery +  "hq.sq_id =shr.sq_id and shr.student_id = "+ str(student_id.student_id)
+#     #homeworkDataQQuery = homeworkDataQQuery +  " left join student_profile sp "
+#     #homeworkDataQQuery = homeworkDataQQuery +  "on sp.student_id =shr.student_id where hq.homework_id ="+ str(homework_id)
+#     #homeworkDataQQuery = homeworkDataQQuery +  " and homework_response_id in "
+#     #homeworkDataQQuery = homeworkDataQQuery +  " (select min(homework_response_id )from student_homework_response shr "
+#     #homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) + " and homework_id ="+ str(homework_id) +" group by sq_id ) "
+#     homeworkDataQQuery = "select distinct hq.sq_id as sq_id, question,hq.homework_id ,ref_type, ref_url, homework_response_id , shr.student_id, answer,teacher_remark "
+#     homeworkDataQQuery = homeworkDataQQuery +  " from homework_detail hd inner join homework_questions hq "
+#     homeworkDataQQuery = homeworkDataQQuery +  " on hd.homework_id = hq.homework_id and hd.homework_id =" + str(homework_id)
+#     homeworkDataQQuery = homeworkDataQQuery +  " left join student_homework_response shr on "
+#     homeworkDataQQuery = homeworkDataQQuery +  " hq.sq_id =shr.sq_id and shr.student_id =" + str(student_id.student_id)
+#     homeworkDataQQuery = homeworkDataQQuery +  " and shr.homework_response_id in (select min(homework_response_id )from student_homework_response shr "
+#     homeworkDataQQuery = homeworkDataQQuery +  " where student_id ="+ str(student_id.student_id) +" and homework_id ="+ str(homework_id) +" group by sq_id )"
 
-    print(homeworkDataQQuery)
-    homeworkDataRows = db.session.execute(text(homeworkDataQQuery)).fetchall()
-    homeworkAttach = db.session.execute(text("select attachment from homework_detail where homework_id='"+str(homework_id)+"'")).first()
-    return render_template('_indivHomeWorkDetail.html',homeworkDataRows=homeworkDataRows,homework_name=homework_name,homework_id=homework_id,student_id=student_id,homeworkAttach=homeworkAttach)
+#     print(homeworkDataQQuery)
+#     homeworkDataRows = db.session.execute(text(homeworkDataQQuery)).fetchall()
+#     homeworkAttach = db.session.execute(text("select attachment from homework_detail where homework_id='"+str(homework_id)+"'")).first()
+#     return render_template('_indivHomeWorkDetail.html',homeworkDataRows=homeworkDataRows,homework_name=homework_name,homework_id=homework_id,student_id=student_id,homeworkAttach=homeworkAttach)
 
-@app.route('/addAnswerRemark',methods=["GET","POST"])
-def addAnswerRemark():
-    remark = request.form.getlist('remark')
-    student_id = request.args.get('student_id')
-    sq_id_list = request.form.getlist('sq_id')
-    print('######'+str(len(sq_id_list) ))
-    for i in range(len(sq_id_list)):
-        remarkData = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i]).first()  
+# @app.route('/addAnswerRemark',methods=["GET","POST"])
+# def addAnswerRemark():
+#     remark = request.form.getlist('remark')
+#     student_id = request.args.get('student_id')
+#     sq_id_list = request.form.getlist('sq_id')
+#     print('######'+str(len(sq_id_list) ))
+#     for i in range(len(sq_id_list)):
+#         remarkData = StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i]).first()  
 
-        print('################################e   entered remark section')
-        print(str(StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i])))
-        if remarkData!=None:            
-            remarkData.teacher_remark = remark[i]
-    db.session.commit()
-    return jsonify(['0'])
+#         print('################################e   entered remark section')
+#         print(str(StudentHomeWorkResponse.query.filter_by(student_id=student_id,sq_id= sq_id_list[i])))
+#         if remarkData!=None:            
+#             remarkData.teacher_remark = remark[i]
+#     db.session.commit()
+#     return jsonify(['0'])
 
-checkValue = ''
-@app.route('/addHomeworkAnswer',methods=["GET","POST"])
-def addHomeworkAnswer():
-    sq_id_list = request.form.getlist('sq_id')
-    answer_list = request.form.getlist('answer')
-    homework_id = request.form.get('homework_id')
-    print('add homework answer')
-    user_id = User.query.filter_by(id=current_user.id).first()
-    student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
-    for i in range(len(sq_id_list)):
-        checkStudentReponse = StudentHomeWorkResponse.query.filter_by(student_id=student_id.student_id,sq_id=sq_id_list[i]).first()
-        if checkStudentReponse==None or checkStudentReponse=="":
-            addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
-                student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
-            db.session.add(addNewHomeWorkResponse)
-            print("Not present")
-        else:
-            return jsonify(['1'])
-        #    checkStudentReponse.answer=answer_list[i]
-        #    print("Already present")
-    db.session.commit()
-    return jsonify(['0'])
+# checkValue = ''
+# @app.route('/addHomeworkAnswer',methods=["GET","POST"])
+# def addHomeworkAnswer():
+#     sq_id_list = request.form.getlist('sq_id')
+#     answer_list = request.form.getlist('answer')
+#     homework_id = request.form.get('homework_id')
+#     print('add homework answer')
+#     user_id = User.query.filter_by(id=current_user.id).first()
+#     student_id = StudentProfile.query.filter_by(user_id=user_id.id).first()
+#     for i in range(len(sq_id_list)):
+#         checkStudentReponse = StudentHomeWorkResponse.query.filter_by(student_id=student_id.student_id,sq_id=sq_id_list[i]).first()
+#         if checkStudentReponse==None or checkStudentReponse=="":
+#             addNewHomeWorkResponse = StudentHomeWorkResponse(homework_id=homework_id, sq_id=sq_id_list[i], 
+#                 student_id=student_id.student_id, answer=answer_list[i], last_modified_date=datetime.today())
+#             db.session.add(addNewHomeWorkResponse)
+#             print("Not present")
+#         else:
+#             return jsonify(['1'])
+#         #    checkStudentReponse.answer=answer_list[i]
+#         #    print("Already present")
+#     db.session.commit()
+#     return jsonify(['0'])
 
 
-def get_yt_video_id(url):
-    """Returns Video_ID extracting from the given url of Youtube
+# def get_yt_video_id(url):
+#     """Returns Video_ID extracting from the given url of Youtube
     
-    Examples of URLs:
-      Valid:
-        'http://youtu.be/_lOT2p_FCvA',
-        'www.youtube.com/watch?v=_lOT2p_FCvA&feature=feedu',
-        'http://www.youtube.com/embed/_lOT2p_FCvA',
-        'http://www.youtube.com/v/_lOT2p_FCvA?version=3&amp;hl=en_US',
-        'https://www.youtube.com/watch?v=rTHlyTphWP0&index=6&list=PLjeDyYvG6-40qawYNR4juzvSOg-ezZ2a6',
-        'youtube.com/watch?v=_lOT2p_FCvA',
+#     Examples of URLs:
+#       Valid:
+#         'http://youtu.be/_lOT2p_FCvA',
+#         'www.youtube.com/watch?v=_lOT2p_FCvA&feature=feedu',
+#         'http://www.youtube.com/embed/_lOT2p_FCvA',
+#         'http://www.youtube.com/v/_lOT2p_FCvA?version=3&amp;hl=en_US',
+#         'https://www.youtube.com/watch?v=rTHlyTphWP0&index=6&list=PLjeDyYvG6-40qawYNR4juzvSOg-ezZ2a6',
+#         'youtube.com/watch?v=_lOT2p_FCvA',
       
-      Invalid:
-        'youtu.be/watch?v=_lOT2p_FCvA',
-    """
+#       Invalid:
+#         'youtu.be/watch?v=_lOT2p_FCvA',
+#     """
     
 
-    if url.startswith(('youtu', 'www')):
-        url = 'http://' + url
-    embeddingURL = "https://www.youtube.com/embed/"
-    query = urlparse(url)
+#     if url.startswith(('youtu', 'www')):
+#         url = 'http://' + url
+#     embeddingURL = "https://www.youtube.com/embed/"
+#     query = urlparse(url)
     
-    if 'youtube' in query.hostname:
-        if query.path == '/watch':
-            return "96", embeddingURL + parse_qs(query.query)['v'][0]
-        elif query.path.startswith(('/embed/', '/v/')):
-            return "96",embeddingURL + query.path.split('/')[2]
-    elif 'youtu.be' in query.hostname:
-        return "96",embeddingURL + query.path[1:]
-    else:
-        return "97",url
+#     if 'youtube' in query.hostname:
+#         if query.path == '/watch':
+#             return "96", embeddingURL + parse_qs(query.query)['v'][0]
+#         elif query.path.startswith(('/embed/', '/v/')):
+#             return "96",embeddingURL + query.path.split('/')[2]
+#     elif 'youtu.be' in query.hostname:
+#         return "96",embeddingURL + query.path[1:]
+#     else:
+#         return "97",url
 
 
-def checkContentType(contentName):
-    with urlopen(contentName) as response:
-        info = response.info()
-        contentTypeVal = info.get_content_type()
-        splittedContentType = contentTypeVal.split('/')
-        if splittedContentType[1]=='pdf' or splittedContentType[1]=='msword':
-            return "99"
-        elif splittedContentType[0]=='audio':
-            return "97"
-        elif splittedContentType[1]=='image':
-            return "98"
-        else:
-            return "227"
+# def checkContentType(contentName):
+#     with urlopen(contentName) as response:
+#         info = response.info()
+#         contentTypeVal = info.get_content_type()
+#         splittedContentType = contentTypeVal.split('/')
+#         if splittedContentType[1]=='pdf' or splittedContentType[1]=='msword':
+#             return "99"
+#         elif splittedContentType[0]=='audio':
+#             return "97"
+#         elif splittedContentType[1]=='image':
+#             return "98"
+#         else:
+#             return "227"
 
 
-@app.route('/addNewHomeWork',methods=["GET","POST"])
-def addNewHomeWork():     
-    teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    questions = request.form.getlist('questionInput')
-    #contentType = request.form.getlist('contentType')
-    contentName = request.form.getlist('contentName')
-    homeworkContent = request.form.get('homeworkContent')
-    print('inside addNew Homework')
-    print(homeworkContent)
-    for i in range(len(contentName)):
-        print(contentName[i])
-    #for i in range(len(contentType)):
-    #    print('content type:'+str(contentType[i]))
-    questionCount = len(questions)
-    class_val = request.form.get('class')
-    section = request.form.get('section')
-    class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=class_val,section=section).first()
-    newHomeWorkRow = HomeWorkDetail(homework_name=request.form.get('homeworkName'),teacher_id= teacherRow.teacher_id, 
-        school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today(),attachment=homeworkContent)
-    db.session.add(newHomeWorkRow)
-    db.session.commit()
-    currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
+# @app.route('/addNewHomeWork',methods=["GET","POST"])
+# def addNewHomeWork():     
+#     teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     questions = request.form.getlist('questionInput')
+#     #contentType = request.form.getlist('contentType')
+#     contentName = request.form.getlist('contentName')
+#     homeworkContent = request.form.get('homeworkContent')
+#     print('inside addNew Homework')
+#     print(homeworkContent)
+#     for i in range(len(contentName)):
+#         print(contentName[i])
+#     #for i in range(len(contentType)):
+#     #    print('content type:'+str(contentType[i]))
+#     questionCount = len(questions)
+#     class_val = request.form.get('class')
+#     section = request.form.get('section')
+#     class_sec_id = ClassSection.query.filter_by(school_id=teacherRow.school_id,class_val=class_val,section=section).first()
+#     newHomeWorkRow = HomeWorkDetail(homework_name=request.form.get('homeworkName'),teacher_id= teacherRow.teacher_id, 
+#         school_id=teacherRow.school_id, question_count = questionCount, is_archived='N',class_sec_id=class_sec_id.class_sec_id,last_modified_date=datetime.today(),attachment=homeworkContent)
+#     db.session.add(newHomeWorkRow)
+#     db.session.commit()
+#     currentHomeWork = HomeWorkDetail.query.filter_by(teacher_id=teacherRow.teacher_id).order_by(HomeWorkDetail.last_modified_date.desc()).first()
         
-    for i in range(questionCount):           
-        if contentName[i] !='':               
-            refType ,contentName[i] = get_yt_video_id(contentName[i])
-            if refType!=96:
-                refType= checkContentType(contentName[i])                
-        else:
-            refType=226
-        newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=int(refType),ref_url=contentName[i])
-        db.session.add(newHomeWorkQuestion)
-    db.session.commit()
-    return jsonify(['0:'+ str(currentHomeWork.homework_id)])
+#     for i in range(questionCount):           
+#         if contentName[i] !='':               
+#             refType ,contentName[i] = get_yt_video_id(contentName[i])
+#             if refType!=96:
+#                 refType= checkContentType(contentName[i])                
+#         else:
+#             refType=226
+#         newHomeWorkQuestion= HomeWorkQuestions(homework_id=currentHomeWork.homework_id, question=questions[i], is_archived='N',last_modified_date=datetime.today(),ref_type=int(refType),ref_url=contentName[i])
+#         db.session.add(newHomeWorkQuestion)
+#     db.session.commit()
+#     return jsonify(['0:'+ str(currentHomeWork.homework_id)])
 
 
 
 
 
 
-@app.route('/archiveHomeWork')
-def archiveHomeWork():
-    homework_id = request.args.get('homework_id')
-    homeworkData = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
-    homeworkData.is_archived='Y'
-    db.session.commit()
-    return jsonify(['0'])
+# @app.route('/archiveHomeWork')
+# def archiveHomeWork():
+#     homework_id = request.args.get('homework_id')
+#     homeworkData = HomeWorkDetail.query.filter_by(homework_id=homework_id).first()
+#     homeworkData.is_archived='Y'
+#     db.session.commit()
+#     return jsonify(['0'])
 
 
 # End
@@ -14786,291 +14954,291 @@ def cal(num):
     return res 
 
 # Route for Schedule or Time Table
-@app.route('/updateSchedule',methods=['POST','GET'])
-def updateSchedule():
-    slots = request.form.get('slots')
-    class_value = request.args.get('class_val')
-    print('No of slots:'+str(slots))
-    print('Class_val:'+str(class_value))
-    # start = request.form.getlist('start')
-    # end = request.form.getlist('end')
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
-    batches = len(sections)
-    slotTime = []
-    # for (s,e) in itertools.zip_longest(start,end):
-    #     slotTime.append(s+'-'+e)
-    print('inside schedule')
-    # nDays = request.form.get('nDays')
-    noTeachers = request.form.get('noTeachers')
-    nameTeacher = request.form.getlist('nameTeacher')
-    nameSubject = request.form.getlist('nameSubject')
-    subject = request.form.getlist('subject')
-    time = request.form.getlist('time')
-    day = request.form.getlist('day')
-        # batches = request.form.get('batches')
-    print('No of Days:'+str(len(day)))
-    nDays = len(day)
-    totalTime = 0
-    for ti in time:
-            # print('Time:'+str(ti))
-        if ti:
-            totalTime = totalTime + int(ti)
-    totalSlots = int(nDays)*int(slots)
-        # print('Total slots:'+str(totalSlots))
-        # print('Total Time:'+str(totalTime))
-    perSlots = []
-    for s in range(int(slots)):
+# @app.route('/updateSchedule',methods=['POST','GET'])
+# def updateSchedule():
+#     slots = request.form.get('slots')
+#     class_value = request.args.get('class_val')
+#     print('No of slots:'+str(slots))
+#     print('Class_val:'+str(class_value))
+#     # start = request.form.getlist('start')
+#     # end = request.form.getlist('end')
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     sections = ClassSection.query.filter_by(school_id=teacher.school_id,class_val=class_value).all()
+#     batches = len(sections)
+#     slotTime = []
+#     # for (s,e) in itertools.zip_longest(start,end):
+#     #     slotTime.append(s+'-'+e)
+#     print('inside schedule')
+#     # nDays = request.form.get('nDays')
+#     noTeachers = request.form.get('noTeachers')
+#     nameTeacher = request.form.getlist('nameTeacher')
+#     nameSubject = request.form.getlist('nameSubject')
+#     subject = request.form.getlist('subject')
+#     time = request.form.getlist('time')
+#     day = request.form.getlist('day')
+#         # batches = request.form.get('batches')
+#     print('No of Days:'+str(len(day)))
+#     nDays = len(day)
+#     totalTime = 0
+#     for ti in time:
+#             # print('Time:'+str(ti))
+#         if ti:
+#             totalTime = totalTime + int(ti)
+#     totalSlots = int(nDays)*int(slots)
+#         # print('Total slots:'+str(totalSlots))
+#         # print('Total Time:'+str(totalTime))
+#     perSlots = []
+#     for s in range(int(slots)):
                 
-        perSlots.append(s+1)
-    slotsoutput = cal(perSlots)
+#         perSlots.append(s+1)
+#     slotsoutput = cal(perSlots)
 
-        # for slot in range(len(slotsoutput)):
-            # print('slot'+str(slot))
-            # print(slotsoutput[slot])
-    finalSlot = []
-    indexSlot = []
-        # print('outside while loop')
-    p=0
-        # print('length of slots output')
-        # print(len(slotsoutput))
-    while p<len(slotsoutput):
-            # print('inside while loop')
-        r = randint(0,len(slotsoutput)-1)
-        if r not in indexSlot:
-            p=p+1
-            indexSlot.append(r)
-        # print(indexSlot)
-    for index in indexSlot:
-        finalSlot.append(slotsoutput[index])
-        # print(finalSlot)
+#         # for slot in range(len(slotsoutput)):
+#             # print('slot'+str(slot))
+#             # print(slotsoutput[slot])
+#     finalSlot = []
+#     indexSlot = []
+#         # print('outside while loop')
+#     p=0
+#         # print('length of slots output')
+#         # print(len(slotsoutput))
+#     while p<len(slotsoutput):
+#             # print('inside while loop')
+#         r = randint(0,len(slotsoutput)-1)
+#         if r not in indexSlot:
+#             p=p+1
+#             indexSlot.append(r)
+#         # print(indexSlot)
+#     for index in indexSlot:
+#         finalSlot.append(slotsoutput[index])
+#         # print(finalSlot)
         
 
-        # print('slot output print')
-        # print(slotsoutput)
-    t=1
-    z=0
-    class_sec_ids = ClassSection.query.filter_by(class_val = class_value, school_id = teacher.school_id).all() 
-    for class_sec_id in class_sec_ids:
-        updateTable = "update schedule_detail set is_archived = 'Y' where class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacher.school_id)+"'"
-        updateTable = db.session.execute(text(updateTable))
-    for l in subject:
-            # print(l)
-        if(l):
-            z=z+1
-        # print('No of Subjects:'+str(z))
-    if totalSlots>=totalTime:
+#         # print('slot output print')
+#         # print(slotsoutput)
+#     t=1
+#     z=0
+#     class_sec_ids = ClassSection.query.filter_by(class_val = class_value, school_id = teacher.school_id).all() 
+#     for class_sec_id in class_sec_ids:
+#         updateTable = "update schedule_detail set is_archived = 'Y' where class_sec_id='"+str(class_sec_id.class_sec_id)+"' and school_id='"+str(teacher.school_id)+"'"
+#         updateTable = db.session.execute(text(updateTable))
+#     for l in subject:
+#             # print(l)
+#         if(l):
+#             z=z+1
+#         # print('No of Subjects:'+str(z))
+#     if totalSlots>=totalTime:
 
-        for arr1 in finalSlot:
-            if t<=int(batches):    
+#         for arr1 in finalSlot:
+#             if t<=int(batches):    
                             
                     
-                for i in range(0,z):
+#                 for i in range(0,z):
 
-                    for j in range(0,int(time[i])):
+#                     for j in range(0,int(time[i])):
                             
-                        class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
+#                         class_sec_id = "select class_sec_id from class_section where class_val='"+str(class_value)+"' and section='"+chr(ord('@')+t)+"' and school_id='"+str(teacher.school_id)+"'"
                             
-                        class_sec_id = db.session.execute(text(class_sec_id)).first()
-                        subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
-                        subject_id = db.session.execute(text(subject_id)).first()
-                        teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id,is_archived='N').first()
+#                         class_sec_id = db.session.execute(text(class_sec_id)).first()
+#                         subject_id = "select msg_id from message_detail where description='"+str(subject[i])+"'"
+#                         subject_id = db.session.execute(text(subject_id)).first()
+#                         teacher_id = TeacherSubjectClass.query.filter_by(class_sec_id=class_sec_id.class_sec_id,subject_id=subject_id.msg_id,school_id=teacher.school_id,is_archived='N').first()
                            
-                        if teacher_id:
-                            insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id , teacher_id=teacher_id.teacher_id ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
-                        else:
-                            insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id  ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
-                        db.session.add(insertData)
-            t=t+1
-    else:
-        return jsonify(['1'])
-    db.session.commit()
-    print('Data is Submitted') 
-    return jsonify(['0'])
+#                         if teacher_id:
+#                             insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id , teacher_id=teacher_id.teacher_id ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
+#                         else:
+#                             insertData = ScheduleDetail(class_sec_id=class_sec_id.class_sec_id ,school_id=teacher.school_id, days_name=day[j] ,subject_id=subject_id.msg_id  ,slot_no=arr1[i] , last_modified_date=dt.datetime.now(), is_archived= 'N')
+#                         db.session.add(insertData)
+#             t=t+1
+#     else:
+#         return jsonify(['1'])
+#     db.session.commit()
+#     print('Data is Submitted') 
+#     return jsonify(['0'])
 
-@app.route('/schedule')
-def schedule():
-    # slots = request.form.get('slots')
-    # print('inside schedule function')
-    # print(slots)
-    qclass_val = request.args.get("class_val")
-    qsection = request.args.get("section")
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
-    available_class_section = "select distinct class_val,section from class_section where school_id='"+str(teacher.school_id)+"'"
-    available_class_section = db.session.execute(text(available_class_section)).fetchall()
-    distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall()  
-    if qclass_val==None and qsection == None:
-        qclass_val = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).first()  
-        qclass_val = qclass_val.class_val
-        qsection = ClassSection.query.filter_by(school_id=teacher.school_id).first()
-        qsection = qsection.section
-    indic='DashBoard'
-    return render_template('schedule.html',indic=indic,classsections=classSections,distinctClasses=distinctClasses,available_class_section=available_class_section,qclass_val=qclass_val,qsection=qsection)
+# @app.route('/schedule')
+# def schedule():
+#     # slots = request.form.get('slots')
+#     # print('inside schedule function')
+#     # print(slots)
+#     qclass_val = request.args.get("class_val")
+#     qsection = request.args.get("section")
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     classSections=ClassSection.query.filter_by(school_id=teacher.school_id).all()
+#     available_class_section = "select distinct class_val,section from class_section where school_id='"+str(teacher.school_id)+"'"
+#     available_class_section = db.session.execute(text(available_class_section)).fetchall()
+#     distinctClasses = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).fetchall()  
+#     if qclass_val==None and qsection == None:
+#         qclass_val = db.session.execute(text("SELECT  distinct class_val,sum(class_sec_id),count(section) as s FROM class_section cs where school_id="+ str(teacher.school_id)+" GROUP BY class_val order by s")).first()  
+#         qclass_val = qclass_val.class_val
+#         qsection = ClassSection.query.filter_by(school_id=teacher.school_id).first()
+#         qsection = qsection.section
+#     indic='DashBoard'
+#     return render_template('schedule.html',indic=indic,classsections=classSections,distinctClasses=distinctClasses,available_class_section=available_class_section,qclass_val=qclass_val,qsection=qsection)
     
-@app.route('/fetchTimeTable',methods=['GET','POST'])
-def fetchTimeTable():
-    class_val = request.args.get('class_value')
-    section = request.args.get('section')
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    print(class_val)
-    print(section)
-    print(teacher.school_id)
-    class_section = ClassSection.query.filter_by(class_val=str(class_val),section = section, school_id= teacher.school_id).first()
+# @app.route('/fetchTimeTable',methods=['GET','POST'])
+# def fetchTimeTable():
+#     class_val = request.args.get('class_value')
+#     section = request.args.get('section')
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     print(class_val)
+#     print(section)
+#     print(teacher.school_id)
+#     class_section = ClassSection.query.filter_by(class_val=str(class_val),section = section, school_id= teacher.school_id).first()
 
-    query = "select *from fn_time_table("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
-    print(query)
-    timeTableData = db.session.execute(text(query)).fetchall()
-    print(timeTableData)
-    for data in timeTableData:
-        print(data)
-    fetchTeacher = "select *from fn_teacher_allocation("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
-    print(fetchTeacher)
-    fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
-    print(fetchTeacher)
-    return render_template('_timeTable.html',timeTableData=timeTableData,fetchTeacher=fetchTeacher)
+#     query = "select *from fn_time_table("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
+#     print(query)
+#     timeTableData = db.session.execute(text(query)).fetchall()
+#     print(timeTableData)
+#     for data in timeTableData:
+#         print(data)
+#     fetchTeacher = "select *from fn_teacher_allocation("+str(teacher.school_id)+","+str(class_section.class_sec_id)+")"
+#     print(fetchTeacher)
+#     fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+#     print(fetchTeacher)
+#     return render_template('_timeTable.html',timeTableData=timeTableData,fetchTeacher=fetchTeacher)
 
-@app.route('/downloadTimeTable',methods=['GET','POST'])
-def downloadTimeTable():
-    print('inside download time table')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    # fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_section.class_sec_id)+")"
-    # print(fetchTeacher)
-    # fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
-    board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
-    # filepath = 'static/images/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
-    file_name = 'Timetable'+str(teacher_id.school_id)+'.csv'
-    with open('tempdocx/'+file_name, 'w', newline='') as file:
+# @app.route('/downloadTimeTable',methods=['GET','POST'])
+# def downloadTimeTable():
+#     print('inside download time table')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     # fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_section.class_sec_id)+")"
+#     # print(fetchTeacher)
+#     # fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+#     board_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+#     # filepath = 'static/images/'+str(teacher_id.school_id)+str(dt.datetime.now())+'TimeTable.csv'
+#     file_name = 'Timetable'+str(teacher_id.school_id)+'.csv'
+#     with open('tempdocx/'+file_name, 'w', newline='') as file:
         
     
         
-        print('file')
+#         print('file')
         
-        file.write('Introduction \n')
-        writer = csv.writer(file)
-        for class_sec_id in class_sec_ids:
-            fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
-            print(fetchTeacher)
+#         file.write('Introduction \n')
+#         writer = csv.writer(file)
+#         for class_sec_id in class_sec_ids:
+#             fetchTeacher = "select *from fn_teacher_allocation("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
+#             print(fetchTeacher)
             
-            fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
-            writer.writerow(["Subject Name", "Teacher Name"])
-            # writer.writerow(["", "Name", "Contribution"])
-            for teacher in fetchTeacher:
-                print(teacher.subject_name)
-                print(teacher.teacher_name)
-                writer.writerow([teacher.subject_name,teacher.teacher_name])
-                # os.remove(filepath)
-                print('File path')
-            query = "select *from fn_time_table("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
-            print(query)
-            timeTableData = db.session.execute(text(query)).fetchall()
-            writer.writerow(["Periods", "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])
+#             fetchTeacher = db.session.execute(text(fetchTeacher)).fetchall()
+#             writer.writerow(["Subject Name", "Teacher Name"])
+#             # writer.writerow(["", "Name", "Contribution"])
+#             for teacher in fetchTeacher:
+#                 print(teacher.subject_name)
+#                 print(teacher.teacher_name)
+#                 writer.writerow([teacher.subject_name,teacher.teacher_name])
+#                 # os.remove(filepath)
+#                 print('File path')
+#             query = "select *from fn_time_table("+str(teacher_id.school_id)+","+str(class_sec_id.class_sec_id)+")"
+#             print(query)
+#             timeTableData = db.session.execute(text(query)).fetchall()
+#             writer.writerow(["Periods", "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"])
             
-            for table in timeTableData:
-                writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
-            writer.writerow(["","","","","","",""])
-    client = boto3.client('s3', region_name='ap-south-1')
-    client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'time_table/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
-    os.remove('tempdocx/'+file_name)
-    filepath ='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/time_table/'+file_name
-    print('filepath:'+str(filepath))
-    return jsonify([filepath])
+#             for table in timeTableData:
+#                 writer.writerow([table.period_no,table.monday,table.tuesday,table.wednesday,table.thursday,table.friday,table.saturday])
+#             writer.writerow(["","","","","","",""])
+#     client = boto3.client('s3', region_name='ap-south-1')
+#     client.upload_file('tempdocx/'+file_name , os.environ.get('S3_BUCKET_NAME'), 'time_table/{}'.format(file_name),ExtraArgs={'ACL':'public-read'})
+#     os.remove('tempdocx/'+file_name)
+#     filepath ='https://'+os.environ.get('S3_BUCKET_NAME')+'.s3.ap-south-1.amazonaws.com/time_table/'+file_name
+#     print('filepath:'+str(filepath))
+#     return jsonify([filepath])
 
-@app.route('/allSubjects',methods=['GET','POST'])
-def allSubjects():
-    print('inside all Subjects')
-    teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
-    class_val = request.args.get('class_value') 
-    print(class_val)
-    print(teacher_id.school_id)
-    subjects = BoardClassSubject.query.filter_by(class_val = str(class_val),school_id=teacher_id.school_id,is_archived='N').all()
-    subjectList = []
-    for subject in subjects:
-        subject_name = "select description from message_detail where msg_id='"+str(subject.subject_id)+"'"
-        subject_name = db.session.execute(text(subject_name)).first()
+# @app.route('/allSubjects',methods=['GET','POST'])
+# def allSubjects():
+#     print('inside all Subjects')
+#     teacher_id=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     school_id = SchoolProfile.query.filter_by(school_id=teacher_id.school_id).first()
+#     class_val = request.args.get('class_value') 
+#     print(class_val)
+#     print(teacher_id.school_id)
+#     subjects = BoardClassSubject.query.filter_by(class_val = str(class_val),school_id=teacher_id.school_id,is_archived='N').all()
+#     subjectList = []
+#     for subject in subjects:
+#         subject_name = "select description from message_detail where msg_id='"+str(subject.subject_id)+"'"
+#         subject_name = db.session.execute(text(subject_name)).first()
         
-        subjectList.append(str(subject_name.description))
-    return jsonify([subjectList])
+#         subjectList.append(str(subject_name.description))
+#     return jsonify([subjectList])
 
 #End
 #Start
 
-@app.route('/addTeacherClassSubject',methods=['GET','POST'])
-def addTeacherClassSubject():
-    subjectNames = request.get_json()
-    print('Inside add Teacher class Subject')
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_id = request.args.get('class_sec_id')
-    teacher_id = request.args.get('teacher_id')
-    remdata = "update teacher_subject_class set is_archived = 'Y' where class_sec_id='"+str(class_sec_id)+"' and school_id = '"+str(teacher.school_id)+"'  and teacher_id = '"+str(teacher_id)+"'"
-    remdata = db.session.execute(text(remdata))
-    for subjects in subjectNames:
-        print('inside for')
-        print(subjects)
-        subject_id = "select msg_id from message_detail where description='"+str(subjects)+"'"
-        subject_id = db.session.execute(text(subject_id)).first()
+# @app.route('/addTeacherClassSubject',methods=['GET','POST'])
+# def addTeacherClassSubject():
+#     subjectNames = request.get_json()
+#     print('Inside add Teacher class Subject')
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_id = request.args.get('class_sec_id')
+#     teacher_id = request.args.get('teacher_id')
+#     remdata = "update teacher_subject_class set is_archived = 'Y' where class_sec_id='"+str(class_sec_id)+"' and school_id = '"+str(teacher.school_id)+"'  and teacher_id = '"+str(teacher_id)+"'"
+#     remdata = db.session.execute(text(remdata))
+#     for subjects in subjectNames:
+#         print('inside for')
+#         print(subjects)
+#         subject_id = "select msg_id from message_detail where description='"+str(subjects)+"'"
+#         subject_id = db.session.execute(text(subject_id)).first()
         
         
-        addTeacherClass = TeacherSubjectClass(teacher_id=teacher_id,class_sec_id=class_sec_id,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher.school_id,last_modified_date=dt.datetime.now())
-        db.session.add(addTeacherClass)
-        db.session.commit()
-    return ""
+#         addTeacherClass = TeacherSubjectClass(teacher_id=teacher_id,class_sec_id=class_sec_id,subject_id=subject_id.msg_id,is_archived='N',school_id=teacher.school_id,last_modified_date=dt.datetime.now())
+#         db.session.add(addTeacherClass)
+#         db.session.commit()
+#     return ""
 
-@app.route('/loadSubject',methods=['GET','POST'])
-def loadSubject():
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    teacher_id = request.args.get('teacher_id')
-    class_sec_id = request.args.get('class_sec_id')
-    class_val = ClassSection.query.filter_by(class_sec_id=class_sec_id,school_id=teacher.school_id).first()
-    allSubjects = "select distinct subject_id from board_class_subject bcs where school_id = '"+str(teacher.school_id)+"' and class_val = '"+str(class_val.class_val)+"' and is_archived = 'N' and subject_id "
-    allSubjects = allSubjects + "not in (select distinct subject_id from teacher_subject_class where school_id= '"+str(teacher.school_id)+"' and is_archived = 'N' and class_sec_id = '"+str(class_sec_id)+"' and teacher_id='"+str(teacher_id)+"')"
-    allSubjects = db.session.execute(text(allSubjects)).fetchall()
+# @app.route('/loadSubject',methods=['GET','POST'])
+# def loadSubject():
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     teacher_id = request.args.get('teacher_id')
+#     class_sec_id = request.args.get('class_sec_id')
+#     class_val = ClassSection.query.filter_by(class_sec_id=class_sec_id,school_id=teacher.school_id).first()
+#     allSubjects = "select distinct subject_id from board_class_subject bcs where school_id = '"+str(teacher.school_id)+"' and class_val = '"+str(class_val.class_val)+"' and is_archived = 'N' and subject_id "
+#     allSubjects = allSubjects + "not in (select distinct subject_id from teacher_subject_class where school_id= '"+str(teacher.school_id)+"' and is_archived = 'N' and class_sec_id = '"+str(class_sec_id)+"' and teacher_id='"+str(teacher_id)+"')"
+#     allSubjects = db.session.execute(text(allSubjects)).fetchall()
 
-    selSubjects = "select distinct subject_id from teacher_subject_class where school_id= '"+str(teacher.school_id)+"' and is_archived = 'N' and class_sec_id = '"+str(class_sec_id)+"' and teacher_id='"+str(teacher_id)+"'"
-    selSubjects = db.session.execute(text(selSubjects)).fetchall()
-    selArray = []
-    for subjects in allSubjects:
-        subject_name = "select description from message_detail where msg_id='"+str(subjects.subject_id)+"'"
-        subject_name = db.session.execute(text(subject_name)).first()
-        selArray.append(str(subject_name.description)+':'+str('false'))
-    for sub in selSubjects:
-        subject_name = "select description from message_detail where msg_id='"+str(sub.subject_id)+"'"
-        subject_name = db.session.execute(text(subject_name)).first()
-        selArray.append(str(subject_name.description)+':'+str('true'))
-    if selArray:
-        return jsonify([selArray])
-    else:
-        return ""
+#     selSubjects = "select distinct subject_id from teacher_subject_class where school_id= '"+str(teacher.school_id)+"' and is_archived = 'N' and class_sec_id = '"+str(class_sec_id)+"' and teacher_id='"+str(teacher_id)+"'"
+#     selSubjects = db.session.execute(text(selSubjects)).fetchall()
+#     selArray = []
+#     for subjects in allSubjects:
+#         subject_name = "select description from message_detail where msg_id='"+str(subjects.subject_id)+"'"
+#         subject_name = db.session.execute(text(subject_name)).first()
+#         selArray.append(str(subject_name.description)+':'+str('false'))
+#     for sub in selSubjects:
+#         subject_name = "select description from message_detail where msg_id='"+str(sub.subject_id)+"'"
+#         subject_name = db.session.execute(text(subject_name)).first()
+#         selArray.append(str(subject_name.description)+':'+str('true'))
+#     if selArray:
+#         return jsonify([selArray])
+#     else:
+#         return ""
 
-@app.route('/loadClasses',methods=['GET','POST'])
-def loadClasses():
-    teacher_id = request.args.get('teacher_id')
-    teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_val = ClassSection.query.filter_by(school_id=teacher.school_id).all()
-    classes = []
-    print(teacher.school_id)
-    for clas in class_val: 
-        teacher = TeacherSubjectClass.query.filter_by(teacher_id=teacher_id,class_sec_id=clas.class_sec_id).first()
-        if teacher:
-            classes.append(str(clas.class_val)+':'+str(clas.class_sec_id)+':'+str(clas.section)+':'+str('true'))
-        else:
-            classes.append(str(clas.class_val)+':'+str(clas.class_sec_id)+':'+str(clas.section)+':'+str('false'))
+# @app.route('/loadClasses',methods=['GET','POST'])
+# def loadClasses():
+#     teacher_id = request.args.get('teacher_id')
+#     teacher = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_val = ClassSection.query.filter_by(school_id=teacher.school_id).all()
+#     classes = []
+#     print(teacher.school_id)
+#     for clas in class_val: 
+#         teacher = TeacherSubjectClass.query.filter_by(teacher_id=teacher_id,class_sec_id=clas.class_sec_id).first()
+#         if teacher:
+#             classes.append(str(clas.class_val)+':'+str(clas.class_sec_id)+':'+str(clas.section)+':'+str('true'))
+#         else:
+#             classes.append(str(clas.class_val)+':'+str(clas.class_sec_id)+':'+str(clas.section)+':'+str('false'))
         
-    return jsonify([classes])
+#     return jsonify([classes])
 
-@app.route('/teacherAllocation',methods=['GET','POST'])
-def teacherAllocation():
-    teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
-    fetchTeacherNameQuery = "select distinct tp.teacher_name,tp.teacher_id from teacher_profile tp "
-    fetchTeacherNameQuery = fetchTeacherNameQuery + "left join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
-    fetchTeacherNameQuery = fetchTeacherNameQuery + "where tp.school_id='"+str(teacher_id.school_id)+"'"
-    print(fetchTeacherNameQuery)
-    teacherNames = db.session.execute(text(fetchTeacherNameQuery)).fetchall()
-    print('Inside teacher class subject allocation')
-    return render_template('_teacherAllocation.html',teacherNames=teacherNames,class_sec_ids=class_sec_ids)
+# @app.route('/teacherAllocation',methods=['GET','POST'])
+# def teacherAllocation():
+#     teacher_id = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     class_sec_ids = ClassSection.query.filter_by(school_id=teacher_id.school_id).all()
+#     fetchTeacherNameQuery = "select distinct tp.teacher_name,tp.teacher_id from teacher_profile tp "
+#     fetchTeacherNameQuery = fetchTeacherNameQuery + "left join teacher_subject_class tsc on tsc.teacher_id=tp.teacher_id "
+#     fetchTeacherNameQuery = fetchTeacherNameQuery + "where tp.school_id='"+str(teacher_id.school_id)+"'"
+#     print(fetchTeacherNameQuery)
+#     teacherNames = db.session.execute(text(fetchTeacherNameQuery)).fetchall()
+#     print('Inside teacher class subject allocation')
+#     return render_template('_teacherAllocation.html',teacherNames=teacherNames,class_sec_ids=class_sec_ids)
 
 #End
 
@@ -15080,86 +15248,86 @@ def subscriptionPlans():
     distinctSubsQuery = db.session.execute(text("select distinct group_name, sub_desc, student_limit, teacher_limit, test_limit from subscription_detail where archive_status='N' order by student_limit ")).fetchall()
     return render_template('/subscriptionPlans.html', subscriptionRow=subscriptionRow, distinctSubsQuery=distinctSubsQuery)
 
-@app.route('/studTC',methods=["GET","POST"])
-@login_required
-def studTC():
-    teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
-    #tcdata = TransferCerts.query.filter_by(is_archived='N', school_id=teacherData.school_id).all()
-    tcDataQuery = "select sp.student_id, sp.school_adm_number, sp.first_name, sp.last_name, cs.class_val, cs.section, tc.tc_url, tc.tc_id "
-    tcDataQuery = tcDataQuery + " from transfer_certs tc left join student_profile sp on tc.student_id=sp.student_id "
-    tcDataQuery = tcDataQuery + " inner join class_Section cs on cs.class_Sec_id=sp.class_sec_id"
-    tcDataQuery = tcDataQuery + " where tc.is_archived='N' and tc.school_id="+ str(teacherData.school_id)
-    tcData = db.session.execute(tcDataQuery).fetchall()
-    if request.method=="POST":
-        student_id = request.form.get('student_id')
-        school_adm_number = request.form.get('school_adm_number')
-        teacher_id = teacherData.teacher_id
-        school_id = teacherData.school_id
-        tc_url =  request.form.get('pdfURL')
-        #student_id = request.form.get('student_id')
-        if school_adm_number:
-            chkStudentData = StudentProfile.query.filter_by(school_adm_number=school_adm_number,school_id=school_id).first()
-            if chkStudentData!=None:
-                transferDataAdd = TransferCerts(student_id=chkStudentData.student_id, school_adm_number=school_adm_number, teacher_id=teacher_id
-                    ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
-                db.session.add(transferDataAdd)
-                db.session.commit()
-                flash('TC Uploaded Successfully!')
-            else:
-                flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
-        elif student_id:
-            chkStudentData = StudentProfile.query.filter_by(student_id=student_id,school_id=school_id).first()
-            if chkStudentData!=None:
-                transferDataAdd = TransferCerts(student_id=student_id, school_adm_number=chkStudentData.school_adm_number, teacher_id=teacher_id
-                    ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
-                db.session.add(transferDataAdd)
-                db.session.commit()
-                flash('TC Uploaded Successfully!')
-            else:
-                flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
-        else:
-            flash(Markup('<span class="red-text"> Please Enter Student Id or School Admission Number. Please try again.</span>'))
-    indic='DashBoard'
-    return render_template('studTC.html',indic=indic,tcData=tcData,title='Student TC')
+# @app.route('/studTC',methods=["GET","POST"])
+# @login_required
+# def studTC():
+#     teacherData = TeacherProfile.query.filter_by(user_id=current_user.id).first()
+#     #tcdata = TransferCerts.query.filter_by(is_archived='N', school_id=teacherData.school_id).all()
+#     tcDataQuery = "select sp.student_id, sp.school_adm_number, sp.first_name, sp.last_name, cs.class_val, cs.section, tc.tc_url, tc.tc_id "
+#     tcDataQuery = tcDataQuery + " from transfer_certs tc left join student_profile sp on tc.student_id=sp.student_id "
+#     tcDataQuery = tcDataQuery + " inner join class_Section cs on cs.class_Sec_id=sp.class_sec_id"
+#     tcDataQuery = tcDataQuery + " where tc.is_archived='N' and tc.school_id="+ str(teacherData.school_id)
+#     tcData = db.session.execute(tcDataQuery).fetchall()
+#     if request.method=="POST":
+#         student_id = request.form.get('student_id')
+#         school_adm_number = request.form.get('school_adm_number')
+#         teacher_id = teacherData.teacher_id
+#         school_id = teacherData.school_id
+#         tc_url =  request.form.get('pdfURL')
+#         #student_id = request.form.get('student_id')
+#         if school_adm_number:
+#             chkStudentData = StudentProfile.query.filter_by(school_adm_number=school_adm_number,school_id=school_id).first()
+#             if chkStudentData!=None:
+#                 transferDataAdd = TransferCerts(student_id=chkStudentData.student_id, school_adm_number=school_adm_number, teacher_id=teacher_id
+#                     ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
+#                 db.session.add(transferDataAdd)
+#                 db.session.commit()
+#                 flash('TC Uploaded Successfully!')
+#             else:
+#                 flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
+#         elif student_id:
+#             chkStudentData = StudentProfile.query.filter_by(student_id=student_id,school_id=school_id).first()
+#             if chkStudentData!=None:
+#                 transferDataAdd = TransferCerts(student_id=student_id, school_adm_number=chkStudentData.school_adm_number, teacher_id=teacher_id
+#                     ,school_id=school_id, tc_url=tc_url,is_archived='N', last_modified_date=datetime.today())
+#                 db.session.add(transferDataAdd)
+#                 db.session.commit()
+#                 flash('TC Uploaded Successfully!')
+#             else:
+#                 flash(Markup('<span class="red-text"> Student ID invalid. Please try again.</span>'))
+#         else:
+#             flash(Markup('<span class="red-text"> Please Enter Student Id or School Admission Number. Please try again.</span>'))
+#     indic='DashBoard'
+#     return render_template('studTC.html',indic=indic,tcData=tcData,title='Student TC')
 
-@app.route('/archiveTCClass',methods=["GET","POST"])
-@login_required
-def archiveTCClass():
-    tc_id = request.args.get('tc_id')
-    tcData = TransferCerts.query.filter_by(tc_id=tc_id).first()
-    tcData.is_archived='Y'
-    db.session.commit()
-    return jsonify(['0'])
+# @app.route('/archiveTCClass',methods=["GET","POST"])
+# @login_required
+# def archiveTCClass():
+#     tc_id = request.args.get('tc_id')
+#     tcData = TransferCerts.query.filter_by(tc_id=tc_id).first()
+#     tcData.is_archived='Y'
+#     db.session.commit()
+#     return jsonify(['0'])
 
-@app.route('/accessStudTC')
-def accessStudTC():
-    school_id = request.args.get('school_id')
-    if school_id!=None and school_id!="":
-        schoolData = SchoolProfile.query.filter_by(school_id=str(school_id)).first()
-        if schoolData!=None:
-            return render_template('accessStudTC.html',schoolData=schoolData)
-        else:
-            return jsonify(['Invalid School Data'])
-    #if ("alllearn" in str(request.url)) or  ("localhost" in str(request.url)) ("tc" in str(request.url)) or ("wix" in str(request.url)) :        
+# @app.route('/accessStudTC')
+# def accessStudTC():
+#     school_id = request.args.get('school_id')
+#     if school_id!=None and school_id!="":
+#         schoolData = SchoolProfile.query.filter_by(school_id=str(school_id)).first()
+#         if schoolData!=None:
+#             return render_template('accessStudTC.html',schoolData=schoolData)
+#         else:
+#             return jsonify(['Invalid School Data'])
+#     #if ("alllearn" in str(request.url)) or  ("localhost" in str(request.url)) ("tc" in str(request.url)) or ("wix" in str(request.url)) :        
     
-    #else:
-    #    return jsonify(['Invalid Call'])
+#     #else:
+#     #    return jsonify(['Invalid Call'])
 
-@app.route('/fetchStudTC')
-def fetchStudTC():
-    # student_id = request.args.get('student_id')
-    school = current_user.school_id
-    print('School id:'+str(school))
-    school_adm_number = request.args.get('school_adm_number')
-    student = StudentProfile.query.filter_by(school_adm_number = school_adm_number,school_id=school).first()
-    tcData = TransferCerts.query.filter_by(student_id=student.student_id,is_archived='N'  ).first()    
-    if tcData!=None:
-        if tcData.tc_url!=None and tcData.tc_url!="":
-            return jsonify([tcData.tc_url])
-        else:
-            return jsonify(['NA'])    
-    else:
-        return jsonify(['NA'])
+# @app.route('/fetchStudTC')
+# def fetchStudTC():
+#     # student_id = request.args.get('student_id')
+#     school = current_user.school_id
+#     print('School id:'+str(school))
+#     school_adm_number = request.args.get('school_adm_number')
+#     student = StudentProfile.query.filter_by(school_adm_number = school_adm_number,school_id=school).first()
+#     tcData = TransferCerts.query.filter_by(student_id=student.student_id,is_archived='N'  ).first()    
+#     if tcData!=None:
+#         if tcData.tc_url!=None and tcData.tc_url!="":
+#             return jsonify([tcData.tc_url])
+#         else:
+#             return jsonify(['NA'])    
+#     else:
+#         return jsonify(['NA'])
 
 def format_currency(value):
     return "₹{:,.2f}".format(value)

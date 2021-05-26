@@ -6,9 +6,7 @@
   </h3>
 </div>
 <div class="box-body table-responsive">
-  <table
-    class="table table-bordered table-responsive-md table-striped table-centered"
-  >
+  <table class="table table-bordered table-responsive-md table-striped table-centered">
     <!-- This is our clonable table line -->
     <tr>
       <td class="pt-3-half" contenteditable="false">
@@ -53,26 +51,19 @@
   </table>
   {%if current_user.is_anonymous%}
   <p class="pull-right" style="font-size: 14px">
-    Please <a class=" " href="{{url_for('login')}}">login/signup</a> to see test
+    Please <a class=" " href="{{url_for('accounts.login')}}">login/signup</a> to see test
     details
   </p>
   {%else%}
   <p>
     {% if session['primary_color'] %}
-    <a
-      class="pull-right green btn"
+    <a class="pull-right green btn"
       href="{{url_for('studentFeedbackReport',student_id=student_id, student_name= student_name, resp_session_id = resp_session_id ) }}"
-      target="_blank"
-      style="background-color: {{session['primary_color']}} !important;"
-      >See Details</a
-    >
+      target="_blank" style="background-color: {{session['primary_color']}} !important;">See Details</a>
     {% else %}
-    <a
-      class="pull-right green btn"
+    <a class="pull-right green btn"
       href="{{url_for('studentFeedbackReport',student_id=student_id, student_name= student_name, resp_session_id = resp_session_id ) }}"
-      target="_blank"
-      >See Details</a
-    >
+      target="_blank">See Details</a>
     {% endif %}
   </p>
   {%endif%}
@@ -85,28 +76,28 @@
     .mobilePanel {
       display: none;
     }
+
     .mobileMapPanel {
       display: none;
     }
+
     #timeDivMob {
       display: none;
     }
   }
 </style>
 <div class="Message" style="margin-left: 10px">
-  <span style="font-size: 23px"
-    >Your answers have been submitted. You will receive a notification once the
-    test results are ready.</span
-  >
+  <span style="font-size: 23px">Your answers have been submitted. You will receive a notification once the
+    test results are ready.</span>
 </div>
 {% endif %}
 <script>
-  (function(){
+  (function () {
     $('#TestLink').show();
-    {% if btn=='timeout' %}
-      $('#tm_ot').show();
+    {% if btn == 'timeout' %}
+    $('#tm_ot').show();
     {% else %}
-      $('#tm_ot').hide();
+    $('#tm_ot').hide();
     {% endif %}
   })();
 </script>

@@ -1,44 +1,50 @@
 {%extends "layout.html"%} {%block content%}
 <style>
-  li.treeview a .rightArrow{
-  transform: rotate(0deg);
-}
-.downArrow{
-  transform: rotate(90deg); 
-}
+  li.treeview a .rightArrow {
+    transform: rotate(0deg);
+  }
+
+  .downArrow {
+    transform: rotate(90deg);
+  }
 
   @media only screen and (max-width: 992px) {
-    #mobData{
-      display:block;
+    #mobData {
+      display: block;
     }
-    #mobile-demo1{
-      display:block !important;
+
+    #mobile-demo1 {
+      display: block !important;
     }
-    #Device-demo1{
-      display:none !important;
+
+    #Device-demo1 {
+      display: none !important;
     }
   }
+
   @media only screen and (min-width: 992px) {
-    #mobData{
-      display:none;
+    #mobData {
+      display: none;
     }
-    #mobile-demo1{
-      display:none !important;
+
+    #mobile-demo1 {
+      display: none !important;
     }
-    #Device-demo1{
-      display:block !important;
+
+    #Device-demo1 {
+      display: block !important;
     }
   }
 </style>
 <div class="container">
 
   <div class="skin-blue sidebar-mini">
-  <a href="#" id="mobData" data-target="mobile-demo1" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    <a href="#" id="mobData" data-target="mobile-demo1" class="sidenav-trigger"><i class="material-icons">menu</i></a>
     <!-- Mob -->
     <aside class="sidenav left-aligned" id="mobile-demo1">
 
       <section class="sidebar" style="margin-top:-40px;">
-     
+
         <ul class="sidebar-menu" data-widget="tree">
           <li class="treeview menu-open" style="padding: 10px;">
             <i class="glyphicon glyphicon-education"></i>
@@ -63,7 +69,7 @@
     <aside class="main-sidebar" id="Device-demo1">
 
       <section class="sidebar" style="margin-top:-40px;">
-     
+
         <ul class="sidebar-menu" data-widget="tree">
           <li class="treeview menu-open" style="padding: 10px;">
             <i class="glyphicon glyphicon-education"></i>
@@ -72,7 +78,7 @@
           </li>
           {% for singleClass in distinctClasses %}
           <li class="treeview" style="padding: 10px;">
-            <i class="fas fa-chevron-right downArrow" ></i> 
+            <i class="fas fa-chevron-right downArrow"  ></i> 
             <span style='font-size: 15px;'><a href="{{url_for('leaderBoard', class_val=singleClass[0])}}"
                 name="{{singleClass[0]}}">Class {{singleClass[0]}}</a></span>
             <!-- <span class="pull-right-container">
@@ -203,7 +209,7 @@
               {% elif loop.index==3 %}
               <td style="font-size: 15px;">
                 <span style="text-align: center;font-size: 14px;">
-                  <a href="{{url_for('studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
+                  <a href="{{url_for('student_profile.studentProfile',student_id=data[0])}}" target="_blank"> {{d}}</a>
                 </span>
               </td>
 

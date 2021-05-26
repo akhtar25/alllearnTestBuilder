@@ -33,13 +33,13 @@
                 <div class="col-xs-3">
                   <span style="font-size: medium;">Board</span>
                   <div class="input-field">
-                    <select name="board" class="practiceInput"  id="board">
-                      <option value="" disabled selected>Choose your option</option>                      
+                    <select name="board" class="practiceInput" id="board">
+                      <option value="" disabled selected>Choose your option</option>
                       {%if boardRows%}
-                      {%for row in boardRows%}                      
-                      <option value="{{row.description}}"  >{{row.description}}</option>
+                      {%for row in boardRows%}
+                      <option value="{{row.description}}">{{row.description}}</option>
                       {%endfor%}
-                      {%endif%}                      
+                      {%endif%}
                     </select>
                   </div>
                 </div>
@@ -65,9 +65,11 @@
                   <br>
                   <button class="green right btn " id="practiceStart" type="submit">Get Started</button>
                 </div>
-              </div>             
+              </div>
             </form>
-            <div id="partnerStudentMSG" style="display: none;"><span class="green-text" style="font-size: medium; ">Please contact your school for login details. <br>You will also have access to practice test page in your account</span></div>
+            <div id="partnerStudentMSG" style="display: none;"><span class="green-text"
+                style="font-size: medium; ">Please contact your school for login details. <br>You will also have access
+                to practice test page in your account</span></div>
           </div>
         </li>
         <li>
@@ -92,20 +94,20 @@
               <a class="btn green requestAccessBTNClass mid" id="requestAccessGuardianBTNID" style="margin-left: 250px;"
                 name='72'>Request as a Guardian</a>
               <br>
-              <br>              
+              <br>
             </div>
           </div>
         </li>
         <li>
-          <a href="{{url_for('schoolRegistration')}}" title="Post jobs and Track Student Performance">
+          <a href="{{url_for('registration.schoolRegistration')}}" title="Post jobs and Track Student Performance">
             <div class="collapsible-header yellow lighten-5"><i class="material-icons">school</i>
               <p><span style="font-size: large;">Register New School </span><br>
                 Post jobs and Track Student Performance</p>
-            </div> 
+            </div>
           </a>
         </li>
         <li>
-          <a href="{{url_for('openJobs',first_login=1)}}" title="See Volunteer or Long term jobs">
+          <a href="{{url_for('job_post.openJobs',first_login=1)}}" title="See Volunteer or Long term jobs">
             <div class="collapsible-header yellow lighten-5"><i class="material-icons">work</i>
               <p><span style="font-size: large;">Look for teaching jobs </span><br>
                 Volunteer or Long term </span></p>
@@ -202,22 +204,22 @@
   });
 
 
-  $('.practiceInput').change(function(){
+  $('.practiceInput').change(function () {
     //var partnerStudent = $("input[name='partnerStudent']:checked").val();
-    var board =$("#board").val();
+    var board = $("#board").val();
     var class_val = $("#class_val").val();
     //window.alert(partnerStudent);
     //window.alert(board);
     //window.alert(class_val);
-    if (board!=null && class_val!=null){
+    if (board != null && class_val != null) {
       //if (partnerStudent=='Yes'){        
-        //$('#partnerStudentMSG').show();
-     //   $('#practiceStart').prop('disabled', true);
-     // }
-    //  else{
-        //$('#partnerStudentMSG').hide();        
-        $('#practiceStart').prop('disabled', false);
-    //  }      
+      //$('#partnerStudentMSG').show();
+      //   $('#practiceStart').prop('disabled', true);
+      // }
+      //  else{
+      //$('#partnerStudentMSG').hide();        
+      $('#practiceStart').prop('disabled', false);
+      //  }      
     }
   });
 </script>
