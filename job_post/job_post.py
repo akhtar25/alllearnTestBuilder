@@ -170,7 +170,7 @@ def openJobsFilteredList():
         return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
 # API for job list Start
-@job_post.route('/jobsFilteredList')
+@job_post.route('/jobsFilteredList',methods=['GET','POST'])
 def jobsFilteredList():
     page=request.args.get('page',0, type=int)
     recordsOnPage = 5
