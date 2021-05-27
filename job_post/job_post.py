@@ -166,7 +166,7 @@ def openJobsFilteredList():
         else:
             next_url=None
             prev_url=None
-        print(openJobsDataRows)
+        print(jsonify(openJobsDataRows))
         print(type(openJobsDataRows))
         return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
