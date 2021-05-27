@@ -251,7 +251,20 @@ def jobsFilteredList():
     print(type(openJobsDataRows))
     dataList = []
     for data in openJobsDataRows:
-        dataList.append(data)
+        dataObject = {}
+        dataObject['school_picture'] = data.school_picture
+        dataObject['school_name'] = data.school_name
+        dataObject['school_id'] = data.school_id
+        dataObject['min_pay'] = data.min_pay
+        dataObject['min_pay'] = data.min_pay
+        dataObject['city'] = data.city
+        dataObject['category'] = data.category
+        dataObject['job_type'] = data.job_type
+        dataObject['term'] = data.term
+        dataObject['subject'] = data.subject
+        dataObject['posted_on'] = data.posted_on
+        dataObject['job_id'] = data.job_id
+        dataList.append(dataObject)
     print(dataList)
     return jsonify({'data':dataList})
         # return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
