@@ -171,7 +171,7 @@ def openJobsFilteredList():
 
 # API for job list Start
 @job_post.route('/jobsFilteredList')
-def openJobsFilteredList():
+def jobsFilteredList():
     page=request.args.get('page',0, type=int)
     recordsOnPage = 5
     offsetVal = page *recordsOnPage
@@ -220,36 +220,36 @@ def openJobsFilteredList():
     openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
     openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
     
-    if len(openJobsDataRows)==0:
-        print('returning 1')
-        return jsonify(['1'])
-    else:
-        next_page=page+1
+    # if len(openJobsDataRows)==0:
+    #     print('returning 1')
+    #     return jsonify(['1'])
+    # else:
+    #     next_page=page+1
 
-        if page!=0:
-            prev_page=page-1
-        else:
-            prev_page=None
+    #     if page!=0:
+    #         prev_page=page-1
+    #     else:
+    #         prev_page=None
 
-        prev_url=None
-        next_url=None
+    #     prev_url=None
+    #     next_url=None
 
 
-        if len(openJobsDataRows)==recordsOnPage:
-            next_url = url_for('job_post.openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-            prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-        elif len(openJobsDataRows)<recordsOnPage:
-            next_url = None
-            if prev_page!=None:
-                prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-            else:
-                prev_url==None
-        else:
-            next_url=None
-            prev_url=None
-        print(openJobsDataRows)
-        print(type(openJobsDataRows))
-        return openJobsDataRows
+        # if len(openJobsDataRows)==recordsOnPage:
+        #     next_url = url_for('job_post.openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        #     prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        # elif len(openJobsDataRows)<recordsOnPage:
+        #     next_url = None
+        #     if prev_page!=None:
+        #         prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        #     else:
+        #         prev_url==None
+        # else:
+        #     next_url=None
+        #     prev_url=None
+    print(openJobsDataRows)
+    print(type(openJobsDataRows))
+    return openJobsDataRows
         # return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
 # End
