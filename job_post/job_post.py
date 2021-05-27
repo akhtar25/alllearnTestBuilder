@@ -252,7 +252,7 @@ def jobsFilteredList():
     dataList = []
     for data in openJobsDataRows:
         dataList.append(data)
-    return dataList
+    return jsonify({'data':dataList})
         # return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
 # End
