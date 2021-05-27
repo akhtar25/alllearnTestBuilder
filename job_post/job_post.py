@@ -166,91 +166,91 @@ def openJobsFilteredList():
         else:
             next_url=None
             prev_url=None
-        print(jsonify(openJobsDataRows))
         print(type(openJobsDataRows))
         return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
 # API for job list Start
-# @job_post.route('/openJobsFilteredList')
-# def openJobsFilteredList():
-#     page=request.args.get('page',0, type=int)
-#     recordsOnPage = 5
-#     offsetVal = page *recordsOnPage
+@job_post.route('/jobsFilteredList')
+def openJobsFilteredList():
+    page=request.args.get('page',0, type=int)
+    recordsOnPage = 5
+    offsetVal = page *recordsOnPage
     
-#     whereClause = ""
-    # qjob_term = request.args.get('job_term') #all /short term / long term
-    # qjob_type = request.args.get('job_type') #all /part time/ full time
-    # qcity =  request.args.get('city')       # all/ home city
+    whereClause = ""
+    qjob_term = request.args.get('job_term') #all /short term / long term
+    qjob_type = request.args.get('job_type') #all /part time/ full time
+    qcity =  request.args.get('city')       # all/ home city
    
-    # print("qterm is "+str(qjob_term))
-    # print("qtype is "+str(qjob_type))
-    # print("qcity is "+str(qcity))
+    print("qterm is "+str(qjob_term))
+    print("qtype is "+str(qjob_type))
+    print("qcity is "+str(qcity))
 
-    # whJobTerm=''
-    # whJobType=''
-    # whCity=''
+    whJobTerm=''
+    whJobType=''
+    whCity=''
 
-    # if qjob_term=='All' or qjob_term==None or qjob_term=='':
-    #     whJobTerm=None
-    # else:
-    #     whJobTerm=" t1.term=\'"+str(qjob_term)+"\'"
-    #     whereClause = 'where ' + whJobTerm
+    if qjob_term=='All' or qjob_term==None or qjob_term=='':
+        whJobTerm=None
+    else:
+        whJobTerm=" t1.term=\'"+str(qjob_term)+"\'"
+        whereClause = 'where ' + whJobTerm
 
     
-    # if qjob_type=='All' or qjob_type==None or qjob_type=='':
-    #     whJobType=None
-    # else:
-    #     whJobType=" t1.job_type=\'"+str(qjob_type)+"\'"
-    #     if whereClause=='':
-    #         whereClause = 'where '+whJobType
-    #     else:
-    #         whereClause =  whereClause + ' and '+whJobType
+    if qjob_type=='All' or qjob_type==None or qjob_type=='':
+        whJobType=None
+    else:
+        whJobType=" t1.job_type=\'"+str(qjob_type)+"\'"
+        if whereClause=='':
+            whereClause = 'where '+whJobType
+        else:
+            whereClause =  whereClause + ' and '+whJobType
     
-    # if qcity=='All' or qcity==None or qcity=='':
-    #     whCity=None
-    # else:
-    #     whCity=" t1.city=\'"+ str(qcity)+"\'"
-    #     if whereClause=='':
-    #         whereClause = 'where '+whCity
-    #     else:
-    #         whereClause = whereClause + ' and '+whCity
+    if qcity=='All' or qcity==None or qcity=='':
+        whCity=None
+    else:
+        whCity=" t1.city=\'"+ str(qcity)+"\'"
+        if whereClause=='':
+            whereClause = 'where '+whCity
+        else:
+            whereClause = whereClause + ' and '+whCity
     
-    # print('this is the where clause' + whereClause)
-    # openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.job_type,t1.term, t1.subject,t1.posted_on, t1.job_id "
-    # openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
-    # openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
-    # openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
+    print('this is the where clause' + whereClause)
+    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.job_type,t1.term, t1.subject,t1.posted_on, t1.job_id "
+    openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
+    openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
+    openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
     
-    # if len(openJobsDataRows)==0:
-    #     print('returning 1')
-    #     return jsonify(['1'])
-    # else:
-    #     next_page=page+1
+    if len(openJobsDataRows)==0:
+        print('returning 1')
+        return jsonify(['1'])
+    else:
+        next_page=page+1
 
-    #     if page!=0:
-    #         prev_page=page-1
-    #     else:
-    #         prev_page=None
+        if page!=0:
+            prev_page=page-1
+        else:
+            prev_page=None
 
-    #     prev_url=None
-    #     next_url=None
+        prev_url=None
+        next_url=None
 
 
-    #     if len(openJobsDataRows)==recordsOnPage:
-    #         next_url = url_for('job_post.openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-    #         prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-    #     elif len(openJobsDataRows)<recordsOnPage:
-    #         next_url = None
-    #         if prev_page!=None:
-    #             prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
-    #         else:
-    #             prev_url==None
-    #     else:
-    #         next_url=None
-    #         prev_url=None
-    #     print(openJobsDataRows)
-    #     print(type(openJobsDataRows))
-    #     return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
+        if len(openJobsDataRows)==recordsOnPage:
+            next_url = url_for('job_post.openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+            prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        elif len(openJobsDataRows)<recordsOnPage:
+            next_url = None
+            if prev_page!=None:
+                prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+            else:
+                prev_url==None
+        else:
+            next_url=None
+            prev_url=None
+        print(openJobsDataRows)
+        print(type(openJobsDataRows))
+        return openJobsDataRows
+        # return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
 
 # End
 
