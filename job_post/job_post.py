@@ -256,7 +256,7 @@ def jobsFilteredList():
         dataObject['school_name'] = data.school_name
         dataObject['school_id'] = data.school_id
         dataObject['min_pay'] = data.min_pay
-        dataObject['min_pay'] = data.min_pay
+        dataObject['max_pay'] = data.max_pay
         dataObject['city'] = data.city
         dataObject['category'] = data.category
         dataObject['job_type'] = data.job_type
