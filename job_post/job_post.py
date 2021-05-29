@@ -305,6 +305,67 @@ def jobDetail():
     else:
         return render_template('jobDetail.html', title='Job Detail', 
             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+
+@job_post.route('/jobDetailAPI',methods=['GET','POST'])
+def jobDetailAPI():
+    job_id = request.args.get('job_id')
+    school_id = ''
+    # userData = User.query.filter_by(id=current_user.id).first()
+    givenSchoolId=request.args.get('school_id')  
+    if givenSchoolId:
+        school_id = givenSchoolId
+    # else:
+    #     school_id = userData.school_id
+    print(school_id)
+    #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
+    addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
+    jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+    # if current_user.is_anonymous:
+    print('user Anonymous')
+    jobApplicationRow = ''
+    # else:
+    #     print('user exist')
+    #     jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+    # if jobApplicationRow:
+    #     applied=1
+    # else:
+    applied=0
+    # if current_user.is_anonymous:
+    # return render_template('jobDetail.html', title='Job Detail', 
+    #     schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
+    # else:
+    jobDetailData = {}
+    jobDetailData['school_picture'] = schoolProfileRow.school_picture
+    jobDetailData['school_name'] = schoolProfileRow.school_name
+    jobDetailData['city'] = addressRow.city
+    jobDetailData['address_1'] = addressRow.address_1
+    jobDetailData['address_2'] = addressRow.address_2
+    jobDetailData['locality'] = addressRow.locality
+    jobDetailData['city'] = addressRow.city
+    jobDetailData['state'] = addressRow.state
+    jobDetailData['pin'] = addressRow.pin
+    jobDetailData['how_to_reach'] = schoolProfileRow.how_to_reach
+    jobDetailData['applied'] = applied
+    jobDetailData['category'] = jobDetailRow.category
+    jobDetailData['job_type'] = jobDetailRow.job_type
+    jobDetailData['term'] = jobDetailRow.term
+    jobDetailData['status'] = jobDetailRow.status
+    jobDetailData['subject'] = jobDetailRow.subject
+    jobDetailData['min_pay'] = jobDetailRow.min_pay
+    jobDetailData['max_pay'] = jobDetailRow.max_pay
+    jobDetailData['start_date'] = jobDetailRow.start_date
+    jobDetailData['classes'] = jobDetailRow.classes
+    jobDetailData['timings'] = jobDetailRow.timings
+    jobDetailData['description'] = jobDetailRow.description
+    jobDetailData['language'] = jobDetailRow.language
+    jobDetailData['stay'] = jobDetailRow.stay
+    jobDetailData['fooding'] = jobDetailRow.fooding
+    jobDetailData['num_of_openings'] = jobDetailRow.num_of_openings
+    return jsonify({'details':jobDetailData})
+    #     return render_template('jobDetail.html', title='Job Detail', 
+    #         schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+          
     
 @job_post.route('/sendJobApplication',methods=['POST','GET'])
 @login_required
