@@ -280,7 +280,7 @@ def loginAPI():
     print(password) 
     token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
     print('Token'+str(token))
-    checkUser = User.query.filter_by(email=email,password=password).first()
+    checkUser = User.query.filter_by(email=email,password_hash=password).first()
     if checkUser:
         return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':checkUser.first_name+' '+checkUser.last_name,'tokenId':token})
     # if current_user.is_authenticated:  
