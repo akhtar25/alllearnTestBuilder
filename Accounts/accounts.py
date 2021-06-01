@@ -276,7 +276,7 @@ def loginAPI():
     print('Inside login') 
     email=request.args.get('email')  
     password=request.args.get('password')
-    print(email)
+    print('Email:'+email)
     # print(password) 
     token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
     print('Token'+str(token))
