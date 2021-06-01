@@ -278,8 +278,11 @@ def loginAPI():
     password=request.args.get('password')
     print(email)
     print(password) 
-    token = jwt.encode({'email':email,'id':1},'donttellanyone')
+    token = jwt.encode({'email':email,'exp':datetime.utcnow() + datetime.timedelta(houres=24)},'you-will-never-guess')
     print('Token'+str(token))
+    checkUser = User.query.filter_by(email=email,password=password).first()
+    if checkUser:
+        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':checkUser.first_name+' '+checkUser.last_name,'tokenId':token})
     # if current_user.is_authenticated:  
     #     print(request.url)    
     #     if current_user.user_type=='161':
@@ -465,7 +468,7 @@ def loginAPI():
     #     welcome_email(str(form.email.data), full_name)
     #     print("Abdullah--")
     #     return redirect(url_for('accounts.login'))
-    return jsonify({'data':'success'})
+    return jsonify({'message':'Invalid credentials'})
 
 
 @accounts.route('/logout')
