@@ -282,7 +282,7 @@ def loginAPI():
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
-        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':checkUser.first_name+' '+checkUser.last_name,'tokenId':token})
+        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token})
     # if current_user.is_authenticated:  
     #     print(request.url)    
     #     if current_user.user_type=='161':
