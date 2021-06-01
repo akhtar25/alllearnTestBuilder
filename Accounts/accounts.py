@@ -6,6 +6,7 @@ from forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
 from send_email import welcome_email, send_password_reset_email,user_access_request_email
 from sqlalchemy import text
 from werkzeug.urls import url_parse
+import jwt
 
 accounts = Blueprint('accounts',__name__)
 
@@ -277,6 +278,8 @@ def loginAPI():
     password=request.args.get('password')
     print(email)
     print(password) 
+    token = jwt.encode({'email':email,'id':1},'donttellanyone')
+    print('Token'+str(token))
     # if current_user.is_authenticated:  
     #     print(request.url)    
     #     if current_user.user_type=='161':
