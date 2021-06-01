@@ -278,7 +278,7 @@ def loginAPI():
     password=request.args.get('password')
     print(email)
     print(password) 
-    token = jwt.encode({'email':email,'exp':datetime.utcnow() + datetime.timedelta(houres=24)},'you-will-never-guess')
+    token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email,password=password).first()
     if checkUser:
