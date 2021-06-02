@@ -294,8 +294,10 @@ def loginAPI():
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
+        print('user exist')
         return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':str(token)})
     else:
+        print('user not exist')
         return "Invalid Credentials",401
     # if current_user.is_authenticated:  
     #     print(request.url)    
