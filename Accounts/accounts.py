@@ -63,8 +63,15 @@ def userAPI():
     # headers = Flask.request.headers
     # print(data)
     decode  = jwt.decode(data,'you-will-never-guess')
-    print(decode)
-    return jsonify({'decode':decode})
+    print(decode.user)
+    userData = {}
+    user = User.query.filter_by(email=decode.user).first()
+    userData['id'] = user.id
+    userData['userType'] = user.user_type
+    userData['email'] = user.email
+    userData['school_id'] = user.school_id
+    userData['user_name'] = str(user.first_name)+' '+str(user.last_name)
+    return jsonify({'decode':userData})
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
