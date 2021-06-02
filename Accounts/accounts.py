@@ -295,7 +295,7 @@ def loginAPI():
     email=request.args.get('email')  
     password=request.args.get('password')
     print('Email:'+email)
-    # print(password) 
+    print('Password:'+password) 
     user = User.query.filter_by(email=email).first()
     print(user.check_password(password))
     token = jwt.encode({
