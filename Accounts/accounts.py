@@ -1,6 +1,6 @@
 from Accounts.utils import *
 from applicationDB import *
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session,jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session,jsonify, Flask
 from flask_login import current_user, login_user, logout_user, login_required
 from forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
 from send_email import welcome_email, send_password_reset_email,user_access_request_email
@@ -52,6 +52,12 @@ def register():
         print("Abdullah--")
         return redirect(url_for('accounts.login'))
     return render_template('register.html', title='Register', form=form)
+
+@accounts.route('/userAPI',methods=['GET','POST'])
+def userAPI():
+    headers = Flask.request.headers
+    print(headers)
+    return str(headers)
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
