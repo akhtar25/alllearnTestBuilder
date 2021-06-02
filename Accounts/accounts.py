@@ -51,6 +51,7 @@ def register():
         return redirect(url_for('accounts.login'))
     return render_template('register.html', title='Register', form=form)
 
+
 @accounts.route('/registerAPI',methods=['GET','POST'])
 def registerAPI():
     print('inside registerAPI')
@@ -68,8 +69,8 @@ def registerAPI():
     print(phone)
     # if form.validate_on_submit():
     #     print('Validated form submit')
-    if check(email)=='N':
-        return "Invalid Email",401
+    # if check(email)=='N':
+    #     return "Invalid Email",401
     if len(str(phone)) < 7:
         return "Weak password: password length should be greater then 7",401
     try:
