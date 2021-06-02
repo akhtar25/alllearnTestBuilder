@@ -58,9 +58,9 @@ def userAPI():
     print('inside userAPI')
     data = request.headers.get('Authaorization')
     print(data)
-    headers = Flask.request.headers
-    print(headers)
-    return str(headers)
+    # headers = Flask.request.headers
+    # print(data)
+    return str(data)
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
