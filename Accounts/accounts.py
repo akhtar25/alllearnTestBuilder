@@ -6,6 +6,7 @@ from forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
 from send_email import welcome_email, send_password_reset_email,user_access_request_email
 from sqlalchemy import text
 from werkzeug.urls import url_parse
+from datetime import date
 import jwt
 
 accounts = Blueprint('accounts',__name__)
@@ -95,9 +96,9 @@ def registerAPI():
     #     flash('Congratulations '+full_name+', you are now a registered user!')
     welcome_email(str(email), full_name)
     print("Abdullah--")
-    print(datetime.now())
+    
     #     return redirect(url_for('accounts.login'))
-    token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
+    token = jwt.encode({'email':email,'exp':date.today()},'you-will-never-guess')
     return jsonify({'email':email,'id':user.id,'phone':phone,'name':str(first_name)+' '+str(last_name),'tokenId':str(token)})
     
 @accounts.route('/login', methods=['GET', 'POST'])
