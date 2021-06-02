@@ -296,17 +296,17 @@ def loginAPI():
     password=request.args.get('password')
     print('Email:'+email)
     # print(password) 
+    user = User.query.filter_by(email=email).first()
+    print(user.check_password(password))
     token = jwt.encode({
         'user':email,
         'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
     },
     'you-will-never-guess')
     print('Token'+str(token))
-    user = User.query.filter_by(email=email).first()
-    print(user.check_password(password))
-    if checkUser and user.check_password(password):
+    if user and user.check_password(password):
         print('user exist')
-        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token.decode('utf-8'),'status':'success'})
+        return jsonify({'email':user.email,'id':user.id,'phone':user.phone,'name':str(user.first_name)+' '+str(user.last_name),'tokenId':token.decode('utf-8'),'status':'success'})
     else:
         print('user not exist')
         return jsonify({'message':"Invalid email or password",'error':'Authentication failed','status':'error'})
