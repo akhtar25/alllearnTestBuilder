@@ -295,6 +295,8 @@ def loginAPI():
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
         return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':str(token)})
+    else:
+        return "Invalid Credentials",401
     # if current_user.is_authenticated:  
     #     print(request.url)    
     #     if current_user.user_type=='161':
