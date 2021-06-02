@@ -12,7 +12,6 @@ import os
 
 accounts = Blueprint('accounts',__name__)
 
-accounts.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
 
 @accounts.route('/register', methods=['GET', 'POST'])
 def register():
@@ -297,7 +296,7 @@ def loginAPI():
         'user':email,
         'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
     },
-    accounts.config['SECRET_KEY'])
+    'you-will-never-guess')
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
