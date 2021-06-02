@@ -296,7 +296,7 @@ def loginAPI():
         'user':email,
         'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
     },
-    'you-will-never-guess')
+    os.environ.get('SECRET_KEY'))
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
