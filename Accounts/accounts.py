@@ -75,7 +75,7 @@ def registerAPI():
     #     return "Invalid Email",401
     if len(password) < 7:
         print(len(password))
-        return "Weak password: password length should be greater then 7",401
+        return jsonify({'message':"Weak password: password length should be greater then 7",'error':'Invalid password'}),401
     try:
         user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
         first_name = first_name,school_id=1,last_name= last_name)
@@ -83,7 +83,7 @@ def registerAPI():
         db.session.add(user)
         db.session.commit()
     except:
-        return "Mail id already exist",401
+        return jsonify({'message':"Mail Id already exist",'error':'Invalid Mail Id'}),401
     checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
     checkStudentProf = StudentProfile.query.filter_by(email=email).first()
 
@@ -102,8 +102,12 @@ def registerAPI():
     print("Abdullah--")
     
     #     return redirect(url_for('accounts.login'))
-    token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
-    return jsonify({'email':email,'id':user.id,'phone':phone,'name':str(first_name)+' '+str(last_name),'tokenId':str(token)})
+    token = jwt.encode({
+        'user':email,
+        'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+    },
+    'you-will-never-guess')    
+    return jsonify({'email':email,'id':user.id,'phone':phone,'name':str(first_name)+' '+str(last_name),'tokenId':str(token.decode('utf-8'))})
     
 @accounts.route('/login', methods=['GET', 'POST'])
 def login():
@@ -296,7 +300,7 @@ def loginAPI():
         'user':email,
         'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
     },
-    os.environ.get('SECRET_KEY'))
+    'you-will-never-guess')
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
@@ -304,7 +308,7 @@ def loginAPI():
         return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token.decode('utf-8')})
     else:
         print('user not exist')
-        return "Invalid Credentials",401
+        return jsonify({'message':"Invalid Credentials",'error':'Authentication failed'}),401
     # if current_user.is_authenticated:  
     #     print(request.url)    
     #     if current_user.user_type=='161':
