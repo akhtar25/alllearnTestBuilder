@@ -302,9 +302,9 @@ def loginAPI():
     },
     'you-will-never-guess')
     print('Token'+str(token))
-    checkUser = User.query.filter_by(email=email).first()
-    checkUser.check_password(password)
-    if checkUser and checkUser.check_password(password):
+    user = User.query.filter_by(email=email).first()
+    print(user.check_password(password))
+    if checkUser and user.check_password(password):
         print('user exist')
         return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token.decode('utf-8'),'status':'success'})
     else:
