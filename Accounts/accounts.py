@@ -71,7 +71,8 @@ def registerAPI():
     #     print('Validated form submit')
     # if check(email)=='N':
     #     return "Invalid Email",401
-    if len(str(phone)) < 7:
+    if len(password) < 7:
+        print(len(password))
         return "Weak password: password length should be greater then 7",401
     try:
         user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
