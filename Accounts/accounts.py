@@ -304,9 +304,14 @@ def loginAPI():
     },
     'you-will-never-guess')
     print('Token'+str(token))
-    if user and user.check_password(password):
-        print('user exist')
-        return jsonify({'email':user.email,'id':user.id,'phone':user.phone,'name':str(user.first_name)+' '+str(user.last_name),'tokenId':token.decode('utf-8'),'status':'success'})
+    if user:
+        if user.check_password(password):
+            print('user exist')
+            return jsonify({'email':user.email,'id':user.id,'phone':user.phone,'name':str(user.first_name)+' '+str(user.last_name),'tokenId':token.decode('utf-8'),'status':'success'})
+        else:
+            print('user not exist')
+            return jsonify({'message':"Invalid email or password",'error':'Authentication failed','status':'error'})
+
     else:
         print('user not exist')
         return jsonify({'message':"Invalid email or password",'error':'Authentication failed','status':'error'})
