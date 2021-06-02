@@ -303,12 +303,13 @@ def loginAPI():
     'you-will-never-guess')
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
-    if checkUser:
+    checkUser.check_password(password)
+    if checkUser and checkUser.check_password(password):
         print('user exist')
-        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token.decode('utf-8')})
+        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token.decode('utf-8'),'status':'success'})
     else:
         print('user not exist')
-        return jsonify({'message':"Invalid Credentials",'error':'Authentication failed'}),401
+        return jsonify({'message':"Invalid email or password",'error':'Authentication failed','status':'error'}),401
     # if current_user.is_authenticated:  
     #     print(request.url)    
     #     if current_user.user_type=='161':
