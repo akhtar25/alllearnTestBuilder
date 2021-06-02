@@ -6,10 +6,13 @@ from forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
 from send_email import welcome_email, send_password_reset_email,user_access_request_email
 from sqlalchemy import text
 from werkzeug.urls import url_parse
-from datetime import date
+import datetime
 import jwt
+import os
 
 accounts = Blueprint('accounts',__name__)
+
+accounts.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
 
 @accounts.route('/register', methods=['GET', 'POST'])
 def register():
@@ -290,12 +293,16 @@ def loginAPI():
     password=request.args.get('password')
     print('Email:'+email)
     # print(password) 
-    token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
+    token = jwt.encode({
+        'user':email,
+        'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+    },
+    accounts.config['SECRET_KEY'])
     print('Token'+str(token))
     checkUser = User.query.filter_by(email=email).first()
     if checkUser:
         print('user exist')
-        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':str(token)})
+        return jsonify({'email':checkUser.email,'id':checkUser.id,'phone':checkUser.phone,'name':str(checkUser.first_name)+' '+str(checkUser.last_name),'tokenId':token.decode('utf-8')})
     else:
         print('user not exist')
         return "Invalid Credentials",401
