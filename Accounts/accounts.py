@@ -100,7 +100,7 @@ def registerAPI():
     print("Abdullah--")
     
     #     return redirect(url_for('accounts.login'))
-    token = jwt.encode({'email':email,'exp':date.today()},'you-will-never-guess')
+    token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
     return jsonify({'email':email,'id':user.id,'phone':phone,'name':str(first_name)+' '+str(last_name),'tokenId':str(token)})
     
 @accounts.route('/login', methods=['GET', 'POST'])
