@@ -58,7 +58,7 @@ def registerAPI():
     last_name=request.args.get('last_name')
     email=request.args.get('email')
     password=request.args.get('password')
-    reset_password = request.args.get('reset_password')
+    reset_password = request.args.get('confirm_password')
     phone=request.args.get('phone')
     print(first_name)
     print(last_name)
