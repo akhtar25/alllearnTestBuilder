@@ -58,11 +58,13 @@ def register():
 @accounts.route('/userAPI',methods=['GET','POST'])
 def userAPI():
     print('inside userAPI')
-    data = request.headers.get('Authaorization')
+    data = request.headers.get('Authorization')
     print(data)
     # headers = Flask.request.headers
     # print(data)
-    return str(data)
+    decode  = jwt.decode(data,'you-will-never-guess')
+    print(decode)
+    return jsonify({'decode':decode})
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
