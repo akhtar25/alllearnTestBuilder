@@ -67,29 +67,31 @@ def registerAPI():
     print(phone)
     # if form.validate_on_submit():
     #     print('Validated form submit')
-    #     user = User(username=form.email.data, email=form.email.data, user_type='140', access_status='145', phone=form.phone.data,
-    #         first_name = form.first_name.data,school_id=1,last_name= form.last_name.data)
-    #     user.set_password(form.password.data)
-    #     db.session.add(user)
-    #     db.session.commit()
-    #     checkTeacherProf = TeacherProfile.query.filter_by(email=form.email.data).first()
-    #     checkStudentProf = StudentProfile.query.filter_by(email=form.email.data).first()
+    user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
+        first_name = first_name,school_id=1,last_name= last_name)
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
+    checkStudentProf = StudentProfile.query.filter_by(email=email).first()
 
-    #     if checkTeacherProf!=None:
-    #         checkTeacherProf.user_id=user.id
-    #         db.session.commit()        
-    #     elif checkStudentProf!=None:
-    #         checkStudentProf.user_id=user.id
-    #         db.session.commit()
-    #     else:
-    #         pass
+    if checkTeacherProf!=None:
+        checkTeacherProf.user_id=user.id
+        db.session.commit()        
+    elif checkStudentProf!=None:
+        checkStudentProf.user_id=user.id
+        db.session.commit()
+    else:
+        pass
 
-    #     full_name = str(form.first_name.data)+ ' '+str(form.last_name.data)
+    full_name = str(first_name)+ ' '+str(last_name)
     #     flash('Congratulations '+full_name+', you are now a registered user!')
-    #     welcome_email(str(form.email.data), full_name)
-    #     print("Abdullah--")
+    welcome_email(str(email), full_name)
+    print("Abdullah--")
+    print(datetime.now())
     #     return redirect(url_for('accounts.login'))
-    return jsonify({'data':'success'})
+    token = jwt.encode({'email':email,'exp':datetime.now()},'you-will-never-guess')
+    return jsonify({'email':email,'id':user.id,'phone':phone,'name':str(first_name)+' '+str(last_name),'tokenId':str(token)})
     
 @accounts.route('/login', methods=['GET', 'POST'])
 def login():
