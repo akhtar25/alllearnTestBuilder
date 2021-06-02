@@ -6,12 +6,14 @@ from forms import LoginForm, RegistrationForm, ResetPasswordRequestForm
 from send_email import welcome_email, send_password_reset_email,user_access_request_email
 from sqlalchemy import text
 from werkzeug.urls import url_parse
+from flask_cors import CORS
 import datetime
 import jwt
 import os
 
-accounts = Blueprint('accounts',__name__)
 
+accounts = Blueprint('accounts',__name__)
+CORS(accounts)
 
 @accounts.route('/register', methods=['GET', 'POST'])
 def register():
