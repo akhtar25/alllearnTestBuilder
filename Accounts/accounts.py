@@ -67,11 +67,18 @@ def registerAPI():
     print(phone)
     # if form.validate_on_submit():
     #     print('Validated form submit')
-    user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
+    if check(email)=='N':
+        return "Invalid Email",401
+    if len(str(phone)) < 7:
+        return "Weak password: password length should be greater then 7",401
+    try:
+        user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
         first_name = first_name,school_id=1,last_name= last_name)
-    user.set_password(password)
-    db.session.add(user)
-    db.session.commit()
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+    except:
+        return "Mail id already exist",401
     checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
     checkStudentProf = StudentProfile.query.filter_by(email=email).first()
 
