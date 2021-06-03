@@ -135,7 +135,7 @@ def registerAPI():
         'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
     },
     'you-will-never-guess')    
-    return jsonify({'email':email,'id':user.id,'phone':phone,'name':str(first_name)+' '+str(last_name),'tokenId':str(token.decode('utf-8'))})
+    return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
     
 @accounts.route('/login', methods=['GET', 'POST'])
 def login():
