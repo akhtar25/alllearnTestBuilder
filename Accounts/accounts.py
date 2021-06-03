@@ -62,7 +62,7 @@ def userAPI():
     print(data)
     # headers = Flask.request.headers
     
-    if data is not None or data!='null':
+    if  data!='null' or data is not None:
         print('if token not empty')
         decode  = jwt.decode(data,'you-will-never-guess')
         print(decode['user'])
