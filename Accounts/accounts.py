@@ -101,7 +101,7 @@ def registerAPI():
     #     return "Invalid Email",401
     if len(password) < 7:
         print(len(password))
-        return jsonify({'message':"Weak password: password length should be greater then 7",'error':'Invalid password'}),401
+        return jsonify({'message':"Weak password: password length should be greater then 7",'status':'error'}),401
     try:
         user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
         first_name = first_name,school_id=1,last_name= last_name)
@@ -109,7 +109,7 @@ def registerAPI():
         db.session.add(user)
         db.session.commit()
     except:
-        return jsonify({'message':"Mail Id already exist",'error':'Invalid Mail Id'}),401
+        return jsonify({'message':"Mail Id already exist",'error':'error'}),401
     checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
     checkStudentProf = StudentProfile.query.filter_by(email=email).first()
 
