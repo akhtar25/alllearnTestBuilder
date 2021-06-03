@@ -314,6 +314,8 @@ def logoutAPI():
     print(data)
     if data is None:
         return jsonify({'email':'','id':'','phone':'','name':'','tokenId':'','status':'logout successfully!'})
+    else:
+        return jsonify({})
 
 @accounts.route('/loginAPI', methods=['GET', 'POST'])
 def loginAPI():
