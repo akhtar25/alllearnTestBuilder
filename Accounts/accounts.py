@@ -63,9 +63,9 @@ def userAPI():
     # headers = Flask.request.headers
     # print(data)
     decode  = jwt.decode(data,'you-will-never-guess')
-    print(decode)
+    print(decode['user'])
     userData = {}
-    user = User.query.filter_by(email=decode.user).first()
+    user = User.query.filter_by(email=decode['user']).first()
     userData['id'] = user.id
     userData['userType'] = user.user_type
     userData['email'] = user.email
