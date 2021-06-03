@@ -308,6 +308,12 @@ def login():
     print('email:'+str(email))
     return render_template('login.html',font=font,phone=phone,email=email,primaryColor=primaryColor,schoolName=schoolName,schoolLogo=schoolLogo, title='Sign In', form=form)
 
+@accounts.route('/logoutAPI',methods=['GET','POST'])
+def logoutAPI():
+    data = request.headers.get('Authorization')
+    print(data)
+    if data is None:
+        return jsonify({'email':'','id':'','phone':'','name':'','tokenId':'','status':'logout successfully!'})
 
 @accounts.route('/loginAPI', methods=['GET', 'POST'])
 def loginAPI():
