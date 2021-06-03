@@ -61,8 +61,9 @@ def userAPI():
     data = request.headers.get('Authorization')
     print(data)
     # headers = Flask.request.headers
-    # print(data)
+    
     if data:
+        print('if token not empty')
         decode  = jwt.decode(data,'you-will-never-guess')
         print(decode['user'])
         userData = {}
@@ -74,6 +75,7 @@ def userAPI():
         userData['user_name'] = str(user.first_name)+' '+str(user.last_name)
         return jsonify({'decode':userData})
     else:
+        print('if token is empty')
         return jsonify({'decode':{}})
 
 
