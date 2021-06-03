@@ -101,7 +101,7 @@ def registerAPI():
     #     return "Invalid Email",401
     checkMail = User.query.filter_by(email=email).first()
     if checkMail:
-        print(len(checkMail))
+        print(checkMail)
         return jsonify({'message':"Mail Id already exist",'status':'error'})
         # return jsonify({'message':"Weak password: password length should be greater then 7",'status':'error'})
     try:
