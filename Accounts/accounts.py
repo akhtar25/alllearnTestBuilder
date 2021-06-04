@@ -68,10 +68,13 @@ def userAPI():
         print(decode['user'])
         userData = {}
         user = User.query.filter_by(email=decode['user']).first()
+        schoolData = SchoolProfile.query.filter_by(school_id=user.school_id).first()
         userData['id'] = user.id
         userData['userType'] = user.user_type
         userData['email'] = user.email
         userData['school_id'] = user.school_id
+        userData['school_name'] = schoolData.school_name
+        userData['school_logo'] = schoolData.school_logo
         userData['user_name'] = str(user.first_name)+' '+str(user.last_name)
         return jsonify({'decode':userData})
     else:
