@@ -339,7 +339,7 @@ def loginAPI():
     
     token = jwt.encode({
         'user':email,
-        'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+        'exp':datetime.datetime.utcnow() + datetime.timedelta(hours=12000)
     },
     'you-will-never-guess')
     print('Token'+str(token))
