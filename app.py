@@ -9,6 +9,7 @@ import logging
 import os
 import random
 import re
+import jwt
 import string
 import urllib
 from calendar import monthrange
@@ -4543,9 +4544,13 @@ def user(username):
         return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessSchoolRequestListRows=accessSchoolRequestListRows,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
 
 
-@app.route('/userProfileAPI/<username>')
-def userProfileAPI(username):
-    user = User.query.filter_by(username=username).first_or_404() 
+@app.route('/userProfileAPI',methods=['GET','POST'])
+def userProfileAPI():
+    data = request.headers.get('Authorization')
+    print(data)
+    decode  = jwt.decode(data,'you-will-never-guess')
+    print(decode['user'])
+    user = User.query.filter_by(email=decode['user']).first_or_404() 
     # print('current_user.id:'+str(current_user.id))   
     # teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
     # school_name_val = schoolNameVal()        
