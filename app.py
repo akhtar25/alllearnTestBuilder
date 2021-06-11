@@ -4543,6 +4543,69 @@ def user(username):
         return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessSchoolRequestListRows=accessSchoolRequestListRows,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
 
 
+@app.route('/userProfileAPI/<username>')
+def userProfileAPI(username):
+    user = User.query.filter_by(username=username).first_or_404() 
+    # print('current_user.id:'+str(current_user.id))   
+    # teacher=TeacherProfile.query.filter_by(user_id=current_user.id).first()
+    # school_name_val = schoolNameVal()        
+    # disconn = ''
+    # user_type_val = ''
+    # if current_user.user_type==72:
+    #     disconn = 1
+    #     user_type_val = current_user.user_type
+    # if user.user_type==161:        
+    #     return redirect(url_for('teachingApplicantProfile',title='My Profile',user_id=user.id))
+    # else:
+    #     print('Nope we are not')
+
+    # if school_name_val ==None:
+    #     print('did we reach here')
+    #     return redirect(url_for('disconnectedAccount'))
+    # else:        
+    schoolDetailRow = SchoolProfile.query.filter_by(school_id=user.school_id).first()
+    # print(schoolAdminRow[0][0])
+    accessRequestListRows=""
+    # value=0
+    # if current_user.user_type==72:
+    #     value=1
+    # print('schoolAdminRow[0][0]:'+str(schoolAdminRow[0][0]))
+    # print('teacher.teacher_id:'+str(teacher.teacher_id))
+
+    accessSchoolRequestListRows = ''
+
+    # if schoolAdminRow[0][0]==teacher.teacher_id:
+    accessReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id where t1.school_id='"+ str(user.school_id) +"' and t1.access_status='145'"
+    print('accessReqQuery:'+str(accessReqQuery))
+    accessRequestListRows = db.session.execute(text(accessReqQuery)).fetchall()
+    accessSchoolReqQuery = "select t1.username, t1.email, t1.phone, t2.description as user_type, t1.about_me, t1.school_id from public.user t1 inner join message_detail t2 on t1.user_type=t2.msg_id inner join school_profile sp on t1.school_id = sp.school_id where t1.school_id='"+ str(user.school_id) +"' and sp.is_verified='N'"
+    print('Query accessSchoolReqQuery:'+str(accessSchoolReqQuery))
+    accessSchoolRequestListRows = db.session.execute(text(accessSchoolReqQuery)).fetchall()
+    teacherProfileData = TeacherProfile.query.filter_by(user_id=user.id).first()
+    teacherData = ''
+    if teacherProfileData:
+        teacherData = "select distinct teacher_name, description as subject_name, cs.class_val, cs.section,cs.class_sec_id from teacher_subject_class tsc "
+        teacherData = teacherData + "inner join teacher_profile tp on tsc.teacher_id = tp.teacher_id "
+        teacherData = teacherData + "inner join class_section cs on tsc.class_sec_id = cs.class_sec_id "
+        teacherData = teacherData + "inner join message_detail md on tsc.subject_id = md.msg_id where tsc.school_id = '"+str(teacher.school_id)+"' and tsc.teacher_id = '"+str(teacher.teacher_id)+"' and tsc.is_archived = 'N' order by cs.class_sec_id"
+        teacherData = db.session.execute(text(teacherData)).fetchall()
+    # indic='DashBoard'
+    # return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessSchoolRequestListRows=accessSchoolRequestListRows,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
+    profileData = {}
+    profileData['user_avatar'] = user.user_avatar
+    profileData['user_name'] = str(user.first_name)+' '+str(user.last_name)
+    profileData['phone'] =  user.phone
+    profileData['email'] = user.email
+    profileData['registration_date'] = user.last_modified_date
+    profileData['device_preference'] = ''
+    if teacherProfileData:
+        profileData['device_preference'] = teacherProfileData.device_preference
+    profileData['school_id'] = user.school_id
+    profileData['about_me'] = user.about_me
+    profileData['education'] = user.education
+    profileData['experience'] = user.experience
+    # profileData[]
+    return jsonify({'profile_data':profileData})
 # @app.route('/login', methods=['GET', 'POST'])
 # def login():
 #     print('Inside login')    
