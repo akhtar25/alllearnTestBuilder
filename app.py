@@ -4594,7 +4594,7 @@ def userProfileAPI():
         teacherData = "select distinct teacher_name, description as subject_name, cs.class_val, cs.section,cs.class_sec_id from teacher_subject_class tsc "
         teacherData = teacherData + "inner join teacher_profile tp on tsc.teacher_id = tp.teacher_id "
         teacherData = teacherData + "inner join class_section cs on tsc.class_sec_id = cs.class_sec_id "
-        teacherData = teacherData + "inner join message_detail md on tsc.subject_id = md.msg_id where tsc.school_id = '"+str(teacher.school_id)+"' and tsc.teacher_id = '"+str(teacher.teacher_id)+"' and tsc.is_archived = 'N' order by cs.class_sec_id"
+        teacherData = teacherData + "inner join message_detail md on tsc.subject_id = md.msg_id where tsc.school_id = '"+str(teacherProfileData.school_id)+"' and tsc.teacher_id = '"+str(teacherProfileData.teacher_id)+"' and tsc.is_archived = 'N' order by cs.class_sec_id"
         teacherData = db.session.execute(text(teacherData)).fetchall()
     # indic='DashBoard'
     # return render_template('user.html',indic=indic,title='My Profile', classSecCheckVal=classSecCheck(),user=user,teacher=teacher,accessSchoolRequestListRows=accessSchoolRequestListRows,accessRequestListRows=accessRequestListRows, school_id=teacher.school_id,disconn=disconn,user_type_val=str(current_user.user_type),teacherData=teacherData)
