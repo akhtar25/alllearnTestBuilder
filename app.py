@@ -16,6 +16,7 @@ from calendar import monthrange
 from datetime import date
 from datetime import timedelta
 from io import BytesIO
+from flask_cors import CORS
 from logging.handlers import RotatingFileHandler
 from random import randint
 from urllib.parse import quote, urlparse, parse_qs
@@ -81,6 +82,7 @@ from topic_generate.topic_generate import topic_generate
 from whatsapp_bot.whatsapp_bot import whatsapp_bot
 
 app = Flask(__name__)
+CORS(app)
 app.register_blueprint(accounts)
 app.register_blueprint(student_tc)
 app.register_blueprint(teacher_register)
