@@ -239,6 +239,8 @@ def applicationTracking():
         jobPost['category'] = jobPostRow.category
         jobPost['status'] = jobPostRow.status
         jobPost['term'] = jobPostRow.term
+        jobPost['school_id'] = jobPostRow.school_id
+        jobPost['job_id'] = jobPostRow.job_id
         jobPostDataList.append(jobPost)
     return jsonify({'jobTracking':jobPostDataList})
 
