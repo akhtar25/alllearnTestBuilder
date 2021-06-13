@@ -222,8 +222,8 @@ def index():
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
 
 
-@dashboard.route('/applicationTracking',methods=['GET','POST'])
-def applicationTracking():
+@dashboard.route('/applicationTrackingAPI',methods=['GET','POST'])
+def applicationTrackingAPI():
     data = request.headers.get('Authorization')
     print(data)
     decode  = jwt.decode(data,'you-will-never-guess')
