@@ -464,7 +464,7 @@ def jobApplicationsAPI():
     print(decode['user'])
     teacher=User.query.filter_by(email=decode['user']).first()
     jobidDet=request.args.get('job_id')
-
+    print(jobidDet)
     job_id = ''
     if jobidDet:
         job_id = jobidDet
