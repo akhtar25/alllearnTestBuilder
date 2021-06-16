@@ -458,6 +458,7 @@ def jobApplications():
 
 @job_post.route('/jobApplicationsAPI',methods=['GET','POST'])  # this page shows all the applications received by the job poster for any specifc job post
 def jobApplicationsAPI():
+    print('inside jobApplicationsAPI')
     data = request.headers.get('Authorization')
     print(data)
     decode  = jwt.decode(data,'you-will-never-guess')
