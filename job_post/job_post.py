@@ -10,10 +10,12 @@ from datetime import datetime
 from flask import g, jsonify
 from forms import PostForm
 from applicationDB import Post
+from flask_cors import CORS
 from sqlalchemy import func, distinct, text, update
 
 
 job_post = Blueprint('job_post',__name__)
+CORS(job_post)
 
 @job_post.route('/postJob',methods=['POST','GET'])
 @login_required
@@ -166,7 +168,112 @@ def openJobsFilteredList():
         else:
             next_url=None
             prev_url=None
+        print(type(openJobsDataRows))
         return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
+
+# API for job list Start
+@job_post.route('/jobsFilteredList',methods=['GET','POST'])
+def jobsFilteredList():
+    page=request.args.get('page',0, type=int)
+    recordsOnPage = 5
+    offsetVal = page *recordsOnPage
+    
+    whereClause = ""
+    qjob_term = request.args.get('job_term') #all /short term / long term
+    qjob_type = request.args.get('job_type') #all /part time/ full time
+    qcity =  request.args.get('city')       # all/ home city
+   
+    print("qterm is "+str(qjob_term))
+    print("qtype is "+str(qjob_type))
+    print("qcity is "+str(qcity))
+
+    whJobTerm=''
+    whJobType=''
+    whCity=''
+
+    if qjob_term=='All' or qjob_term==None or qjob_term=='':
+        whJobTerm=None
+    else:
+        whJobTerm=" t1.term=\'"+str(qjob_term)+"\'"
+        whereClause = 'where ' + whJobTerm
+
+    
+    if qjob_type=='All' or qjob_type==None or qjob_type=='':
+        whJobType=None
+    else:
+        whJobType=" t1.job_type=\'"+str(qjob_type)+"\'"
+        if whereClause=='':
+            whereClause = 'where '+whJobType
+        else:
+            whereClause =  whereClause + ' and '+whJobType
+    
+    if qcity=='All' or qcity==None or qcity=='':
+        whCity=None
+    else:
+        whCity=" t1.city=\'"+ str(qcity)+"\'"
+        if whereClause=='':
+            whereClause = 'where '+whCity
+        else:
+            whereClause = whereClause + ' and '+whCity
+    
+    print('this is the where clause' + whereClause)
+    openJobsQuery = "select school_picture, school_name, t2.school_id, min_pay, max_pay, t1.city, t1.category, t1.job_type,t1.term, t1.subject,t1.posted_on, t1.job_id "
+    openJobsQuery = openJobsQuery + "from job_detail t1 inner join school_profile t2 on t1.school_id=t2.school_id and t1.status='Open' " + whereClause 
+    openJobsQuery = openJobsQuery + " order by t1.posted_on desc "
+    openJobsDataRows = db.session.execute(text(openJobsQuery)).fetchall()
+    
+    # if len(openJobsDataRows)==0:
+    #     print('returning 1')
+    #     return jsonify(['1'])
+    # else:
+    #     next_page=page+1
+
+    #     if page!=0:
+    #         prev_page=page-1
+    #     else:
+    #         prev_page=None
+
+    #     prev_url=None
+    #     next_url=None
+
+
+        # if len(openJobsDataRows)==recordsOnPage:
+        #     next_url = url_for('job_post.openJobsFilteredList', page = next_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        #     prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        # elif len(openJobsDataRows)<recordsOnPage:
+        #     next_url = None
+        #     if prev_page!=None:
+        #         prev_url = url_for('job_post.openJobsFilteredList', page=prev_page,job_term=qjob_term, job_type=qjob_type,city=qcity)
+        #     else:
+        #         prev_url==None
+        # else:
+        #     next_url=None
+        #     prev_url=None
+    print(openJobsDataRows)
+    print(type(openJobsDataRows))
+    dataList = []
+    for data in openJobsDataRows:
+        dataObject = {}
+        dataObject['school_picture'] = data.school_picture
+        dataObject['school_name'] = data.school_name
+        dataObject['school_id'] = data.school_id
+        dataObject['min_pay'] = data.min_pay
+        dataObject['max_pay'] = data.max_pay
+        dataObject['city'] = data.city
+        dataObject['category'] = data.category
+        dataObject['job_type'] = data.job_type
+        dataObject['term'] = data.term
+        dataObject['subject'] = data.subject
+        dataObject['posted_on'] = data.posted_on
+        dataObject['job_id'] = data.job_id
+        dataList.append(dataObject)
+    print(dataList)
+    return jsonify({'data':dataList})
+        # return render_template('_jobList.html',openJobsDataRows=openJobsDataRows,next_url=next_url, prev_url=prev_url)
+
+# End
+
+
 
 @job_post.route('/jobDetail')
 
@@ -200,6 +307,67 @@ def jobDetail():
     else:
         return render_template('jobDetail.html', title='Job Detail', 
             schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+
+@job_post.route('/jobDetailAPI',methods=['GET','POST'])
+def jobDetailAPI():
+    job_id = request.args.get('job_id')
+    school_id = ''
+    # userData = User.query.filter_by(id=current_user.id).first()
+    givenSchoolId=request.args.get('school_id')  
+    if givenSchoolId:
+        school_id = givenSchoolId
+    # else:
+    #     school_id = userData.school_id
+    print(school_id)
+    #teacherRow=TeacherProfile.query.filter_by(user_id=current_user.id).first()    
+    schoolProfileRow = SchoolProfile.query.filter_by(school_id =school_id).first()
+    addressRow = Address.query.filter_by(address_id = schoolProfileRow.address_id).first()    
+    jobDetailRow = JobDetail.query.filter_by(job_id=job_id).first()
+    # if current_user.is_anonymous:
+    print('user Anonymous')
+    jobApplicationRow = ''
+    # else:
+    #     print('user exist')
+    #     jobApplicationRow = JobApplication.query.filter_by(job_id=job_id, applier_user_id=current_user.id).first()
+    # if jobApplicationRow:
+    #     applied=1
+    # else:
+    applied=0
+    # if current_user.is_anonymous:
+    # return render_template('jobDetail.html', title='Job Detail', 
+    #     schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied)
+    # else:
+    jobDetailData = {}
+    jobDetailData['school_picture'] = schoolProfileRow.school_picture
+    jobDetailData['school_name'] = schoolProfileRow.school_name
+    jobDetailData['city'] = addressRow.city
+    jobDetailData['address_1'] = addressRow.address_1
+    jobDetailData['address_2'] = addressRow.address_2
+    jobDetailData['locality'] = addressRow.locality
+    jobDetailData['city'] = addressRow.city
+    jobDetailData['state'] = addressRow.state
+    jobDetailData['pin'] = addressRow.pin
+    jobDetailData['how_to_reach'] = schoolProfileRow.how_to_reach
+    jobDetailData['applied'] = applied
+    jobDetailData['category'] = jobDetailRow.category
+    jobDetailData['job_type'] = jobDetailRow.job_type
+    jobDetailData['term'] = jobDetailRow.term
+    jobDetailData['status'] = jobDetailRow.status
+    jobDetailData['subject'] = jobDetailRow.subject
+    jobDetailData['min_pay'] = jobDetailRow.min_pay
+    jobDetailData['max_pay'] = jobDetailRow.max_pay
+    jobDetailData['start_date'] = jobDetailRow.start_date
+    jobDetailData['classes'] = jobDetailRow.classes
+    jobDetailData['timings'] = jobDetailRow.timings
+    jobDetailData['description'] = jobDetailRow.description
+    jobDetailData['language'] = jobDetailRow.language
+    jobDetailData['stay'] = jobDetailRow.stay
+    jobDetailData['fooding'] = jobDetailRow.fooding
+    jobDetailData['num_of_openings'] = jobDetailRow.num_of_openings
+    return jsonify({'details':jobDetailData})
+    #     return render_template('jobDetail.html', title='Job Detail', 
+    #         schoolProfileRow=schoolProfileRow,addressRow=addressRow,jobDetailRow=jobDetailRow,applied=applied,user_type_val=str(current_user.user_type))
+          
     
 @job_post.route('/sendJobApplication',methods=['POST','GET'])
 @login_required
@@ -287,6 +455,114 @@ def jobApplications():
     
     return render_template('jobApplications.html', classSecCheckVal=classSecCheck(),title='Job Applications',jobApplications=jobApplications, jobApplicationsHired=jobApplicationsHired,jobApplicationsShortlisted= jobApplicationsShortlisted, jobApplicationsRejected = jobApplicationsRejected )
 
+
+@job_post.route('/jobApplicationsAPI',methods=['GET','POST'])  # this page shows all the applications received by the job poster for any specifc job post
+def jobApplicationsAPI():
+    print('inside jobApplicationsAPI')
+    data = request.headers.get('Authorization')
+    print(data)
+    decode  = jwt.decode(data,'you-will-never-guess')
+    print(decode['user'])
+    teacher=User.query.filter_by(email=decode['user']).first()
+    jobidDet=request.args.get('job_id')
+    print(jobidDet)
+    job_id = ''
+    if jobidDet:
+        job_id = jobidDet
+    else:
+        jobDet = JobApplication.query.filter_by(school_id=teacher.school_id).first()
+        if jobDet:
+            job_id = jobDet.job_id
+        else:
+            job_id = 3
+    #jobApplications = JobApplication.query.filter_by(school_id=teacher.school_id).order_by(JobApplication.applied_on.desc()).all()
+    #pending descision
+    jobAppQuery = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id,t1.job_id, "
+    jobAppQuery=jobAppQuery+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQuery=jobAppQuery+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQuery=jobAppQuery+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Applied' order by applied_on desc"
+    jobApplications = db.session.execute(text(jobAppQuery)).fetchall()
+
+    #hired descision
+    jobAppQueryHired = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+    jobAppQueryHired=jobAppQueryHired+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQueryHired=jobAppQueryHired+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQueryHired=jobAppQueryHired+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Hired' order by applied_on desc"
+    jobApplicationsHired = db.session.execute(text(jobAppQueryHired)).fetchall()
+
+    #shortlist descision
+    jobAppQueryShortlisted = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+    jobAppQueryShortlisted=jobAppQueryShortlisted+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQueryShortlisted=jobAppQueryShortlisted+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQueryShortlisted=jobAppQueryShortlisted+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Shortlisted' order by applied_on desc"
+    jobApplicationsShortlisted = db.session.execute(text(jobAppQueryShortlisted)).fetchall()
+
+    #rejected descision
+    jobAppQueryRejected = "select t1.applied_on, t2.first_name, t2.last_name, t2.username,t1.applier_user_id, t1.job_id, "
+    jobAppQueryRejected=jobAppQueryRejected+"t2.city, t1.available_from, t1.available_till, t2.education, t2.experience from "
+    jobAppQueryRejected=jobAppQueryRejected+"job_application t1 inner join public.user t2 on t1.applier_user_id=t2.id inner join job_detail t3 on "
+    jobAppQueryRejected=jobAppQueryRejected+" t3.job_id=t1.job_id and t3.school_id='"+str(teacher.school_id)+"' and t1.job_id='"+str(job_id)+"' and t1.status='Rejected' order by applied_on desc"
+    jobApplicationsRejected = db.session.execute(text(jobAppQueryRejected)).fetchall()
+    
+    pendingDecision = []
+    for row in jobApplications:
+        pendingJob = {}
+        pendingJob['first_name'] = row.first_name
+        pendingJob['last_name'] = row.last_name
+        pendingJob['applied_on'] = row.applied_on
+        pendingJob['city'] = row.city
+        pendingJob['available_from'] = row.available_from
+        pendingJob['available_till'] = row.available_till
+        pendingJob['education'] = row.education
+        pendingJob['experience'] = row.experience
+        pendingJob['applier_user_id'] = row.applier_user_id
+        pendingJob['job_id'] = row.job_id
+        pendingDecision.append(pendingJob)
+    hiredDecision = []
+    for row in jobApplicationsHired:
+        hiredApplication = {}
+        hiredApplication['first_name'] = row.first_name
+        hiredApplication['last_name'] = row.last_name
+        hiredApplication['applied_on'] = row.applied_on
+        hiredApplication['city'] = row.city
+        hiredApplication['available_from'] = row.available_from
+        hiredApplication['available_till'] = row.available_till
+        hiredApplication['education'] = row.education
+        hiredApplication['experience'] = row.experience
+        hiredApplication['applier_user_id'] = row.applier_user_id
+        hiredApplication['job_id'] = row.job_id
+        hiredDecision.append(hiredApplication)
+    shortListedDecision = []
+    for row in jobApplicationsShortlisted:
+        shortlistedApplication = {}
+        shortlistedApplication['first_name'] = row.first_name
+        shortlistedApplication['last_name'] = row.last_name
+        shortlistedApplication['applied_on'] = row.applied_on
+        shortlistedApplication['city'] = row.city
+        shortlistedApplication['available_from'] = row.available_from
+        shortlistedApplication['available_till'] = row.available_till
+        shortlistedApplication['education'] = row.education
+        shortlistedApplication['experience'] = row.experience
+        shortlistedApplication['applier_user_id'] = row.applier_user_id
+        shortlistedApplication['job_id'] = row.job_id 
+        shortListedDecision.append(shortlistedApplication)
+    rejectedDicision = []
+    for row in jobApplicationsRejected:
+        rejectedApplications = {}
+        rejectedApplications['first_name'] = row.first_name
+        rejectedApplications['last_name'] = row.last_name
+        rejectedApplications['applied_on'] = row.applied_on
+        rejectedApplications['city'] = row.city
+        rejectedApplications['available_from'] = row.available_from
+        rejectedApplications['available_till'] = row.available_till
+        rejectedApplications['education'] = row.education
+        rejectedApplications['experience'] = row.experience
+        rejectedApplications['applier_user_id'] = row.applier_user_id
+        rejectedApplications['job_id'] = row.job_id  
+        rejectedDicision.append(rejectedApplications)
+    return jsonify({'pendingJobs':pendingDecision,'hiredJobs':hiredDecision,'shortlistedJobs':shortListedDecision,'rejectedJobs':rejectedDicision})
+
+
 @job_post.route('/jobPosts')
 @login_required
 def jobPosts():
@@ -362,4 +638,3 @@ def submitPost():
     }]
     return render_template(
         "submitPost.html", title='Submit Post', form=form, posts=posts)
-        
