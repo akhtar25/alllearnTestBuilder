@@ -8,13 +8,14 @@ from flask_login import LoginManager, current_user, login_user, logout_user, log
 from datetime import datetime
 from flask import g, jsonify
 from sqlalchemy import distinct, text, update
+from flask_cors import CORS
 import pandas as pd
 import plotly
 import json
 
 
 dashboard = Blueprint('dashboard',__name__)
-
+CORS(dashboard)
 
 @dashboard.route('/',methods=["GET","POST"])
 @dashboard.route('/index')
@@ -137,7 +138,7 @@ def index():
         # Convert dataframe to a list
         data = []
         #print(type(leaderBoardData))
-        column_names = ["a", "b", "c"]
+        column_names = ["a", "b", "c"] 
         datafr = pd.DataFrame(columns = column_names)
         if type(leaderBoardData)==type(datafr):
             #print('if data is not empty')
@@ -219,6 +220,29 @@ def index():
         moduleDetRow = db.session.execute(query).fetchall()
         return render_template('dashboard.html',form=form,title='Home Page',school_id=teacher.school_id, jobPosts=jobPosts,
             graphJSON=graphJSON, classSecCheckVal=classSecCheckVal,topicToCoverDetails = topicToCoverDetails, EventDetailRows = EventDetailRows, topStudentsRows = data,teacherCount=teacherCount,studentCount=studentCount,testCount=testCount,lastWeekTestCount=lastWeekTestCount)
+
+
+@dashboard.route('/applicationTrackingAPI',methods=['GET','POST'])
+def applicationTrackingAPI():
+    data = request.headers.get('Authorization')
+    print(data)
+    decode  = jwt.decode(data,'you-will-never-guess')
+    print(decode['user'])
+    user = User.query.filter_by(email=decode['user']).first()
+    jobPosts = JobDetail.query.filter_by(school_id=user.school_id).order_by(JobDetail.posted_on.desc()).all()
+    jobPostDataList = []
+    for jobPostRow in jobPosts:
+        jobPost = {}
+        jobPost['posted_on'] = jobPostRow.posted_on
+        jobPost['subject'] = jobPostRow.subject
+        jobPost['classes'] = jobPostRow.classes
+        jobPost['category'] = jobPostRow.category
+        jobPost['status'] = jobPostRow.status
+        jobPost['term'] = jobPostRow.term
+        jobPost['school_id'] = jobPostRow.school_id
+        jobPost['job_id'] = jobPostRow.job_id
+        jobPostDataList.append(jobPost)
+    return jsonify({'jobTracking':jobPostDataList})
 
 @dashboard.route('/performanceChart',methods=['GET','POST'])
 def performanceChart():
