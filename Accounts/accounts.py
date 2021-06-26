@@ -106,6 +106,7 @@ def registerAPI():
         return jsonify({'message':"Mail Id already exist",'status':'error'})
         # return jsonify({'message':"Weak password: password length should be greater then 7",'status':'error'})
     try:
+        print(userType)
         if str(userType) == "Teaching Applicant":
             experience=request.args.get('experience')
             resume = request.args.get("resume")
