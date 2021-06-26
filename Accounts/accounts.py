@@ -91,30 +91,41 @@ def registerAPI():
     first_name=request.args.get('first_name')
     last_name=request.args.get('last_name')
     email=request.args.get('email')
-    password=request.args.get('password')
-    reset_password = request.args.get('confirm_password')
+    userType=request.args.get('userType')
+    # reset_password = request.args.get('confirm_password')
     phone=request.args.get('phone')
     print(first_name)
     print(last_name)
     print(email)
-    print(password)
-    print(reset_password)
+    # print(password)
+    # print(reset_password)
     print(phone)
-    # if form.validate_on_submit():
-    #     print('Validated form submit')
-    # if check(email)=='N':
-    #     return "Invalid Email",401
     checkMail = User.query.filter_by(email=email).first()
     if checkMail:
         print(checkMail)
         return jsonify({'message':"Mail Id already exist",'status':'error'})
         # return jsonify({'message':"Weak password: password length should be greater then 7",'status':'error'})
     try:
-        user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
-        first_name = first_name,school_id=1,last_name= last_name)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+        if userType == "Teaching Applicant":
+            experience=request.args.get('experience')
+            resume = request.args.get("resume")
+            role = request.args.get("role")
+            schoolName = request.args.get("schoolName")
+            startDate = request.args.get("startDate")
+            endDate = request.args.get("endDate")
+            profilePicture = request.args.get("profilePicture")
+            print(experience)
+            print(resume)
+            print(role)
+            print(schoolName)
+            print(startDate)
+            print(endDate)
+            print(profilePicture)
+            user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
+            first_name = first_name,school_id=1,last_name= last_name)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
     except:
         return "Invalid data",401
     checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
