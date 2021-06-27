@@ -92,7 +92,8 @@ def schoolListAPI():
     schoolList = []
     for row in schoolDataList:
         schoolDataObject = {}
-        schoolDataObject[row.school_id] = row.school_name
+        schoolDataObject["schoolId"] = row.school_id
+        schoolDataObject["schoolName"] = row.school_name
         schoolList.append(schoolDataObject)
     print(schoolList)
     return jsonify({"schoolList":schoolList})
