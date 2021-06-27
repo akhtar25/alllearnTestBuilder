@@ -222,8 +222,8 @@ def s3api():
     ExpiresIn = 3600
     )
    
-    
-    return jsonify({
+    print('https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name))
+    return json.dumps({
         'data': presigned_post,
         'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
