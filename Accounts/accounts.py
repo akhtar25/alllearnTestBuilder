@@ -170,40 +170,64 @@ def registerAPI():
     return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
     
 
-@accounts.route('/sign-s3API',methods=['GET','POST'])
-def sign_s3():
-    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    #S3_BUCKET = "alllearndatabucketv2"
-    file_name = request.args.get('fileName')
-    print(file_name)    
-    file_type = request.args.get('fileType')
-    print(file_type)
-    #if file_type=='image/png' or file_type=='image/jpeg':
-    #   file_type_folder='images'
-    #s3 = boto3.client('s3')
-    s3 = boto3.client('s3', region_name='ap-south-1')
-    folder_name=request.args.get('folder')
-    print('FolderName:'+folder_name)
-    # folder_url=signs3Folder(folder_name,file_type)
-    folder_url = folder_name
-    print('folder_url:'+str(folder_url))
-    print(s3)
+# @accounts.route('/sign-s3API',methods=['GET','POST'])
+# def sign_s3():
+#     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+#     #S3_BUCKET = "alllearndatabucketv2"
+#     file_name = request.args.get('fileName')
+#     print(file_name)    
+#     file_type = request.args.get('fileType')
+#     print(file_type)
+#     s3 = boto3.client('s3', region_name='ap-south-1')
+#     folder_name=request.args.get('folder')
+#     print('FolderName:'+folder_name)
+#     folder_url = folder_name
+#     print('folder_url:'+str(folder_url))
+#     print(s3)
 
+#     presigned_post = s3.generate_presigned_post(
+#       Bucket = S3_BUCKET,
+#       Key = str(folder_url)+"/"+str(file_name),
+#       Fields = {"acl": "public-read", "Content-Type": file_type},
+#       Conditions = [
+#         {"acl": "public-read"},
+#         {"Content-Type": file_type}
+#       ],
+#       ExpiresIn = 360000
+#     )
+   
+#     return jsonify({
+#       'data': presigned_post,
+#       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
+#     })
+
+@app.route('/sign-s3API',methods=['GET','POST'])
+def s3api():
+    print('inside s3 api')
+    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+    folder_name=request.args.get('folder')
+    print('jsonData:')
+    folder_url = folder_name
+    S3_BUCKET = "alllearndatabucketv2"
+    file_name = request.args.get('fileName')
+    print('fileName:'+str(file_name))
+    s3 = boto3.client('s3', region_name='ap-south-1')
     presigned_post = s3.generate_presigned_post(
-      Bucket = S3_BUCKET,
-      Key = str(folder_url)+"/"+str(file_name),
-      Fields = {"acl": "public-read", "Content-Type": file_type},
-      Conditions = [
-        {"acl": "public-read"},
-        {"Content-Type": file_type}
-      ],
-      ExpiresIn = 3600
+    Bucket = S3_BUCKET,
+    Key = str(folder_url)+"/"+str(file_name),
+    Fields = {"acl": "public-read"},
+    Conditions = [
+    {"acl": "public-read"}
+    ],
+    ExpiresIn = 3600
     )
    
+    
     return jsonify({
-      'data': presigned_post,
-      'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
+        'data': presigned_post,
+        'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
+
 
 @accounts.route('/login', methods=['GET', 'POST'])
 def login():
