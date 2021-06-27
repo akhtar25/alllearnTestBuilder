@@ -200,7 +200,7 @@ def sign_s3():
       ExpiresIn = 3600
     )
    
-    return json.dumps({
+    return jsonify({
       'data': presigned_post,
       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
     })
