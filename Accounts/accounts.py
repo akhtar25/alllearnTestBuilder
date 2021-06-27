@@ -78,15 +78,20 @@ def userAPI():
         userData['name'] = str(user.first_name)+' '+str(user.last_name)
         userData['school_picture'] = schoolData.school_picture
         userData['username'] = user.username
-        schoolDataList = SchoolProfile.query.with_entities(SchoolProfile.school_id,SchoolProfile.school_name).distinct().all()
-        schoolDataObject = {}
-        for row in schoolDataList:
-            schoolDataObject[row.school_id] = row.school_name
-        return jsonify({'decode':userData,"schoolList":schoolDataObject})
+        return jsonify({'decode':userData})
     else:
         print('if token is empty')
         print(data)
         return jsonify({'decode':{}})
+
+@accounts.route("/schoolListAPI",methods=["GET","POST"])
+def schoolListAPI():
+    print('inside schoolListAPI')
+    schoolDataList = SchoolProfile.query.with_entities(SchoolProfile.school_id,SchoolProfile.school_name).distinct().all()
+    schoolDataObject = {}
+    for row in schoolDataList:
+        schoolDataObject[row.school_id] = row.school_name
+    return jsonify({"schoolList":schoolDataObject})
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
