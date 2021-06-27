@@ -164,16 +164,29 @@ def registerAPI():
             schoolName = request.args.get("schoolName")
             schoolAddress = request.args.get("schoolAddress")
             city = request.args.get("city")
-            board = request.args.get("board")
-            print(schoolId)
+            boardId = request.args.get("boardId")
+            schoolImage = request.args.get("schoolImage")
+            print(schoolName)
             print(schoolAddress)
             print(city)
-            print(board)
+            print(boardId)
             user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
             first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now())
             db.session.add(user)
-            newSchool = SchoolProfile()
-            db.session.commit()           
+            address = Address(address_1=schoolAddress,city=city)
+            db.session.add(address)
+            db.session.commit()
+            newSchool = SchoolProfile(board_id=boardId,school_name=schoolName,registered_date=datetime.now(),address_id=address.address_id,school_picture=schoolImage,is_verified='N',last_modified_date=datetime.now())
+            db.session.add(newSchool)
+            db.session.commit()
+            welcome_email(str(email), full_name)
+            print("Abdullah--")
+            token = jwt.encode({
+                    'user':email,
+                    'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+            },
+            'you-will-never-guess')    
+            return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
     except:
         return "Invalid data",401
     # checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
