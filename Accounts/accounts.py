@@ -89,9 +89,11 @@ def schoolListAPI():
     print('inside schoolListAPI')
     schoolDataList = SchoolProfile.query.with_entities(SchoolProfile.school_id,SchoolProfile.school_name).distinct().all()
     schoolDataObject = {}
+    schoolList = []
     for row in schoolDataList:
         schoolDataObject[row.school_id] = row.school_name
-    return jsonify({"schoolList":schoolDataObject})
+        schoolList.append(schoolDataObject)
+    return jsonify({"schoolList":schoolList})
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
