@@ -181,6 +181,7 @@ def registerAPI():
         
         user.school_id = newSchool.school_id
         db.session.commit()
+        full_name = str(first_name)+ ' '+str(last_name)
         welcome_email(str(email), full_name)
         print("Abdullah--")
         token = jwt.encode({
