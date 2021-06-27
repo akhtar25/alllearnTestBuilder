@@ -174,9 +174,9 @@ def registerAPI():
 def sign_s3():
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
     #S3_BUCKET = "alllearndatabucketv2"
-    file_name = request.args.get('file-name')
+    file_name = request.args.get('fileName')
     print(file_name)    
-    file_type = request.args.get('file-type')
+    file_type = request.args.get('fileType')
     print(file_type)
     #if file_type=='image/png' or file_type=='image/jpeg':
     #   file_type_folder='images'
