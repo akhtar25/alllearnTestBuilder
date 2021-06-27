@@ -147,7 +147,7 @@ def registerAPI():
         first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.datetime.utcnow(),experience=experience,resume=resume)
         db.session.add(user)
         db.session.commit()
-        jobApplication = JobApplication(applied_on=datetime.datetime.utcnow(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
+        jobApplication = JobApplication(applied_on=datetime.datetime.utcnow(),school_id=schoolId,available_from=startDate,available_till=endDate,status="Applied",applier_user_id=user.id)
         db.session.add(jobApplication)
         db.session.commit()
         full_name = str(first_name)+ ' '+str(last_name)
