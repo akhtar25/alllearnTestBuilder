@@ -201,7 +201,7 @@ def registerAPI():
 #       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
 #     })
 
-@app.route('/sign-s3API',methods=['GET','POST'])
+@accounts.route('/sign-s3API',methods=['GET','POST'])
 def s3api():
     print('inside s3 api')
     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
