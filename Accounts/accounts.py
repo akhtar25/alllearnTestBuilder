@@ -126,69 +126,70 @@ def registerAPI():
         print(checkMail)
         return jsonify({'message':"Mail Id already exist",'status':'error'})
         # return jsonify({'message':"Weak password: password length should be greater then 7",'status':'error'})
-    try:
-        print(userType)
-        if str(userType) == "Teaching Applicant":
-            experience=request.args.get('experience')
-            resume = request.args.get("resume")
-            role = request.args.get("role")
-            schoolId = request.args.get("schoolId")
-            startDate = request.args.get("startDate")
-            endDate = request.args.get("endDate")
-            profilePicture = request.args.get("profilePicture")
-            print(experience)
-            print(resume)
-            print(role)
-            print(schoolId)
-            print(startDate)
-            print(endDate)
-            print(profilePicture)
-            user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
-            first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now(),experience=experience,resume=resume)
-            db.session.add(user)
-            db.session.commit()
-            jobApplication = JobApplication(applied_on=datetime.now(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
-            db.session.add(jobApplication)
-            db.session.commit()
-            full_name = str(first_name)+ ' '+str(last_name)
+    # try:
+    print(userType)
+    if str(userType) == "Teaching Applicant":
+        experience=request.args.get('experience')
+        resume = request.args.get("resume")
+        role = request.args.get("role")
+        schoolId = request.args.get("schoolId")
+        startDate = request.args.get("startDate")
+        endDate = request.args.get("endDate")
+        profilePicture = request.args.get("profilePicture")
+        print(experience)
+        print(resume)
+        print(role)
+        print(schoolId)
+        print(startDate)
+        print(endDate)
+        print(profilePicture)
+        user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
+        first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now(),experience=experience,resume=resume)
+        db.session.add(user)
+        db.session.commit()
+        jobApplication = JobApplication(applied_on=datetime.now(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
+        db.session.add(jobApplication)
+        db.session.commit()
+        full_name = str(first_name)+ ' '+str(last_name)
     #     flash('Congratulations '+full_name+', you are now a registered user!')
-            welcome_email(str(email), full_name)
-            print("Abdullah--")
-            token = jwt.encode({
+        welcome_email(str(email), full_name)
+        print("Abdullah--")
+        token = jwt.encode({
                     'user':email,
                     'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
             },
             'you-will-never-guess')    
-            return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
-        if str(userType) == "Employer":
-            schoolName = request.args.get("schoolName")
-            schoolAddress = request.args.get("schoolAddress")
-            city = request.args.get("city")
-            boardId = request.args.get("boardId")
-            schoolImage = request.args.get("schoolImage")
-            print(schoolName)
-            print(schoolAddress)
-            print(city)
-            print(boardId)
-            user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
-            first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now())
-            db.session.add(user)
-            address = Address(address_1=schoolAddress,city=city)
-            db.session.add(address)
-            db.session.commit()
-            newSchool = SchoolProfile(board_id=boardId,school_name=schoolName,registered_date=datetime.now(),address_id=address.address_id,school_picture=schoolImage,is_verified='N',last_modified_date=datetime.now())
-            db.session.add(newSchool)
-            db.session.commit()
-            welcome_email(str(email), full_name)
-            print("Abdullah--")
-            token = jwt.encode({
-                    'user':email,
+        return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
+    if str(userType) == "Employer":
+        schoolName = request.args.get("schoolName")
+        schoolAddress = request.args.get("schoolAddress")
+        city = request.args.get("city")
+        boardId = request.args.get("boardId")
+        schoolImage = request.args.get("schoolImage")
+        print(schoolName)
+        print(schoolAddress)
+        print(city)
+        print(boardId)
+        user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
+        first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now())
+        db.session.add(user)
+        address = Address(address_1=schoolAddress,city=city)
+        db.session.add(address)
+        db.session.commit()
+        newSchool = SchoolProfile(board_id=boardId,school_name=schoolName,registered_date=datetime.now(),address_id=address.address_id,school_picture=schoolImage,is_verified='N',last_modified_date=datetime.now())
+        db.session.add(newSchool)
+        db.session.commit()
+        welcome_email(str(email), full_name)
+        print("Abdullah--")
+        token = jwt.encode({
+                'user':email,
                     'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
             },
             'you-will-never-guess')    
-            return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
-    except:
-        return "Invalid data",401
+        return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
+    # except:
+        # return "Invalid data",401
+
     # checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
     # checkStudentProf = StudentProfile.query.filter_by(email=email).first()
 
