@@ -144,10 +144,10 @@ def registerAPI():
         print(endDate)
         print(profilePicture)
         user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
-        first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now(),experience=experience,resume=resume)
+        first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.datetime.utcnow(),experience=experience,resume=resume)
         db.session.add(user)
         db.session.commit()
-        jobApplication = JobApplication(applied_on=datetime.now(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
+        jobApplication = JobApplication(applied_on=datetime.datetime.utcnow(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
         db.session.add(jobApplication)
         db.session.commit()
         full_name = str(first_name)+ ' '+str(last_name)
@@ -171,12 +171,12 @@ def registerAPI():
         print(city)
         print(boardId)
         user = User(username=email, email=email, user_type='161', access_status='145', phone=phone,
-        first_name = first_name,last_name= last_name,last_modified_date=datetime.now())
+        first_name = first_name,last_name= last_name,last_modified_date=datetime.datetime.utcnow())
         db.session.add(user)
         address = Address(address_1=schoolAddress,city=city)
         db.session.add(address)
         db.session.commit()
-        newSchool = SchoolProfile(board_id=boardId,school_name=schoolName,registered_date=datetime.now(),address_id=address.address_id,school_picture=schoolImage,is_verified='N',last_modified_date=datetime.now())
+        newSchool = SchoolProfile(board_id=boardId,school_name=schoolName,registered_date=datetime.datetime.utcnow(),address_id=address.address_id,school_picture=schoolImage,is_verified='N',last_modified_date=datetime.datetime.utcnow())
         db.session.add(newSchool)
         
         user.school_id = newSchool.school_id
