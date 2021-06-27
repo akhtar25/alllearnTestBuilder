@@ -88,15 +88,22 @@ def userAPI():
 def schoolListAPI():
     print('inside schoolListAPI')
     schoolDataList = SchoolProfile.query.with_entities(SchoolProfile.school_id,SchoolProfile.school_name).distinct().all()
-    
+    boardDataList = MessageDetails.query.filter_by(category="Board").all()
     schoolList = []
+    boardList = []
     for row in schoolDataList:
         schoolDataObject = {}
         schoolDataObject["schoolId"] = row.school_id
         schoolDataObject["schoolName"] = row.school_name
         schoolList.append(schoolDataObject)
+    for row in boardDataList:
+        boardDataObject = {}
+        boardDataObject["boardId"] = row.msg_id
+        boardDataObject["board"] = row.description
+        boardList.append(boardDataObject)
     print(schoolList)
-    return jsonify({"schoolList":schoolList})
+    print(boardList)
+    return jsonify({"schoolList":schoolList,"boardList":boardList})
 
 
 @accounts.route('/registerAPI',methods=['GET','POST'])
@@ -143,32 +150,44 @@ def registerAPI():
             jobApplication = JobApplication(applied_on=datetime.now(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
             db.session.add(jobApplication)
             db.session.commit()
+            full_name = str(first_name)+ ' '+str(last_name)
+    #     flash('Congratulations '+full_name+', you are now a registered user!')
+            welcome_email(str(email), full_name)
+            print("Abdullah--")
+            token = jwt.encode({
+                    'user':email,
+                    'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
+            },
+            'you-will-never-guess')    
+            return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
+        if str(userType) == "Employer":
+            schoolName = request.args.get("schoolName")
+            schoolAddress = request.args.get("schoolAddress")
+            city = request.args.get("city")
+            board = request.args.get("board")
+            print(schoolId)
+            print(schoolAddress)
+            print(city)
+            print(board)
+            user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
+            first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now())
+            db.session.add(user)
+            newSchool = SchoolProfile()
+            db.session.commit()           
     except:
         return "Invalid data",401
-    checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
-    checkStudentProf = StudentProfile.query.filter_by(email=email).first()
+    # checkTeacherProf = TeacherProfile.query.filter_by(email=email).first()
+    # checkStudentProf = StudentProfile.query.filter_by(email=email).first()
 
-    if checkTeacherProf!=None:
-        checkTeacherProf.user_id=user.id
-        db.session.commit()        
-    elif checkStudentProf!=None:
-        checkStudentProf.user_id=user.id
-        db.session.commit()
-    else:
-        pass
+    # if checkTeacherProf!=None:
+    #     checkTeacherProf.user_id=user.id
+    #     db.session.commit()        
+    # elif checkStudentProf!=None:
+    #     checkStudentProf.user_id=user.id
+    #     db.session.commit()
+    # else:
+    #     pass
 
-    full_name = str(first_name)+ ' '+str(last_name)
-    #     flash('Congratulations '+full_name+', you are now a registered user!')
-    welcome_email(str(email), full_name)
-    print("Abdullah--")
-    
-    #     return redirect(url_for('accounts.login'))
-    token = jwt.encode({
-        'user':email,
-        'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
-    },
-    'you-will-never-guess')    
-    return jsonify({'message':'Congratulations '+str(first_name)+ ' '+str(last_name)+', you are now a registered user!','status':'success'})
     
 
 # @accounts.route('/sign-s3API',methods=['GET','POST'])
