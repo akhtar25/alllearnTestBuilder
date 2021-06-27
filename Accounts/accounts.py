@@ -78,7 +78,11 @@ def userAPI():
         userData['name'] = str(user.first_name)+' '+str(user.last_name)
         userData['school_picture'] = schoolData.school_picture
         userData['username'] = user.username
-        return jsonify({'decode':userData})
+        schoolDataList = SchoolProfile.query.with_entities(SchoolProfile.school_id,SchoolProfile.school_name).distinct().all()
+        schoolDataObject = {}
+        for row in schoolDataList:
+            schoolDataObject[row.school_id] = row.school_name
+        return jsonify({'decode':userData,"schoolList":schoolDataObject})
     else:
         print('if token is empty')
         print(data)
@@ -124,7 +128,6 @@ def registerAPI():
             print(profilePicture)
             user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
             first_name = first_name,school_id=1,last_name= last_name)
-            user.set_password(password)
             db.session.add(user)
             db.session.commit()
     except:
