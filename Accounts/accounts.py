@@ -88,9 +88,10 @@ def userAPI():
 def schoolListAPI():
     print('inside schoolListAPI')
     schoolDataList = SchoolProfile.query.with_entities(SchoolProfile.school_id,SchoolProfile.school_name).distinct().all()
-    schoolDataObject = {}
+    
     schoolList = []
     for row in schoolDataList:
+        schoolDataObject = {}
         schoolDataObject[row.school_id] = row.school_name
         schoolList.append(schoolDataObject)
     return jsonify({"schoolList":schoolList})
