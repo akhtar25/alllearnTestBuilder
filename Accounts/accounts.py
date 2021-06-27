@@ -10,8 +10,6 @@ from flask_cors import CORS
 import datetime
 import jwt
 import os
-import json
-import boto3
 
 
 accounts = Blueprint('accounts',__name__)
@@ -127,20 +125,23 @@ def registerAPI():
             experience=request.args.get('experience')
             resume = request.args.get("resume")
             role = request.args.get("role")
-            schoolName = request.args.get("schoolName")
+            schoolId = request.args.get("schoolId")
             startDate = request.args.get("startDate")
             endDate = request.args.get("endDate")
             profilePicture = request.args.get("profilePicture")
             print(experience)
             print(resume)
             print(role)
-            print(schoolName)
+            print(schoolId)
             print(startDate)
             print(endDate)
             print(profilePicture)
-            user = User(username=email, email=email, user_type='140', access_status='145', phone=phone,
-            first_name = first_name,school_id=1,last_name= last_name)
+            user = User(username=email, email=email, user_type='161',user_avatar=profilePicture, access_status='145', phone=phone,
+            first_name = first_name,last_name= last_name,school_id=schoolId,last_modified_date=datetime.now(),experience=experience,resume=resume)
             db.session.add(user)
+            db.session.commit()
+            jobApplication = JobApplication(applied_on=datetime.now(),school_id=schoolId,available_from=datetime(startDate),available_till=datetime(endDate),status="Applied",applier_user_id=user.id)
+            db.session.add(jobApplication)
             db.session.commit()
     except:
         return "Invalid data",401
@@ -201,32 +202,32 @@ def registerAPI():
 #       'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
 #     })
 
-@accounts.route('/sign-s3API',methods=['GET','POST'])
-def s3api():
-    print('inside s3 api')
-    S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
-    folder_name=request.args.get('folder')
-    print('jsonData:')
-    folder_url = folder_name
-    S3_BUCKET = "alllearndatabucketv2"
-    file_name = request.args.get('fileName')
-    print('fileName:'+str(file_name))
-    s3 = boto3.client('s3', region_name='ap-south-1')
-    presigned_post = s3.generate_presigned_post(
-    Bucket = S3_BUCKET,
-    Key = str(folder_url)+"/"+str(file_name),
-    Fields = {"acl": "public-read"},
-    Conditions = [
-    {"acl": "public-read"}
-    ],
-    ExpiresIn = 3600
-    )
+# @accounts.route('/sign-s3API',methods=['GET','POST'])
+# def s3api():
+#     print('inside s3 api')
+#     S3_BUCKET = os.environ.get('S3_BUCKET_NAME')
+#     folder_name=request.args.get('folder')
+#     print('jsonData:')
+#     folder_url = folder_name
+#     S3_BUCKET = "alllearndatabucketv2"
+#     file_name = request.args.get('fileName')
+#     print('fileName:'+str(file_name))
+#     s3 = boto3.client('s3', region_name='ap-south-1')
+#     presigned_post = s3.generate_presigned_post(
+#     Bucket = S3_BUCKET,
+#     Key = str(folder_url)+"/"+str(file_name),
+#     Fields = {"acl": "public-read"},
+#     Conditions = [
+#     {"acl": "public-read"}
+#     ],
+#     ExpiresIn = 3600
+#     )
    
-    print('https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name))
-    return json.dumps({
-        'data': presigned_post,
-        'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
-    })
+#     print('https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name))
+#     return json.dumps({
+#         'data': presigned_post,
+#         'url': 'https://%s.s3.amazonaws.com/%s/%s' % (S3_BUCKET,folder_url,file_name)
+#     })
 
 
 @accounts.route('/login', methods=['GET', 'POST'])
