@@ -178,7 +178,7 @@ def registerAPI():
         db.session.commit()
         newSchool = SchoolProfile(board_id=boardId,school_name=schoolName,registered_date=datetime.datetime.utcnow(),address_id=address.address_id,school_picture=schoolImage,is_verified='N',last_modified_date=datetime.datetime.utcnow())
         db.session.add(newSchool)
-        
+        db.session.commit()
         user.school_id = newSchool.school_id
         db.session.commit()
         full_name = str(first_name)+ ' '+str(last_name)
